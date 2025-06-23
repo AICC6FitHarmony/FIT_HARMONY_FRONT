@@ -1,3 +1,4 @@
+
 @import "tailwindcss";
 
 .header-wrapper, .footer-wrapper{
@@ -31,9 +32,9 @@
 .nav_wrap ul li {
   width:25%;
   height:100%;
-  border:1px solid #fff;
-  background-color:#00D563;
-  color:#fff;
+  border:1px solid #000000;
+  
+  color:#000000;
 }
 
 button.cancle{
