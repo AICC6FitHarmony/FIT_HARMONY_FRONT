@@ -1,20 +1,36 @@
-import React from 'react'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { CalendarDays } from 'lucide-react';
 
 const NavBar = () => {
   return (
-    <div>
+    <div className=" box-border shadow-2xl shadow-green-500">
       <div className="a">
-            <div className="nav_wrap">
-                <ul>
-                    <li>11111</li>
-                    <li>22222</li>
-                    <li>3333</li>
-                    <li>4444</li>
-                </ul>
-            </div>
+        <div className="nav_wrap">
+          <ul>
+            <li>
+              <Link to="/dashboard">1</Link>
+            </li>
+            <li>
+              <Link to="/schedule">
+                <CalendarDays />
+                캘린더
+              </Link>
+            </li>
+            <li>
+              <Link to="/inbody">인바디</Link>
+            </li>
+            <li>
+              <Link to="/community">커뮤니티</Link>
+            </li>
+            <li>
+              <Link to="/trainer">강사 찾기</Link>
+            </li>
+          </ul>
         </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default NavBar
+export default NavBar;

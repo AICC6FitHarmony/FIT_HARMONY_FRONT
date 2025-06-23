@@ -1,11 +1,7 @@
-import React from 'react'
+import React from 'react';
 
 const Trainer = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
+  return <div>ㅇㅇㅇㅇㅇ</div>;
+};
 
-export default Trainer
+export default Trainer;
