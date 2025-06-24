@@ -33,3 +33,7 @@
     font-weight: bold;
     letter-spacing:5px;
 }
+
+.ai-prompt-textarea::placeholder{
+    text-align: center;
+}

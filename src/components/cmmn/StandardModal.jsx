@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import React, { Children } from 'react'
+import React from 'react'
 // title : 모달 제목 파라미터
 // contents : 모달 내용 파라미터 ▶ JSX 전달 [ex] const content = (<div>test</div>)
 // okEvent : 확인 버튼 이벤트 파라미터 (function) 
