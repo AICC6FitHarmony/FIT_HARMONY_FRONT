@@ -1,6 +1,90 @@
 
 @import "tailwindcss";
 
+
+* {
+  margin:0;
+  padding:0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width:100%;
+  font-family: sans-serif;
+  font-size:16px;
+}
+
+a {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+ul, ol{
+  list-style: none;
+}
+
+img {
+  width:100%;
+  display: block;
+}
+
+/* 버튼 공통 CSS */
+button {
+  cursor: pointer;
+}
+button.cancle{
+
+}
+button.ok{
+
+}
+button.disable{
+
+}
+
+/* input CSS */
+input {
+  outline: none;
+}
+
+input[type=text] {
+  font-size:1rem;
+}
+
+/* 체크 박스 관련 */
+input[type="checkbox"] {
+  /* 스타일 정해지면 주석 해제 */
+  /* display: none; */  
+}
+input[type="checkbox"] + label.checkbox {
+
+}
+input[type="checkbox"]:checked + label.checkbox {
+
+}
+
+/* 라디오 버튼 관련 */
+input[type="radio"] {
+  /* 스타일 정해지면 주석 해제 */
+  /* display: none; */  
+}
+input[type="radio"] + label.checkbox {
+
+}
+input[type="radio"]:checked + label.checkbox {
+
+}
+
+/* Textarea 공통 */
+textarea {
+  outline: none;
+  resize: none;
+  font-size:1rem;
+}
+
+
+
+
 .header-wrapper, .footer-wrapper{
   margin: auto;
   max-width: 1280px;
@@ -37,6 +121,7 @@
   color:#000000;
 }
 
+<<<<<<< HEAD
 button.cancle{
 
 }
@@ -47,3 +132,5 @@ button.ok{
 button.disable{
 
 }
+=======
+>>>>>>> 2c91c942a7b6a78455e864b92665c43365fb650c
