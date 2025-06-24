@@ -96,17 +96,35 @@ const Schedule = () => {
     const aiScheduleModalData = {
         title:"AI가 스케쥴 작성해드립니다!",
         okEvent:() => {
-          setIsShowAISchedulModal(false);
+          // AI 전달 이벤트 처리
+          sendRequestAiSchedule();
         }, 
-        size : {width:"50vw"},
         closeEvent: () => {
+          aiSchedulePrompt.current = "";
           setIsShowAISchedulModal(false);
+        },
+        size:{
+          height:"20vh"
         }
+
     }
 
     // AI 스케쥴 작성 모달 이벤트
     const aiScheduleModalOpen = () => {
         setIsShowAISchedulModal(true);
+    }
+
+    // AI 스케쥴 작성 요청(백엔드)
+    const sendRequestAiSchedule = async (e) => {
+        e.priventDefault(); 
+
+
+        console.log(aiSchedulePrompt);
+
+
+        aiSchedulePrompt.current = "";
+        setIsShowAISchedulModal(false);
+
     }
 
     // ============================================== AI 스케쥴 자동 작성 모달 관련 END ==========================================================
@@ -137,10 +155,12 @@ const Schedule = () => {
                   title={aiScheduleModalData.title} 
                   okEvent={aiScheduleModalData.okEvent} 
                   size={aiScheduleModalData.size} 
-                  closeEvent={aiScheduleModalData.closeEvent}>
-                    <div>
-
-                    </div>
+                  closeEvent={aiScheduleModalData.closeEvent}
+                  cancelEvent={aiScheduleModalData.closeEvent}>
+                    <form className='h-[200px]' onSubmit={sendRequestAiSchedule}>
+                      <h2 className='text-center font-bold text-2xl'>AI에게 당신의 목표를 알려주세요!</h2>
+                      <textarea className='w-full h-[150px] border mt-5' useRef={aiSchedulePrompt} placeholder='Ex) 다음주 월요일 부터 3개월 안에 지금 몸무게에서 5kg 빼고 싶어!'></textarea>                            
+                    </form>
                 </StandardModal>
               )
 
