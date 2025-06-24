@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import React, { Children } from 'react'
+import React from 'react'
 // title : 모달 제목 파라미터
 // contents : 모달 내용 파라미터 ▶ JSX 전달 [ex] const content = (<div>test</div>)
 // okEvent : 확인 버튼 이벤트 파라미터 (function) 
@@ -34,12 +34,12 @@ const StandardModal = ({title, okEvent, cancelEvent, size, closeEvent, children}
             </div>
 
             {/* 모달의 콘텐츠가 입력되는 wrapper */}
-            <div className="modal-contents-wrapper p-10">
+            <div className="modal-contents-wrapper pb-4 pt-4 pl-10 pr-10">
                 {children}
             </div>
 
 
-            <div className='modal-footer p-10 text-right'>
+            <div className='modal-footer pb-4 pt-4 pl-10 pr-10 text-right'>
                 {
                     // 확인 버튼 이벤트 있는 경우 확인 버튼 노출
                     okEvent && (
