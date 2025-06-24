@@ -1,4 +1,6 @@
-import React, { PureComponent } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchInbodyData } from "../../js/redux/slice/sliceInbody";
 import {
   Radar,
   RadarChart,
@@ -8,7 +10,7 @@ import {
   Legend,
 } from "recharts";
 
-const data = [
+const data1 = [
   {
     subject: "몸통",
     A: 98,
@@ -42,10 +44,40 @@ const data = [
 ];
 
 const Inbody = () => {
+  const dispatch = useDispatch();
+  const { inbodyData, loading, error } = useSelector((state) => state.inbody);
+  // 테스트용 userId (실제로는 인증된 사용자 ID를 사용해야 함)
+  const userId = "1";
+  useEffect(() => {
+    console.log("Inbody 컴포넌트 마운트됨");
+    console.log("사용자 ID:", userId);
+
+    // 컴포넌트 마운트 시 데이터 가져오기
+    const fetchData = async () => {
+      try {
+        await dispatch(fetchInbodyData(userId)).unwrap();
+      } catch (error) {
+        console.error("데이터 가져오기 실패:", error);
+      }
+    };
+    fetchData();
+  }, [dispatch, userId]);
+
+  // 데이터 로딩 상태 확인
+  console.log("Redux 상태:", { inbodyData, loading, error });
+
+  if (loading) {
+    return <div>데이터를 불러오는 중...</div>;
+  }
+
+  if (error) {
+    return <div>에러 발생: {error}</div>;
+  }
+
   return (
     <div>
       <h1>Inbody</h1>
-      <RadarChart outerRadius={90} width={730} height={250} data={data}>
+      <RadarChart outerRadius={90} width={730} height={250} data={data1}>
         <PolarGrid />
         <PolarAngleAxis dataKey="subject" />
         <PolarRadiusAxis angle={30} domain={[0, 150]} />
