@@ -29,12 +29,45 @@ img {
 /* 버튼 공통 CSS */
 button {
   cursor: pointer;
+  outline:1px solid #ddd;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
 }
-button.cancel {
+
+button.ok, button.cancel, button.disable {
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
 }
+
 button.ok {
+  background-color: #3498db;
+  color: white;
 }
+
+button.cancel {
+  background-color: #ff2d55;
+  color: white;
+}
+
+button.ok:hover, button.cancel:hover  {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* hover 시 조금 더 입체감 */
+  transform: translateY(-1px);
+}
+
+button.ok:active, button.cancel:active {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* 눌렀을 때 납작해짐 */
+  transform: translateY(1px);
+}
+
 button.disable {
+  transition:none;
+  background-color: #ddd;
+  color:#444;
 }
 
 /* input CSS */

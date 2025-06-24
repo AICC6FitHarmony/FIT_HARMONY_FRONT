@@ -1,16 +1,20 @@
 // Fullcalendar module 설치
 // npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/core @fullcalendar/interaction @fullcalendar/timegrid
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 // import about fullCalendar
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid'
+import { format } from 'date-fns';
 
-import '../../css/schedule.css'
+// import standard modal
 import StandardModal from '../cmmn/StandardModal';
+
+// schedule 페이지 css import
+import '../../css/schedule.css'
 
 const Schedule = () => {
 
@@ -37,25 +41,24 @@ const Schedule = () => {
       }
     ]);
 
+    // ============================================== 스케쥴 상세 모달 관련 START =================================================================
+    // 스케쥴 상세 모달 노출여부 useState
+    const [isShowScheduleDetailModal, setIsShowScheduleDetailModal] = useState(false); 
 
+    // 스케쥴 모달 노출 정보 세팅
+    const [scheduleModal, setScheduleModal] = useState(null); // 최초 페이지 진입시 모달이 동작하지 않을 조건을 주기 위하여  null 처리
 
-    const [isShowScheduleDetailModal, setIsShowScheduleDetailModal] = useState(false);
-    const dateCellEvent = (info) => {  // 일자 셀 클릭 이벤트
-      // alert(`클릭한 날짜: ${info.dateStr}`);  // 예: 2025-06-28
-      setIsShowScheduleDetailModal(true);
-      console.log(info);
-    }
-    const eventCellEvent = (info) => { // 일정 클릭 이벤트
-      // alert(`일정 제목: ${info.event.title}\n시작: ${info.event.start}`);
-      // console.log(info);
-      setIsShowScheduleDetailModal(true);
-    }
+    // useEffect로 scheduleModal가 변경됨을 감지
+    useEffect(() => {
+      if(scheduleModal){ // 최초 페이지 진입시 모달이 동작하지 않을 조건 처리
+        setIsShowScheduleDetailModal(true);
+      }
+    }, [scheduleModal])
 
-
-    const scheduleModalData = {
-        title:"스케쥴", 
+    // 스케쥴 모달 공통 데이터
+    const scheduleModalCommonData = {
         okEvent:() => {
-            setIsShowScheduleDetailModal(false);
+          setIsShowScheduleDetailModal(false);
         }, 
         size : {width:"50vw"},
         closeEvent: () => {
@@ -63,15 +66,58 @@ const Schedule = () => {
         }
     }
 
+    // 일자 셀 클릭 이벤트
+    const dateCellEvent = (info) => {  
+      // scheduleModal 정보를 useState로 변환 처리 ▶ 변환 처리가 완료되면 useEffect에서 감지하여 모달 오픈 이벤트 발생 시킴
+      setScheduleModal({
+        title:`${info.dateStr} 스케쥴`, 
+        ...scheduleModalCommonData
+      });
+    }
+
+    // 일정 클릭 이벤트
+    const eventCellEvent = (info) => { 
+      setScheduleModal({
+        title:`${format(info.event.start, 'yyyy-MM-dd')} 스케쥴`, 
+        ...scheduleModalCommonData
+      });
+    }
+    // ============================================== 스케쥴 상세 모달 관련 END =================================================================
+
+
+
+
+    // ============================================== AI 스케쥴 자동 작성 모달 관련 START ========================================================
+    // 스케쥴 상세 모달 노출여부 useState
+    const [isShowAISchedulModal, setIsShowAISchedulModal] = useState(false); 
+
+
+    // 스케쥴 모달 공통 데이터
+    const aiSchedulePrompt = useRef("");
+    const aiScheduleModalData = {
+        okEvent:() => {
+          setIsShowAISchedulModal(false);
+        }, 
+        size : {width:"50vw"},
+        closeEvent: () => {
+          setIsShowAISchedulModal(false);
+        }
+    }
+
+    // ============================================== AI 스케쥴 자동 작성 모달 관련 END ==========================================================
+
+
+
     return (
-      <div className='mt-10 p-5'>
+      <div className='mt-10'>
           {
-            isShowScheduleDetailModal &&  (
+            // 스케쥴러 상세 정보 모달
+            isShowScheduleDetailModal && (
                 <StandardModal 
-                  title={scheduleModalData.title} 
-                  okEvent={scheduleModalData.okEvent} 
-                  size={scheduleModalData.size} 
-                  closeEvent={scheduleModalData.closeEvent}>
+                  title={scheduleModal.title} 
+                  okEvent={scheduleModal.okEvent} 
+                  size={scheduleModal.size} 
+                  closeEvent={scheduleModal.closeEvent}>
                     <div>
 
                     </div>
@@ -79,7 +125,25 @@ const Schedule = () => {
             )
           }
 
-          <div className="caland">
+          {
+              // AI 스케쥴 자동 작성
+              isShowAISchedulModal && (
+                <StandardModal 
+                  title={aiScheduleModalData.title} 
+                  okEvent={aiScheduleModalData.okEvent} 
+                  size={aiScheduleModalData.size} 
+                  closeEvent={aiScheduleModalData.closeEvent}>
+                    <div>
+
+                    </div>
+                </StandardModal>
+              )
+
+          }
+          <div className='text-right'>
+              <button className='ok'>AI가 작성해드립니다!</button>
+          </div>
+          <div className="calandar-wrapper mt-5">
               <FullCalendar
                   plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]} // 일자별, 시간별, 이벤트 플러그인
                   initialView="dayGridMonth"
