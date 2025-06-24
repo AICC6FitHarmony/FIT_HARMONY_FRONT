@@ -1,16 +1,16 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Home from './components/cmmn/Home';
-import Login from './components/login/Login';
-import AuthGoogleResult from './components/cmmn/AuthGoogleResult';
-import Header from './components/common/Header';
-import Footer from './components/common/Footer';
-import Intro from './components/intro/Intro';
-import Dashboard from './components/dashboard/Dashboard';
-import Inbody from './components/inbody/Inbody';
-import MyPage from './components/mypage/MyPage';
-import Schedule from './components/schedule/Schedule';
-import Trainer from './components/Trainer/Trainer';
-import Community from './components/Community/Community';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./components/cmmn/Home";
+import Login from "./components/login/Login";
+import AuthGoogleResult from "./components/cmmn/AuthGoogleResult";
+import Header from "./components/common/Header";
+import Footer from "./components/common/Footer";
+import Intro from "./components/intro/Intro";
+import Dashboard from "./components/dashboard/Dashboard";
+import Inbody from "./components/inbody/Inbody";
+import MyPage from "./components/mypage/MyPage";
+import Schedule from "./components/schedule/Schedule";
+import Trainer from "./components/Trainer/Trainer";
+import Community from "./components/Community/Community";
 
 function App() {
   return (
