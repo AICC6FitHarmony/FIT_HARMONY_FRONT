@@ -1,7 +1,7 @@
 // Fullcalendar module 설치
 // npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/core @fullcalendar/interaction @fullcalendar/timegrid
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 // import about fullCalendar
 import FullCalendar from '@fullcalendar/react';
@@ -38,11 +38,46 @@ const Schedule = () => {
     ]);
 
 
+
+    const [isShowScheduleDetailModal, setIsShowScheduleDetailModal] = useState(false);
+    const dateCellEvent = (info) => {  // 일자 셀 클릭 이벤트
+      // alert(`클릭한 날짜: ${info.dateStr}`);  // 예: 2025-06-28
+      setIsShowScheduleDetailModal(true);
+      console.log(info);
+    }
+    const eventCellEvent = (info) => { // 일정 클릭 이벤트
+      // alert(`일정 제목: ${info.event.title}\n시작: ${info.event.start}`);
+      // console.log(info);
+      setIsShowScheduleDetailModal(true);
+    }
+
+
+    const scheduleModalData = {
+        title:"스케쥴", 
+        okEvent:() => {
+            setIsShowScheduleDetailModal(false);
+        }, 
+        size : {width:"50vw"},
+        closeEvent: () => {
+          setIsShowScheduleDetailModal(false);
+        }
+    }
+
     return (
       <div className='mt-10 p-5'>
-          {/* <StandardModal title="test" contents={modalContents} okEvent={modalOkEvt} size={{width:"35vw", height:"35vh"}}/> */}
+          {
+            isShowScheduleDetailModal &&  (
+                <StandardModal 
+                  title={scheduleModalData.title} 
+                  okEvent={scheduleModalData.okEvent} 
+                  size={scheduleModalData.size} 
+                  closeEvent={scheduleModalData.closeEvent}>
+                    <div>
 
-
+                    </div>
+                </StandardModal>
+            )
+          }
 
           <div className="caland">
               <FullCalendar
@@ -61,22 +96,19 @@ const Schedule = () => {
                     month: '월',
                     week: '주',
                   }}
-                  editable={true}             // 드래그 & 리사이징 가능
-                  eventDrop={(info) => {
+
+                  editable={true} // 드래그 & 리사이징 가능
+
+                  eventDrop={(info) => { // 일정 드랍시 발생 이벤트 처리
                     console.log('드래그 이동:', info.event.title, info.event.start);
                     // 서버 업데이트 필요
                   }}
-                  eventResize={(info) => {
+                  
+                  eventResize={(info) => { // 리사이징 이벤트인데 .... 필요없을 듯?
                     console.log('리사이징:', info.event.title, info.event.start, info.event.end);
                   }}
-
-                  dateClick={(info) => { // 일자 셀 클릭 이벤트
-                    alert(`클릭한 날짜: ${info.dateStr}`);  // 예: 2025-06-28
-                    console.log(info);
-                  }}
-                  eventClick={(info) => { // 일정 클릭 이벤트
-                    alert(`일정 제목: ${info.event.title}\n시작: ${info.event.start}`);
-                  }}
+                  dateClick={dateCellEvent}
+                  eventClick={eventCellEvent}
                   events={events}
                   />
         </div>
