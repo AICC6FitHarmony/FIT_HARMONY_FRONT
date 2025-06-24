@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 // API URL 설정
 const DOMAIN = 'http://localhost:8000';
-const GET_INBODY_API_URL = `${DOMAIN}/inbody/user`;
+const GET_INBODY_API_URL = `${DOMAIN}/inbody`;
 
 // API 요청 함수들
 const getRequest = async (url) => {
@@ -19,9 +19,9 @@ export const fetchInbodyData = createAsyncThunk(
   'inbody/fetchInbodyData',
   async (userId) => {
     const fullPath = `${GET_INBODY_API_URL}/${userId}`;
-    console.log('API 호출 URL:', fullPath);
+    //console.log('API 호출 URL:', fullPath);
     const response = await getRequest(fullPath);
-    console.log('API 응답 데이터:', response);
+    //console.log('API 응답 데이터:', response);
     return response;
   }
 );
@@ -48,7 +48,7 @@ const inbodySlice = createSlice({
       .addCase(fetchInbodyData.fulfilled, (state, action) => {
         state.loading = false;
         state.inbodyData = action.payload;
-        console.log('Redux 스토어에 저장된 데이터:', action.payload);
+        //console.log('Redux 스토어에 저장된 데이터:', action.payload);
       })
       .addCase(fetchInbodyData.rejected, (state, action) => {
         state.loading = false;
