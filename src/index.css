@@ -1,17 +1,14 @@
-
-@import "tailwindcss";
-
+@import 'tailwindcss';
 
 * {
-  margin:0;
-  padding:0;
   box-sizing: border-box;
 }
 
-html, body {
-  width:100%;
+html,
+body {
+  width: 100%;
   font-family: sans-serif;
-  font-size:16px;
+  font-size: 16px;
 }
 
 a {
@@ -19,12 +16,13 @@ a {
   cursor: pointer;
 }
 
-ul, ol{
+ul,
+ol {
   list-style: none;
 }
 
 img {
-  width:100%;
+  width: 100%;
   display: block;
 }
 
@@ -32,14 +30,11 @@ img {
 button {
   cursor: pointer;
 }
-button.cancle{
-
+button.cancle {
 }
-button.ok{
-
+button.ok {
 }
-button.disable{
-
+button.disable {
 }
 
 /* input CSS */
@@ -47,64 +42,57 @@ input {
   outline: none;
 }
 
-input[type=text] {
-  font-size:1rem;
+input[type='text'] {
+  font-size: 1rem;
 }
 
 /* 체크 박스 관련 */
-input[type="checkbox"] {
+input[type='checkbox'] {
   /* 스타일 정해지면 주석 해제 */
-  /* display: none; */  
+  /* display: none; */
 }
-input[type="checkbox"] + label.checkbox {
-
+input[type='checkbox'] + label.checkbox {
 }
-input[type="checkbox"]:checked + label.checkbox {
-
+input[type='checkbox']:checked + label.checkbox {
 }
 
 /* 라디오 버튼 관련 */
-input[type="radio"] {
+input[type='radio'] {
   /* 스타일 정해지면 주석 해제 */
-  /* display: none; */  
+  /* display: none; */
 }
-input[type="radio"] + label.checkbox {
-
+input[type='radio'] + label.checkbox {
 }
-input[type="radio"]:checked + label.checkbox {
-
+input[type='radio']:checked + label.checkbox {
 }
 
 /* Textarea 공통 */
 textarea {
   outline: none;
   resize: none;
-  font-size:1rem;
+  font-size: 1rem;
 }
 
-
-
-
-.header-wrapper, .footer-wrapper{
+.header-wrapper,
+.footer-wrapper {
   margin: auto;
   max-width: 1280px;
   width: 100%;
 }
 
-.content-wrapper{
+.content-wrapper {
   margin: auto;
   max-width: 1280px;
   width: 100%;
-  
 }
 .content-wrapper > div {
-  width:100%;
+  width: 100%;
   min-height: 400px;
 }
 
 .nav_wrap ul {
   width: 100%;
-  height:80px;
+  height: 80px;
   display: flex;
   justify-content: space-between;
   list-style: none;
@@ -112,25 +100,10 @@ textarea {
   padding: 0;
 }
 
-
 .nav_wrap ul li {
-  width:25%;
-  height:100%;
-  border:1px solid #000000;
-  
-  color:#000000;
+  width: 25%;
+  height: 100%;
+  border: 1px solid #000000;
+
+  color: #000000;
 }
-
-<<<<<<< HEAD
-button.cancle{
-
-}
-button.ok{
-
-}
-
-button.disable{
-
-}
-=======
->>>>>>> 2c91c942a7b6a78455e864b92665c43365fb650c
