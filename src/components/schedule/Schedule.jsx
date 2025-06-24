@@ -67,7 +67,7 @@ const Schedule = () => {
     }
 
     // 일자 셀 클릭 이벤트
-    const dateCellEvent = (info) => {  
+    const dateCellModalOpen = (info) => {  
       // scheduleModal 정보를 useState로 변환 처리 ▶ 변환 처리가 완료되면 useEffect에서 감지하여 모달 오픈 이벤트 발생 시킴
       setScheduleModal({
         title:`${info.dateStr} 스케쥴`, 
@@ -76,7 +76,7 @@ const Schedule = () => {
     }
 
     // 일정 클릭 이벤트
-    const eventCellEvent = (info) => { 
+    const eventCellModalOpen = (info) => { 
       setScheduleModal({
         title:`${format(info.event.start, 'yyyy-MM-dd')} 스케쥴`, 
         ...scheduleModalCommonData
@@ -91,10 +91,10 @@ const Schedule = () => {
     // 스케쥴 상세 모달 노출여부 useState
     const [isShowAISchedulModal, setIsShowAISchedulModal] = useState(false); 
 
-
     // 스케쥴 모달 공통 데이터
     const aiSchedulePrompt = useRef("");
     const aiScheduleModalData = {
+        title:"AI가 스케쥴 작성해드립니다!",
         okEvent:() => {
           setIsShowAISchedulModal(false);
         }, 
@@ -102,6 +102,11 @@ const Schedule = () => {
         closeEvent: () => {
           setIsShowAISchedulModal(false);
         }
+    }
+
+    // AI 스케쥴 작성 모달 이벤트
+    const aiScheduleModalOpen = () => {
+        setIsShowAISchedulModal(true);
     }
 
     // ============================================== AI 스케쥴 자동 작성 모달 관련 END ==========================================================
@@ -141,7 +146,7 @@ const Schedule = () => {
 
           }
           <div className='text-right'>
-              <button className='ok'>AI가 작성해드립니다!</button>
+              <button className='ok' onClick={aiScheduleModalOpen}>AI가 작성해드립니다!</button>
           </div>
           <div className="calandar-wrapper mt-5">
               <FullCalendar
@@ -171,8 +176,8 @@ const Schedule = () => {
                   eventResize={(info) => { // 리사이징 이벤트인데 .... 필요없을 듯?
                     console.log('리사이징:', info.event.title, info.event.start, info.event.end);
                   }}
-                  dateClick={dateCellEvent}
-                  eventClick={eventCellEvent}
+                  dateClick={dateCellModalOpen}
+                  eventClick={eventCellModalOpen}
                   events={events}
                   />
         </div>

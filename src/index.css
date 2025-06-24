@@ -29,7 +29,6 @@ img {
 /* 버튼 공통 CSS */
 button {
   cursor: pointer;
-  outline:1px solid #ddd;
   border-radius: 10px;
   padding: 0.5rem 0.75rem;
 }
@@ -37,9 +36,7 @@ button {
 button.ok, button.cancel, button.disable {
   border: none;
   padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 6px;
-  cursor: pointer;
+  font-size: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
 }
