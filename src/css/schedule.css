@@ -1,0 +1,7 @@
+.fc-col-header, .fc .fc-daygrid-day.fc-day-today {
+    background-color: var(--color-green-50);
+}
+
+.fc-daygrid-day-frame {
+    cursor: pointer;
+}
