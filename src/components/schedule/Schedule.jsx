@@ -13,6 +13,10 @@ import { format } from 'date-fns';
 // import standard modal
 import StandardModal from '../cmmn/StandardModal';
 
+// import request 
+import { request } from '../../js/config/requests';
+
+
 // schedule 페이지 css import
 import '../../css/schedule.css'
 
@@ -92,15 +96,17 @@ const Schedule = () => {
     const [isShowAISchedulModal, setIsShowAISchedulModal] = useState(false); 
 
     // 스케쥴 모달 공통 데이터
-    const aiSchedulePrompt = useRef("");
+    const aiSchedulePromptForm = useRef(null); // prompt form ref 지정
     const aiScheduleModalData = {
         title:"AI가 스케쥴 작성해드립니다!",
         okEvent:() => {
           // AI 전달 이벤트 처리
-          sendRequestAiSchedule();
+          if(aiSchedulePromptForm.current){
+              aiSchedulePromptForm.current.requestSubmit();
+          }
         }, 
         closeEvent: () => {
-          aiSchedulePrompt.current = "";
+          aiSchedulePromptForm.current = "";
           setIsShowAISchedulModal(false);
         },
         size:{
@@ -115,20 +121,31 @@ const Schedule = () => {
     }
 
     // AI 스케쥴 작성 요청(백엔드)
-    const sendRequestAiSchedule = async (e) => {
-        e.priventDefault(); 
+    const sendRequestAiSchedule = (e) => {
+        e.preventDefault();
+
+        // formData 처리
+        const formData = new FormData(aiSchedulePromptForm.current);
+
+        const response = async () => {
+            const option = {
+                method:"POST",
+                body : {
+                    prompt : formData.get('prompt')
+                }
+            }
+            return await request("/schedule/requestAiSchdule", option);
+        }
+        response();
 
 
-        console.log(aiSchedulePrompt);
 
-
-        aiSchedulePrompt.current = "";
+        // form 초기화
+        aiSchedulePromptForm.current = null;
+        // modal close
         setIsShowAISchedulModal(false);
-
     }
-
     // ============================================== AI 스케쥴 자동 작성 모달 관련 END ==========================================================
-
 
 
     return (
@@ -157,9 +174,12 @@ const Schedule = () => {
                   size={aiScheduleModalData.size} 
                   closeEvent={aiScheduleModalData.closeEvent}
                   cancelEvent={aiScheduleModalData.closeEvent}>
-                    <form className='h-[200px]' onSubmit={sendRequestAiSchedule}>
+                    <form className='h-[200px]' ref={aiSchedulePromptForm} onSubmit={sendRequestAiSchedule}>
                       <h2 className='text-center font-bold text-2xl'>AI에게 당신의 목표를 알려주세요!</h2>
-                      <textarea className='w-full h-[150px] border mt-5' useRef={aiSchedulePrompt} placeholder='Ex) 다음주 월요일 부터 3개월 안에 지금 몸무게에서 5kg 빼고 싶어!'></textarea>                            
+                      <textarea 
+                          name="prompt" 
+                          className='ai-prompt-textarea w-full h-[150px] border mt-5 p-5 rounded-2xl' 
+                          placeholder='Ex) 다음주 월요일 부터 3개월 안에 지금 몸무게에서 5kg 빼고 싶어!'></textarea>                            
                     </form>
                 </StandardModal>
               )

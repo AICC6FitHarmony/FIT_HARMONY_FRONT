@@ -13,12 +13,10 @@ export async function request(url, options) { // body는 데이터, callback은 
         defaultOptions.body = (typeof defaultOptions.body == 'object' ? JSON.stringify(defaultOptions.body) : options.body);
     }
 
-
     const backendDomain = import.meta.env.VITE_BACKEND_DOMAIN;
-    if(!url.startWiths("/")){
+    if(url.startsWith("/")){
         url = (backendDomain + url);
     }
-
 
     if(defaultOptions.pathParam != undefined){ // pathParam이 있는 경우
         defaultOptions.pathParam.forEach(param => {
