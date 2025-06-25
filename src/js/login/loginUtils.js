@@ -19,6 +19,7 @@ export const googleRegister = async (formData)=>{
   });
   // 2. 직접 리디렉션 (백엔드가 바로 구글로 리디렉션하지 않고 URL만 응답하는 구조)
   const { redirectUrl } = await response.json();
+  location.href = redirectUrl;
   return redirectUrl;
 }
 
@@ -42,7 +43,7 @@ export const loginCheck = (setUser) =>{
 }
 
 // 유저 로그아웃
-// next: 로그아웃 이후 행동
+// next: 로그아웃 이후 행동 (default = 홈으로 이동)
 export const userLogout = (next) =>{
   fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/login/logout`, {
     method: 'POST',
@@ -53,5 +54,6 @@ export const userLogout = (next) =>{
       console.log(data.message); // 'Logged out successfully'
       // 상태 초기화, 페이지 이동 등
       if(next)next();
+      else location.href = "/"
   });
 }
