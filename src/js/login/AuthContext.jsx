@@ -58,3 +58,4 @@ export const useAuthRedirect = () => {
   },[loading])
   return {user, loading};
 }
+
