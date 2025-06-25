@@ -127,23 +127,23 @@ const Schedule = () => {
         // formData 처리
         const formData = new FormData(aiSchedulePromptForm.current);
 
-        const response = async () => {
+        const requestAiSchedule = async () => {
             const option = {
                 method:"POST",
                 body : {
                     prompt : formData.get('prompt')
+                },
+                callback: () => {
+                    // form 초기화
+                    aiSchedulePromptForm.current = null;
+                    // modal close
+                    setIsShowAISchedulModal(false);
                 }
             }
-            return await request("/schedule/requestAiSchdule", option);
+            const result = await request("/schedule/requestAiSchdule", option);
         }
-        response();
 
-
-
-        // form 초기화
-        aiSchedulePromptForm.current = null;
-        // modal close
-        setIsShowAISchedulModal(false);
+        requestAiSchedule();
     }
     // ============================================== AI 스케쥴 자동 작성 모달 관련 END ==========================================================
 
@@ -179,7 +179,7 @@ const Schedule = () => {
                       <textarea 
                           name="prompt" 
                           className='ai-prompt-textarea w-full h-[150px] border mt-5 p-5 rounded-2xl' 
-                          placeholder='Ex) 다음주 월요일 부터 3개월 안에 지금 몸무게에서 5kg 빼고 싶어!'></textarea>                            
+                          placeholder='Ex) 다음주 월요일 부터 3개월 안에 지금 몸무게에서 5kg 빼고 싶어!'>1개월간 4kg 감량하고 싶어</textarea>                            
                     </form>
                 </StandardModal>
               )

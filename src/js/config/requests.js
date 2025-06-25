@@ -35,6 +35,7 @@ export async function request(url, options) { // body는 데이터, callback은 
             defaultOptions.callback(data);
             return data;
         }else{
+            console.log(data);
             return data; // callback이 없으면 response.json() 데이터 반환
         }
     });
