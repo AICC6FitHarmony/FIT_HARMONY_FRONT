@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 
 const SignUpSelect = () => {
 
+  
 
   return (
     <div className='mx-auto x-1/2'>

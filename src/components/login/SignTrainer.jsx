@@ -1,16 +1,15 @@
-"use client"
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import SignInputTab from './components/SignInputTab';
-import { ToastContainer, toast } from 'react-toastify';
-import SignNav from './components/SignNav';
 import SignProfilePage from './components/SignProfilePage';
 import SignBodyPage from './components/SignBodyPage';
-import { googleRegister } from '../../js/login/loginUtils';
 import SignSelectText from './components/SignSelectText';
 import SignButton from './components/SignButton';
+import { toast, ToastContainer } from 'react-toastify';
+import SignNav from './components/SignNav';
+import SignGym from './components/SignGym';
 
-
-const SignPerson = () => {
+const SignTrainer = () => {
+  const idxMax = 4;
   const [tabIdx, setTabIdx] = useState(0);
   const [file, setFile] = useState();
   const [userInfo, setUserInfo] = useState({
@@ -22,11 +21,9 @@ const SignPerson = () => {
     gender: "M",
     history: undefined,
     goal: undefined,
-    role:"MEMBER",
+    role:"TRAINER",
   });
 
-  const idxMax = 3;
-  const profile_img_ref = useRef();
 
   const handleSign = async () => {
     // const formData = { nickname:"TestNick" };
@@ -83,6 +80,7 @@ const SignPerson = () => {
   return (
     <div className='sign-box shadow-xl relative w-1/3'>
       <form action="">
+        <div className='pb-20'>
         <SignInputTab idx={tabIdx} thisIdx={0}>
           <SignProfilePage userInfo={userInfo} setUserInfo={setUserInfo} handleChangeValue={handleChangeValue}/>
         </SignInputTab>
@@ -101,17 +99,21 @@ const SignPerson = () => {
         </SignInputTab>
         <SignInputTab idx={tabIdx} thisIdx={3}>
           <SignSelectText
-          infoHeader="goal"
-          title="운동 목표"
-          texts={["체중 감소","체중 유지","체중 증가","근육 증가"]}
+          infoHeader="types"
+          title="어떤 운동을 제공 할 수 있나요?"
+          texts={["헬스 PT","필라테스","요가","바디발란스","복싱","수영"]}
           userInfo={userInfo} 
           setUserInfo={setUserInfo} 
           handleChangeValue={handleChangeValue} 
           handleInputNumber={handleInputNumber}/>
         </SignInputTab>
+        <SignInputTab idx={tabIdx} thisIdx={4}>
+          <SignGym userInfo={userInfo} setUserInfo={setUserInfo} handleChangeValue={handleChangeValue} handleInputNumber={handleInputNumber}/>
+        </SignInputTab>
 
         <div className={`flex justify-center ${tabIdx===idxMax?'':'hidden'}`}>
           <SignButton handleSubmit={handleSubmit} />
+        </div>
         </div>
         <SignNav tabIdx={tabIdx} setTabIdx={setTabIdx} idxMax={idxMax}/> 
       </form>
@@ -121,4 +123,4 @@ const SignPerson = () => {
   )
 }
 
-export default SignPerson
+export default SignTrainer
