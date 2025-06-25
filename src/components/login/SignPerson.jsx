@@ -3,19 +3,19 @@ import React, { useEffect, useRef, useState } from 'react'
 import SignInputTab from './components/SignInputTab';
 import defaultProfileImg from './defaultProfileImg.png';
 import googleLogo from './googleIcon.png'
+import { ToastContainer, toast } from 'react-toastify';
 
 
 const SignPerson = () => {
   const [tabIdx, setTabIdx] = useState(0);
   const [file, setFile] = useState();
   const [userInfo, setUserInfo] = useState({
-    nick_name: '',
+    nick_name: undefined,
     age: undefined,
     height: undefined,
     weight: undefined,
     gender: "M"
   });
-
 
   const idxMax = 3;
 
@@ -43,7 +43,6 @@ const SignPerson = () => {
     });
     // 2. 직접 리디렉션 (백엔드가 바로 구글로 리디렉션하지 않고 URL만 응답하는 구조)
     const { redirectUrl } = await response.json(); // 예: { redirectUrl: "https://accounts.google.com/..." }
-
     location.href = redirectUrl;
   };
   const handleProfileImage = ()=>{
@@ -78,11 +77,43 @@ const SignPerson = () => {
     newInfo[name] = value
     setUserInfo(newInfo);
   }
-  console.log(userInfo)
 
-  const handleSubmit = ()=>{
+  const handleInputNumber = (e)=>{
+    let {name, value} = e.target;
+    value = value.replace(/[^0-9]/g, '');
+    const newInfo = {
+      ...userInfo
+    }
+    newInfo[name] = value
+    setUserInfo(newInfo);
+  }
+
+  // console.log(userInfo)
+
+  const valueCheck= async (rejectCheck,err,errAction)=>{
+    if(rejectCheck){
+      if(errAction) errAction();
+      await toast.error(err, {
+        position: "bottom-center"
+      });
+      return true;
+    }
+    return false;
+  }
+  
+  const MoveIndex = (idx)=>()=>setTabIdx(idx);
+
+  const handleSubmit = async ()=>{
+    console.log(userInfo)
+    if(await valueCheck(!userInfo.nick_name, "프로필 이름을 입력해 주세요",MoveIndex(0))) return;
+    if(await valueCheck(userInfo.nick_name.length > 10, "프로필 이름이 너무 깁니다.",MoveIndex(0))) return;
+    if(await valueCheck(!userInfo.age, "나이를 입력해 주세요",MoveIndex(1))) return;
+    if(await valueCheck(!userInfo.height, "키를 입력해 주세요",MoveIndex(1))) return;
+    if(await valueCheck(!userInfo.weight, "몸무게를 입력해 주세요",MoveIndex(1))) return;
     handleSign();
   }
+
+
 
   return (
     <div className='sign-box shadow-xl relative w-1/3'>
@@ -97,15 +128,15 @@ const SignPerson = () => {
         <div className={'flex justify-center flex-col items-center gap-1'+` ${tabIdx===1?'':'hidden'}`}>
           <div className="age w-full flex gap-2 items-center justify-between">
             <div>나이</div>
-            <input name='age' onChange={handleChangeValue} className='text-center border py-2 w-[80%]' type="text"/>
+            <input name='age' onChange={handleInputNumber} className='text-center border py-2 w-[80%]' value={userInfo.age} type="text"/>
           </div>
           <div className="height w-full flex gap-2 items-center justify-between">
             <div>키</div>
-            <input name='height' onChange={handleChangeValue} className='text-center border py-2 w-[80%]' type="text"/>
+            <input name='height' onChange={handleInputNumber} className='text-center border py-2 w-[80%]' value={userInfo.height} type="text"/>
           </div>
           <div className="weight w-full flex gap-2 items-center justify-between">
             <div>몸무게</div>
-            <input name='weight' onChange={handleChangeValue} className='text-center border py-2 w-[80%]' type="text"/>
+            <input name='weight' onChange={handleInputNumber} className='text-center border py-2 w-[80%]' value={userInfo.weight} type="text"/>
           </div>
           <div className='gender flex'>
             <div>
@@ -155,6 +186,7 @@ const SignPerson = () => {
         </div> 
       </form>
       {/* <button onClick={handleSign}>Sign</button> */}
+      <ToastContainer/>
     </div>
   )
 }

@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { request } from '../../js/config/requests';
 import { Route, Routes } from 'react-router-dom';
 import SignUpSelect from './SignUpSelect';
 import LoginPage from './LoginPage';
 import SignPerson from './SignPerson';
+import { ToastContainer, toast } from 'react-toastify';
+import { loginCheck } from '../../js/login/loginUtils';
 
 const Login = () => {
-
-
+    const [user,setUser] = useState()
+    loginCheck(setUser);
+    console.log(user);
 
 
 
