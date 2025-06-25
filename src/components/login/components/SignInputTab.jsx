@@ -1,9 +1,9 @@
 import React from 'react'
 
-const SignInputTab = ({classname, idx, targetIdx, children}) => {
+const SignInputTab = ({idx, thisIdx, children}) => {
 
   return (
-    <div className={`${classname} ${idx===targetIdx?'':'hidden'}`}>
+    <div className={`py-5 px-5 ${idx===thisIdx?'':'hidden'}`}>
       {children}
     </div>
   )
