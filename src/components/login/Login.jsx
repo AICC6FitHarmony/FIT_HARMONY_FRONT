@@ -13,7 +13,7 @@ const Login = () => {
     console.log(user)
     
     if(user){
-        location.href = "/";
+        // location.href = "/";
     }
 
     return (
