@@ -19,13 +19,13 @@ function App() {
       <div className="content-wrapper">
         <Routes>
           <Route path="/" element={<Intro />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login/*" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/inbody" element={<Inbody />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/trainer" element={<Trainer />} />
-          <Route path="/community" element={<Community />} />
+          <Route path="/community/*" element={<Community />} />
           {/* 구글 인증 처리 후 동작 페이지 */}
           <Route path="/auth/google/result" element={<AuthGoogleResult />} />
         </Routes>
