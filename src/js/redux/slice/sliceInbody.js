@@ -6,9 +6,10 @@ const GET_INBODY_API_URL = `${DOMAIN}/inbody`;
 
 // API 요청 함수들
 const getRequest = async (url) => {
+  console.log("url : ", url);
   return await fetch(url).then((response) => {
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error('Slice Inbody => Network response was not ok');
     }
     return response.json();
   });
@@ -17,8 +18,8 @@ const getRequest = async (url) => {
 // Inbody 데이터 가져오기 Thunk
 export const fetchInbodyData = createAsyncThunk(
   'inbody/fetchInbodyData',
-  async (userId) => {
-    const fullPath = `${GET_INBODY_API_URL}/${userId}`;
+  async ({ userId, inbodyTime }) => {
+    const fullPath = `${GET_INBODY_API_URL}/${userId}?inbodyTime=${inbodyTime}`;
     //console.log('API 호출 URL:', fullPath);
     const response = await getRequest(fullPath);
     //console.log('API 응답 데이터:', response);
