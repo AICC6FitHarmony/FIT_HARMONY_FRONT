@@ -20,36 +20,17 @@ import { request } from '../../js/config/requests';
 
 // schedule 페이지 css import
 import '../../css/schedule.css'
+import { CheckSquare, Square } from 'lucide-react';
 
 const Schedule = () => {
 
     // 캘린더 드래그 이벤트
-    const [scheduleList, setScheduleList] = useState([
-      {
-        title: '회의',
-        start: '2025-06-24',         // 하루 종일 이벤트
-        // 컬러지정 옵션
-        backgroundColor: '#ff4d4d',
-        textColor: 'white',
-        borderColor: '#cc0000',
-        allDay: false
-      },
-      {
-        title: '면접',
-        start: '2025-06-25 10:20:00', // 시간 포함
-        end: '2025-06-28 11:00:00',
-      },
-      {
-        title: '여행',
-        start: new Date('2025-06-27 12:00:00'),
-        allDay: false
-      }
-    ]);
+    const [scheduleList, setScheduleList] = useState([]);
 
 
     // ========================================= 캘린더 관련 START ===================================================
     const [calendarTerm, setCalendarTerm] = useState({}); // AI 스케쥴 작성, 일반 스케쥴 작성, 식단 등록 등에 활용하기 위해 굳이 세팅
-    const checkShowDates = (arg) => { 
+    const checkShowDates = async (arg) => { 
         // 년, 월 구분 : 요 값이 변할때 조회해서 바까주면 되겠네? 1. 데이터 조회 > setScheduleList( useState )에 세팅
         const startTime = format(new Date(arg.start), 'yyyy-MM-dd');
         const endTime = format(new Date(arg.end), 'yyyy-MM-dd');
@@ -58,15 +39,31 @@ const Schedule = () => {
           startTime : startTime,
           endTime : endTime
         })
-
-        // setScheduleList()
-
+        
     }
+
+    // 렌더링 완료 후 값 변환 감지
+    useEffect(() => {
+      getCalendarScheduleList();
+    }, [calendarTerm]) // 렌더링 완료되면 캘린더에 보이는 시작 - 끝 일자 데이터가 세팅 됨.
 
     // calendar 용 스케쥴 조회 함수(function)
     const getCalendarScheduleList = async () => {
-        const { startTime, endTime } = calendarTerm; 
-        const result = await request(`/calendar/${startTime}/${endTime}`, option);
+        const { startTime, endTime } = calendarTerm;
+        
+        if(!startTime || !endTime){ // 아직 캘린더 렌더링 안되었으면 그냥 리턴
+            return;
+        }
+        
+        const checkedStatus = (labels == undefined || labels.length == 0 ? "" : labels.filter(label => label.checked).map(label => label.codeId).join());
+
+        if(!(labels == undefined || labels.length == 0) && checkedStatus == ""){ // 첫 진입을 제외하고, 체크 박스가 노출된 상황에서 하나도 체크가되지 않은경우
+            setScheduleList([]); // 그냥 빈 값처리 하고
+            return; // 동작 멈춤
+        }
+
+
+        const result = await request(`/schedule/calendar/${startTime}/${endTime}?status=${checkedStatus}`, {method:"get"});
 
         const { success, message, data } = result;
         if(success){
@@ -82,8 +79,6 @@ const Schedule = () => {
                 });
             }
         }
-
-
     }
 
 
@@ -217,6 +212,43 @@ const Schedule = () => {
     // ============================================== AI 스케쥴 자동 작성 모달 관련 END ==========================================================
 
 
+
+    // 라벨 VIEW 세팅
+    const [labels, setLabels] = useState();
+    useEffect(() => {
+        const labels = async () => {
+            const options = {
+                method : "GET"
+            }
+            let result = await request("/common/code/C002", options);
+
+            result.data.forEach((data) => {
+                data.checked = true;
+            });
+            setLabels(result.data);
+        }
+        labels();
+    }, []) // 라벨 정보 최초 한번 조회
+
+    // 라벨 어떻게 처리할지 고민 좀 해야될 듯
+    // useEffect(() => {
+    //   getCalendarScheduleList();
+    // }, [labels]) // 렌더링 완료되면 캘린더에 보이는 시작 - 끝 일자 데이터가 세팅 됨.
+
+
+    // 라벨 클릭 이벤트
+    const toggleCheckedLabel = (e) => {
+        const codeId =  e.target.value;
+        const checked = !e.target.checked;
+
+        setLabels(
+            (prevLabels) => prevLabels.map(
+                (label) => label.codeId === codeId ? { ...label, checked: checked } : label
+            )
+        );
+    }
+
+
     return (
       <div className='mt-10'>
           {
@@ -251,15 +283,24 @@ const Schedule = () => {
                     </form>
                 </StandardModal>
               )
-
           }
           <div className='flex justify-between'>
-              
-              <div>
-                  <label htmlFor=""></label>
-                  <input type="checkbox" name="" id="status" />
-              </div>
-
+              <div className='flex gap-3'>
+              {
+                labels?.map((label, idx) => (
+                    <div className='flex justify-between items-center gap-0.5' key={idx}>
+                        <label className='relative' htmlFor={`label-${label.codeId}`}>
+                            <div className='w-[14px] h-[14px] m-[5px]' style={{backgroundColor:label.description}}></div>
+                            <div className='absolute top-0 left-0 w-[24px] h-[24px]'>
+                              {(label.checked ? <CheckSquare/> : <Square/>)}
+                            </div>
+                        </label>
+                        <div>{label.codeName}</div>
+                        <input type="checkbox" name="status" id={`label-${label.codeId}`} value={label.codeId} onClick={toggleCheckedLabel}/>
+                    </div>
+                ))
+              }
+            </div>
 
               <button className='ok' onClick={aiScheduleModalOpen}>AI가 작성해드립니다!</button>
           </div>
