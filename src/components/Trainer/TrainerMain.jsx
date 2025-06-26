@@ -29,8 +29,16 @@ const TrainerMain = () => {
 
   const handleSearch = () => {
     console.log('Searching for:', search);
-    const results = trainers.filter((trainer) => trainer.name.includes(search));
+    const results = trainers.data.filter((trainer) =>
+      trainer.name.includes(search)
+    );
     setSearchResult(results);
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   return (
@@ -48,6 +56,7 @@ const TrainerMain = () => {
                 placeholder="검색어를 입력해 주세요"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleKeyPress}
                 className="border-2 border-[#1a7d45] rounded-md w-[35rem] h-[40px] shadow-md"
                 style={{ paddingRight: '40px' }}
               />
