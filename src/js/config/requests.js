@@ -23,7 +23,7 @@ export async function request(url, options) { // body는 데이터, callback은 
             url += ("/"+param);
         });
     }
-
+    
     return await fetch(url, defaultOptions).then((response) => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -35,7 +35,6 @@ export async function request(url, options) { // body는 데이터, callback은 
             defaultOptions.callback(data);
             return data;
         }else{
-            console.log(data);
             return data; // callback이 없으면 response.json() 데이터 반환
         }
     });

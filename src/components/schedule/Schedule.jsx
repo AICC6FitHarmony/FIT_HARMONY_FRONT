@@ -9,6 +9,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid'
 import { format } from 'date-fns';
+import { ToastContainer, toast } from 'react-toastify';
 
 // import standard modal
 import StandardModal from '../cmmn/StandardModal';
@@ -23,7 +24,7 @@ import '../../css/schedule.css'
 const Schedule = () => {
 
     // 캘린더 드래그 이벤트
-    const [events, setEvents] = useState([
+    const [scheduleList, setScheduleList] = useState([
       {
         title: '회의',
         start: '2025-06-24',         // 하루 종일 이벤트
@@ -45,7 +46,51 @@ const Schedule = () => {
       }
     ]);
 
-    // ============================================== 스케쥴 상세 모달 관련 START =================================================================
+
+    // ========================================= 캘린더 관련 START ===================================================
+    const [calendarTerm, setCalendarTerm] = useState({}); // AI 스케쥴 작성, 일반 스케쥴 작성, 식단 등록 등에 활용하기 위해 굳이 세팅
+    const checkShowDates = (arg) => { 
+        // 년, 월 구분 : 요 값이 변할때 조회해서 바까주면 되겠네? 1. 데이터 조회 > setScheduleList( useState )에 세팅
+        const startTime = format(new Date(arg.start), 'yyyy-MM-dd');
+        const endTime = format(new Date(arg.end), 'yyyy-MM-dd');
+
+        setCalendarTerm({
+          startTime : startTime,
+          endTime : endTime
+        })
+
+        // setScheduleList()
+
+    }
+
+    // calendar 용 스케쥴 조회 함수(function)
+    const getCalendarScheduleList = async () => {
+        const { startTime, endTime } = calendarTerm; 
+        const result = await request(`/calendar/${startTime}/${endTime}`, option);
+
+        const { success, message, data } = result;
+        if(success){
+            setScheduleList(data);
+        }else{
+            if(message == "noAuth") {
+                toast.error("로그인 후 이용 가능한 서비스 입니다.", {
+                    position: "bottom-center"
+                });
+            } else {
+                toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
+                    position: "bottom-center"
+                });
+            }
+        }
+
+
+    }
+
+
+
+    // =========================================  캘린더 관련 END  ===================================================
+
+    // ========================================= 스케쥴 상세 모달 관련 START ===================================================
     // 스케쥴 상세 모달 노출여부 useState
     const [isShowScheduleDetailModal, setIsShowScheduleDetailModal] = useState(false); 
 
@@ -131,18 +176,42 @@ const Schedule = () => {
             const option = {
                 method:"POST",
                 body : {
-                    prompt : formData.get('prompt')
-                },
-                callback: () => {
-                    // form 초기화
-                    aiSchedulePromptForm.current = null;
-                    // modal close
-                    setIsShowAISchedulModal(false);
+                    prompt : formData.get('prompt'),
+                    ...calendarTerm
                 }
             }
             const result = await request("/schedule/requestAiSchdule", option);
-        }
+            const { success, message, data } = result;
+            if(success){
+                  // form 초기화
+                  aiSchedulePromptForm.current = null;
+                  
+                  // modal close
+                  setIsShowAISchedulModal(false);
+                  
+                  // 캘린더 스케쥴 데이터 useState 세팅
+                  setScheduleList(data); 
+                  
+                  toast.info("로그인 후 이용 가능한 서비스 입니다.", {
+                      position: "bottom-center"
+                  });
+            }else{
+              if(message == "noAuth"){
+                  toast.error("로그인 후 이용 가능한 서비스 입니다.", {
+                      position: "bottom-center"
+                  });
+              }else if(message == "noMessage"){
+                toast.error("스케쥴 목표를 작성해주세요.", {
+                    position: "bottom-center"
+                });
+              }else{
+                  toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
+                      position: "bottom-center"
+                  });
+              }
+            }
 
+        }
         requestAiSchedule();
     }
     // ============================================== AI 스케쥴 자동 작성 모달 관련 END ==========================================================
@@ -164,7 +233,6 @@ const Schedule = () => {
                 </StandardModal>
             )
           }
-
           {
               // AI 스케쥴 자동 작성
               isShowAISchedulModal && (
@@ -179,13 +247,20 @@ const Schedule = () => {
                       <textarea 
                           name="prompt" 
                           className='ai-prompt-textarea w-full h-[150px] border mt-5 p-5 rounded-2xl' 
-                          placeholder='Ex) 다음주 월요일 부터 3개월 안에 지금 몸무게에서 5kg 빼고 싶어!'>1개월간 4kg 감량하고 싶어</textarea>                            
+                          placeholder='Ex) 다음주 월요일 부터 3개월 안에 지금 몸무게에서 5kg 빼고 싶어!'></textarea>                            
                     </form>
                 </StandardModal>
               )
 
           }
-          <div className='text-right'>
+          <div className='flex justify-between'>
+              
+              <div>
+                  <label htmlFor=""></label>
+                  <input type="checkbox" name="" id="status" />
+              </div>
+
+
               <button className='ok' onClick={aiScheduleModalOpen}>AI가 작성해드립니다!</button>
           </div>
           <div className="calandar-wrapper mt-5">
@@ -216,11 +291,15 @@ const Schedule = () => {
                   eventResize={(info) => { // 리사이징 이벤트인데 .... 필요없을 듯?
                     console.log('리사이징:', info.event.title, info.event.start, info.event.end);
                   }}
+
                   dateClick={dateCellModalOpen}
                   eventClick={eventCellModalOpen}
-                  events={events}
+
+                  events={scheduleList}
+                  datesSet={checkShowDates}
                   />
-        </div>
+          </div>
+          <ToastContainer/>
       </div>
     )
 }
