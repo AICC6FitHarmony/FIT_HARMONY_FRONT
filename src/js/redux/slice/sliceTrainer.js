@@ -7,7 +7,7 @@ const fetchTrainers = createAsyncThunk('trainer/fetchTrainers', async () => {
 
 // Create the slice
 const trainerSlice = createSlice({
-  name: 'trainer', // Slice name
+  name: 'trainer', // Slicename
   initialState: {
     trainers: [], // Initialize as an empty array
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
@@ -29,4 +29,5 @@ const trainerSlice = createSlice({
   },
 });
 
+export { fetchTrainers };
 export default trainerSlice.reducer;
