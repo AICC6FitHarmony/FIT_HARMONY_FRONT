@@ -10,9 +10,8 @@ import {
   Legend,
 } from "recharts";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { format, addDays } from "date-fns";
+import { format } from "date-fns";
 
-// 바 그래프 아이템
 const BarItem = ({ label, value }) => (
   <div className="mb-2">
     <div className="text-sm mb-1">{label}</div>
@@ -29,39 +28,64 @@ const BarItem = ({ label, value }) => (
 const Inbody = () => {
   const dispatch = useDispatch();
   const { inbodyData, loading, error } = useSelector((state) => state.inbody);
-  let [inbodyTime, setInbodyTime] = useState();
 
-  // 테스트용 userId (실제로는 인증된 사용자 ID를 사용해야 함)
-  const userId = "1";
-  const handlePrevDate = () => setInbodyTime((prev) => addDays(prev, -1));
-  const handleNextDate = () => setInbodyTime((prev) => addDays(prev, 1));
+  const [inbodyTime, setInbodyTime] = useState("1000-01-01");
+  const [availableDates, setAvailableDates] = useState([]);
 
+  const userId = "1"; // 테스트용
+
+  // 🔁 useEffect: inbodyTime 변경될 때마다 데이터 요청
   useEffect(() => {
-    console.log("사용자 ID:", userId);
-    // 컴포넌트 마운트 시 데이터 가져오기
     const fetchData = async () => {
       try {
-        console.log("type 1 ", typeof inbodyTime);
-        console.log("inbodyTime : ", inbodyTime);
-        await dispatch(fetchInbodyData({ userId, inbodyTime })).unwrap();
+        const result = await dispatch(
+          fetchInbodyData({ userId, inbodyTime })
+        ).unwrap();
+
+        // 날짜 리스트 추출 및 저장
+        const inbodyTimeResult = result?.inbodyTimeResult || [];
+        const dates = inbodyTimeResult.map((date) =>
+          format(date.inbodyTime, "yyyy-MM-dd")
+        );
+        setAvailableDates(dates);
+
+        // 최초 진입 시 실제 데이터 날짜로 설정
+        if (inbodyTime === "1000-01-01" && result?.inbodyResult?.length > 0) {
+          const initDate = format(
+            result.inbodyResult[0].inbodyTime,
+            "yyyy-MM-dd"
+          );
+          setInbodyTime(initDate);
+        }
       } catch (error) {
         console.error("데이터 가져오기 실패:", error);
       }
     };
+
     fetchData();
   }, [dispatch, userId, inbodyTime]);
 
+  const handlePrevDate = () => {
+    const idx = availableDates.indexOf(inbodyTime);
+    if (idx > 0) {
+      setInbodyTime(availableDates[idx - 1]);
+    }
+  };
+
+  const handleNextDate = () => {
+    const idx = availableDates.indexOf(inbodyTime);
+    if (idx < availableDates.length - 1) {
+      setInbodyTime(availableDates[idx + 1]);
+    }
+  };
   // 데이터 로딩 상태 확인
   // console.log("Redux 상태:", { inbodyData, loading, error });
 
   if (loading) return <div>데이터를 불러오는 중...</div>;
   if (error) return <div>에러 발생: {error}</div>;
-  if (inbodyData !== null) {
-    // console.log("inbodyResult : ", inbodyData.inbodyResult[0]);
-    //console.log("standardData : ", inbodyData.standardData);
-  }
 
   // 변수 설정
+
   const {
     inbodyId, // 인바디 아이디
     weight, // 체중
@@ -84,9 +108,6 @@ const Inbody = () => {
     rightLegFat, // 오른다리 체지방
   } = inbodyData?.inbodyResult[0] || {};
 
-  const date = inbodyData?.inbodyResult[0]?.inbodyTime || "1000-01-01";
-  inbodyTime = format(date, "yyyy-MM-dd");
-
   const standardData = inbodyData?.standardData || [];
   const standardValues = {};
   standardData.forEach((item) => {
@@ -98,7 +119,6 @@ const Inbody = () => {
         ((parseFloat(item.minValue) + parseFloat(item.maxValue)) / 2) * 1.5,
     };
   });
-  //console.log("standardValues : ", standardValues);
 
   // fullMark 변수 설정 (표준값 * 1.5)
   // _t = trunk, _r = right, _l = left, _a = arm, _f = fat, m = muscle , f = fat
@@ -220,9 +240,7 @@ const Inbody = () => {
           </div>
 
           <div>
-            <div className="bg-blue-200 text-xl font-semibold text-center">
-              체지방
-            </div>
+            <div className="text-xl font-semibold text-center p-2">체지방</div>
             <div className="flex justify-center">
               <RadarChart
                 outerRadius={90}
@@ -278,14 +296,24 @@ const Inbody = () => {
         </div>
 
         <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
-          <div>
-            <button className="w-8 h-8 text-2xl mr-2" onClick={handlePrevDate}>
-              <IoIosArrowBack />
-            </button>
+          <div className="flex items-center">
+            {availableDates.indexOf(inbodyTime) > 0 && (
+              <button
+                className="w-8 h-8 text-2xl mr-2"
+                onClick={handlePrevDate}
+              >
+                <IoIosArrowBack />
+              </button>
+            )}
             <button>{inbodyTime}</button>
-            <button className="w-8 h-8 text-2xl ml-2" onClick={handleNextDate}>
-              <IoIosArrowForward />
-            </button>
+            {availableDates.indexOf(inbodyTime) < availableDates.length - 1 && (
+              <button
+                className="w-8 h-8 text-2xl ml-2"
+                onClick={handleNextDate}
+              >
+                <IoIosArrowForward />
+              </button>
+            )}
           </div>
           <button className="bg-blue-500 text-white px-4 py-1 rounded">
             등록
