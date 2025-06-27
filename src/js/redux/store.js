@@ -4,12 +4,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import inbodyReducer from './slice/sliceInbody';
 import trainerReducer from './slice/sliceTrainer';
-
+import loadingReducer from './slice/loadingSlice';
 // 리덕스 툴킷으로 스토어 생성
 const store = configureStore({
   reducer: {
     inbody: inbodyReducer,
     trainer: trainerReducer,
+    loading: loadingReducer,
   },
 });
 

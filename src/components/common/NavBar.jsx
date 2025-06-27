@@ -51,11 +51,8 @@ const NavBar = () => {
           </div>
 
           {/*  마이페이지 */}
-          <div className="ml-auto">
-            <Link
-              to="/mypage"
-              className="text-green-700 text-sm hover:bg-green-200 px-4 py-2 rounded-full transition"
-            >
+          <div className="ml-auto  hover:bg-green-200 w-4 h-4 mx-3 my-3 rounded-full transition">
+            <Link to="/mypage" className="text-green-700 text-sm ">
               <BsPeopleFill />
             </Link>
           </div>

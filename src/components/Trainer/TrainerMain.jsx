@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchTrainers } from '../../js/redux/slice/sliceTrainer';
 import { TiArrowSortedDown } from 'react-icons/ti';
 import { FaListUl } from 'react-icons/fa6';
+import aa from '../Trainer/test/aa.png';
 
 const TrainerMain = () => {
   const dispatch = useDispatch();
@@ -29,10 +30,16 @@ const TrainerMain = () => {
 
   const handleSearch = () => {
     console.log('Searching for:', search);
-    const results = trainers.data.filter((trainer) =>
-      trainer.name.includes(search)
-    );
-    setSearchResult(results);
+
+    // trainers 데이터가 존재하는지 확인
+    if (trainers && trainers.data) {
+      const results = trainers.data.filter((trainer) =>
+        trainer.userName.includes(search)
+      );
+      setSearchResult(results);
+    } else {
+      console.error('Trainers data is not available');
+    }
   };
 
   const handleKeyPress = (event) => {
@@ -40,6 +47,8 @@ const TrainerMain = () => {
       handleSearch();
     }
   };
+
+  const handleReadMore = () => {};
 
   return (
     <div className="main-wrapper pt-20 w-full">
@@ -87,31 +96,44 @@ const TrainerMain = () => {
                   <FaListUl />
                 </button>
               </div>
-              <div className="trainer-list w-auto px-3 h-auto">
-                {status === 'loading' && <p>Loading...</p>}
-                {status === 'failed' && <p>Error: {error}</p>}
-                {status === 'succeeded' && searchResult.length > 0 ? (
-                  searchResult.map((trainer) => (
-                    <div key={trainer.id}>
-                      <img
+              <div className=" ">
+                <div className="trainer-list   px-3  py-8 h-auto">
+                  <div className="list-grid grid grid-cols-4 grid-rows-4 gap-4 ">
+                    {status === 'loading' && <p>Loading...</p>}
+                    {status === 'failed' && <p>Error: {error}</p>}
+                    {status === 'succeeded' && searchResult.length > 0 ? (
+                      searchResult.map((trainer) => (
+                        <div key={trainer.userId} onClick={handleReadMore}>
+                          {/* <img
                         src={trainer.image}
                         alt="Trainer"
                         className="w-10 h-60 rounded-3xl"
-                      />
-                      <span className="flex flex-col">
-                        <p>{trainer.name}</p>
-                        <p className="text-sm text-gray-400"> 강사님</p>
-                      </span>
-                      <p>{trainer.description}</p>
-                      <p>{trainer.price}</p>
-                      <p>{trainer.date}</p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="justify-center h-auto p-15 flex">
-                    검색 결과가 없습니다{' '}
-                  </p>
-                )}
+                      /> */}
+                          <div className="img">
+                            <img
+                              src={aa}
+                              alt="Trainer"
+                              className=" rounded-3xl"
+                            />
+                          </div>
+                          <div className="p">
+                            <span className="flex ">
+                              <p className="text-2xl">{trainer.userName}</p>
+                              <p className="text-sm text-gray-400"> 강사님</p>
+                            </span>
+                            <p>{trainer.gymId}</p>
+                            {/* <p>{trainer.price}</p>
+                      <p>{trainer.date}</p> */}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="justify-center h-auto p-15 flex">
+                        검색 결과가 없습니다{' '}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
