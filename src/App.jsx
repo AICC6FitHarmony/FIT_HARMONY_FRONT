@@ -14,10 +14,7 @@ import Community from './components/Community/Community';
 import { useSelector } from 'react-redux';
 
 function App() {
-
     const isLoading = useSelector(state => state.loading.isLoading);
-    // const isLoading = true;
-
     return (
       <BrowserRouter>
         <Header />

@@ -15,7 +15,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import StandardModal from '../cmmn/StandardModal';
 
 // import request 
-import { request } from '../../js/config/requests';
+import { useRequest } from '../../js/config/requests';
 
 
 // schedule 페이지 css import
@@ -25,6 +25,8 @@ import { CheckSquare, Square } from 'lucide-react';
 const Schedule = () => {
     // 캘린더 드래그 이벤트
     const [scheduleList, setScheduleList] = useState([]);
+
+    const request = useRequest();
 
     // ========================================= 캘린더 관련 START ===================================================
     const [calendarTerm, setCalendarTerm] = useState({}); // AI 스케쥴 작성, 일반 스케쥴 작성, 식단 등록 등에 활용하기 위해 굳이 세팅
