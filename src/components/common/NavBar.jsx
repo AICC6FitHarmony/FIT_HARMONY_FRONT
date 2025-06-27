@@ -5,7 +5,7 @@ import { BsPeopleFill } from 'react-icons/bs';
 const NavBar = () => {
   return (
     // 사이트 전체 배경
-    <div className="min-h-screen bg-[#fffaf0]">
+    <div className=" bg-[#fffaf0]">
       {/* 로고 영역 */}
       <div className="header h-20 flex justify-center items-center">
         <span className="text-2xl font-bold">
