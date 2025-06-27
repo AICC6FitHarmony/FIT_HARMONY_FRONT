@@ -5,3 +5,8 @@
 .tiptap:focus{
   outline: none;
 }
+
+button{
+ margin: 0;
+ padding: 0; 
+}

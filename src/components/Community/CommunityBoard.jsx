@@ -21,7 +21,7 @@ const CommunityBoard = () => {
             </div>
             <div className="info_and_create">
               <span>total : {totalCount}</span>
-              <Link to={`/community/${boardId}/create`}>
+              <Link to={`/community/${boardId?boardId:1}/create`}>
               생성
               </Link>
             </div>
