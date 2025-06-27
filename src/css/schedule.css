@@ -2,6 +2,11 @@
     background-color: var(--color-green-50);
 }
 
+
+.fc-scrollgrid-sync-table tbody, .fc-scrollgrid tbody {
+    background-color: #fff;
+}
+
 .fc-daygrid-day-frame {
     cursor: pointer;
 }
