@@ -7,13 +7,12 @@ import Underline from '@tiptap/extension-underline';
 import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
-import Dropcursor from '@tiptap/extension-dropcursor';
 import ImageResize from 'tiptap-extension-resize-image';
 import "./PostEditor.css"
 // 커스텀 FontSize 익스텐션
 import { Mark, mergeAttributes } from '@tiptap/core';
 
-const FontSize = Mark.create({
+export const FontSize = Mark.create({
   name: 'fontSize',
   addOptions() {
     return {
@@ -56,6 +55,26 @@ const FontSize = Mark.create({
   },
 });
 
+function sanitizeContent(node) {
+  if (!node) return node;
+
+  // attrs에 null 속성이 있으면 제거
+  if (node.attrs) {
+    Object.keys(node.attrs).forEach(key => {
+      if (node.attrs[key] === null) {
+        delete node.attrs[key];
+      }
+    });
+  }
+
+  // content 배열이 있으면 재귀적으로 처리
+  if (Array.isArray(node.content)) {
+    node.content = node.content.map(sanitizeContent);
+  }
+
+  return node;
+}
+
 import MenuBar from './MenuBar';
 // import { ResizableImage } from './ResizableImage';
 import Image from '@tiptap/extension-image';
@@ -76,7 +95,6 @@ const PostEditor = () => {
       }),
       FontSize,
       Image,
-      Dropcursor,
       ImageResize
     ],
     content: '',
@@ -88,10 +106,12 @@ const PostEditor = () => {
 
   const PostUpload = async()=>{
     const form = new FormData();
+    
     const jsonContent = editor.getJSON();
+    const cleanJSON = sanitizeContent(structuredClone(jsonContent));
     form.append('board_id',boardId);
     form.append('title',postTitle);
-    form.append("content",JSON.stringify(jsonContent));
+    form.append("content",JSON.stringify(cleanJSON));
     const result = await postCreate(form);
 
   }

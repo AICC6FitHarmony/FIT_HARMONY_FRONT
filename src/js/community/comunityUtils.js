@@ -1,3 +1,4 @@
+import { request } from "../config/requests";
 
 //formData : 회원가입 정보
 export const postCreate = async (formData)=>{
@@ -11,4 +12,27 @@ export const postCreate = async (formData)=>{
   // 2. 직접 리디렉션 (백엔드가 바로 구글로 리디렉션하지 않고 URL만 응답하는 구조)
   const result = await response.json();
   return result;
+}
+
+export const getPosts = async (board_id, setPosts)=>{
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/${board_id}`);
+  const res = await response.json();
+  // console.log(res);
+  setPosts(res);
+  return res;
+}
+
+export const getPost = async (postId) =>{
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/post/${postId}`);
+  const res = await response.json();
+  console.log(res);
+  return res;
+}
+
+export const deletePost = async(body)=>{
+  const res = await request(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/delete`,{
+    method:"DELETE",
+    body:body
+  })
+  return res;
 }

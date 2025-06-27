@@ -5,6 +5,7 @@ import { AuthProvider, useAuthRedirect } from '../../js/login/AuthContext'
 import StandardModal from '../cmmn/StandardModal';
 import CommunityBoard from './CommunityBoard';
 import CommunityPostEdit from './CommunityPostEdit';
+import PostView from './PostView';
 
 const Community = () => {
 
@@ -18,6 +19,7 @@ const Community = () => {
           <Route path='/' element={<CommunityBoard/>}/>
           <Route path='/:boardId' element={<CommunityBoard/>}/>
           <Route path='/:boardId/create' element={<CommunityPostEdit/>}/>
+          <Route path='/post/:postId' element={<PostView/>}/>
         </Routes>
       </div>
   )
