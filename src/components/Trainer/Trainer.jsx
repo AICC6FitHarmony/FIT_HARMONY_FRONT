@@ -1,7 +1,14 @@
 import React from 'react';
+import TrainerMain from './TrainerMain';
 
 const Trainer = () => {
-  return <div>ㅇㅇㅇㅇㅇ</div>;
+  return (
+    <div>
+      <div className="flex ">
+        <TrainerMain />
+      </div>
+    </div>
+  );
 };
 
 export default Trainer;
