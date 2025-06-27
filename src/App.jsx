@@ -16,7 +16,7 @@ function App() {
   return (
     <BrowserRouter>
       <Header />
-      <div className="content-wrapper">
+      <div className="content-wrapper bg-orange-50">
         <Routes>
           <Route path="/" element={<Intro />} />
           <Route path="/login/*" element={<Login />} />
