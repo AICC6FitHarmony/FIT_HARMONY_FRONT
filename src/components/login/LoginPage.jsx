@@ -3,21 +3,10 @@ import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import googleLogo from './googleIcon.png'
 import kakaoLogo from './kakao.svg'
+import { googleLogin, userLogout } from '../../js/login/loginUtils';
 const LoginPage = ({loginFail}) => {
 
-  
 
-    // 구글 로그인 (팝업)
-  const googleLogin = () => {
-    // toast.info("구글 로그인으로 이동합니다.", {
-    //   position: "bottom-center"
-    // });
-    location.href = `${import.meta.env.VITE_BACKEND_DOMAIN}/auth/google`;
-  }
-
-  const logout = () =>{
-    location.href = `${import.meta.env.VITE_BACKEND_DOMAIN}/auth/logout`;
-  }
 
   const kakaoLogin = () => {
     toast.info("카카오 로그인으로 이동합니다.", {
@@ -50,6 +39,7 @@ const LoginPage = ({loginFail}) => {
           </div>
           <div className='text-xl'>
             <Link to="/login/signup">회원가입</Link>
+            <button onClick={()=>{userLogout()}}>로그아웃</button>
           </div>
       </div>
       <ToastContainer/>

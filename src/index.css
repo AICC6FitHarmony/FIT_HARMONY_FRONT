@@ -33,7 +33,9 @@ button {
   padding: 0.5rem 0.75rem;
 }
 
-button.ok, button.cancel, button.disable {
+button.ok,
+button.cancel,
+button.disable {
   border: none;
   padding: 10px 20px;
   font-size: 1rem;
@@ -51,20 +53,22 @@ button.cancel {
   color: white;
 }
 
-button.ok:hover, button.cancel:hover  {
+button.ok:hover,
+button.cancel:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* hover 시 조금 더 입체감 */
   transform: translateY(-1px);
 }
 
-button.ok:active, button.cancel:active {
+button.ok:active,
+button.cancel:active {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* 눌렀을 때 납작해짐 */
   transform: translateY(1px);
 }
 
 button.disable {
-  transition:none;
+  transition: none;
   background-color: #ddd;
-  color:#444;
+  color: #444;
 }
 
 /* input CSS */
@@ -79,11 +83,18 @@ input[type='text'] {
 /* 체크 박스 관련 */
 input[type='checkbox'] {
   /* 스타일 정해지면 주석 해제 */
-  /* display: none; */
+  display: none;
 }
+input[type='checkbox'] + label{
+  cursor: pointer;
+}
+
+
 input[type='checkbox'] + label.checkbox {
+
 }
 input[type='checkbox']:checked + label.checkbox {
+
 }
 
 /* 라디오 버튼 관련 */
