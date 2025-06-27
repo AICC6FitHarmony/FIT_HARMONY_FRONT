@@ -9,8 +9,8 @@ const SignProfilePage = ({userInfo, setUserInfo, handleChangeValue}) => {
 
   const handleChange = (e) => {
     const inputValue = e.target.value;
-    setUserInfo(e);
     setHasSpecialChar(specialCharRegex.test(inputValue));
+    handleChangeValue(e);
   };
 
   const handleProfileImage = ()=>{
