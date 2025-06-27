@@ -83,11 +83,18 @@ input[type='text'] {
 /* 체크 박스 관련 */
 input[type='checkbox'] {
   /* 스타일 정해지면 주석 해제 */
-  /* display: none; */
+  display: none;
 }
+input[type='checkbox'] + label{
+  cursor: pointer;
+}
+
+
 input[type='checkbox'] + label.checkbox {
+
 }
 input[type='checkbox']:checked + label.checkbox {
+
 }
 
 /* 라디오 버튼 관련 */
