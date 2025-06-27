@@ -23,10 +23,8 @@ import '../../css/schedule.css'
 import { CheckSquare, Square } from 'lucide-react';
 
 const Schedule = () => {
-
     // 캘린더 드래그 이벤트
     const [scheduleList, setScheduleList] = useState([]);
-
 
     // ========================================= 캘린더 관련 START ===================================================
     const [calendarTerm, setCalendarTerm] = useState({}); // AI 스케쥴 작성, 일반 스케쥴 작성, 식단 등록 등에 활용하기 위해 굳이 세팅
@@ -39,13 +37,44 @@ const Schedule = () => {
           startTime : startTime,
           endTime : endTime
         })
-        
     }
+
+
+    const [labels, setLabels] = useState();
+    useEffect(() => {
+        const labels = async () => {
+            const options = {
+                method : "GET"
+            }
+            let result = await request("/common/code/C002", options);
+
+            result.data.forEach((data) => {
+                data.checked = true;
+            });
+            setLabels(result.data);
+        }
+        labels();
+    }, []) // 라벨 정보 최초 한번 조회
+
+
+    // 라벨 클릭 이벤트
+    const toggleCheckedLabel = (e) => {
+      const codeId =  e.target.value;
+      const checked = !e.target.checked;
+
+      setLabels(
+          (prevLabels) => prevLabels.map(
+              (label) => label.codeId === codeId ? { ...label, checked: checked } : label
+          )
+      );
+  }
+
 
     // 렌더링 완료 후 값 변환 감지
     useEffect(() => {
       getCalendarScheduleList();
-    }, [calendarTerm]) // 렌더링 완료되면 캘린더에 보이는 시작 - 끝 일자 데이터가 세팅 됨.
+    }, [calendarTerm, labels]) // 렌더링 완료되면 캘린더에 보이는 시작 - 끝 일자 데이터가 세팅 됨.
+
 
     // calendar 용 스케쥴 조회 함수(function)
     const getCalendarScheduleList = async () => {
@@ -53,6 +82,10 @@ const Schedule = () => {
         
         if(!startTime || !endTime){ // 아직 캘린더 렌더링 안되었으면 그냥 리턴
             return;
+        }
+
+        if(!labels){
+            return
         }
         
         const checkedStatus = (labels == undefined || labels.length == 0 ? "" : labels.filter(label => label.checked).map(label => label.codeId).join());
@@ -177,6 +210,7 @@ const Schedule = () => {
             }
             const result = await request("/schedule/requestAiSchdule", option);
             const { success, message, data } = result;
+
             if(success){
                   // form 초기화
                   aiSchedulePromptForm.current = null;
@@ -184,9 +218,9 @@ const Schedule = () => {
                   // modal close
                   setIsShowAISchedulModal(false);
                   
-                  // 캘린더 스케쥴 데이터 useState 세팅
-                  setScheduleList(data); 
-                  
+                  // 변경된 데이터 조회
+                  getCalendarScheduleList();
+
                   toast.info("로그인 후 이용 가능한 서비스 입니다.", {
                       position: "bottom-center"
                   });
@@ -211,46 +245,8 @@ const Schedule = () => {
     }
     // ============================================== AI 스케쥴 자동 작성 모달 관련 END ==========================================================
 
-
-
-    // 라벨 VIEW 세팅
-    const [labels, setLabels] = useState();
-    useEffect(() => {
-        const labels = async () => {
-            const options = {
-                method : "GET"
-            }
-            let result = await request("/common/code/C002", options);
-
-            result.data.forEach((data) => {
-                data.checked = true;
-            });
-            setLabels(result.data);
-        }
-        labels();
-    }, []) // 라벨 정보 최초 한번 조회
-
-    // 라벨 어떻게 처리할지 고민 좀 해야될 듯
-    // useEffect(() => {
-    //   getCalendarScheduleList();
-    // }, [labels]) // 렌더링 완료되면 캘린더에 보이는 시작 - 끝 일자 데이터가 세팅 됨.
-
-
-    // 라벨 클릭 이벤트
-    const toggleCheckedLabel = (e) => {
-        const codeId =  e.target.value;
-        const checked = !e.target.checked;
-
-        setLabels(
-            (prevLabels) => prevLabels.map(
-                (label) => label.codeId === codeId ? { ...label, checked: checked } : label
-            )
-        );
-    }
-
-
     return (
-      <div className='mt-10'>
+      <div className='pt-10 pb-10 pl-5 pr-5'>
           {
             // 스케쥴러 상세 정보 모달
             isShowScheduleDetailModal && (
@@ -289,7 +285,7 @@ const Schedule = () => {
               {
                 labels?.map((label, idx) => (
                     <div className='flex justify-between items-center gap-0.5' key={idx}>
-                        <label className='relative' htmlFor={`label-${label.codeId}`}>
+                        <label className='relative cursor-pointer' htmlFor={`label-${label.codeId}`}>
                             <div className='w-[14px] h-[14px] m-[5px]' style={{backgroundColor:label.description}}></div>
                             <div className='absolute top-0 left-0 w-[24px] h-[24px]'>
                               {(label.checked ? <CheckSquare/> : <Square/>)}
@@ -337,6 +333,8 @@ const Schedule = () => {
                   eventClick={eventCellModalOpen}
 
                   events={scheduleList}
+                  eventContent={contentFormat}
+
                   datesSet={checkShowDates}
                   />
           </div>
@@ -344,5 +342,57 @@ const Schedule = () => {
       </div>
     )
 }
+
+const contentFormat = (eventInfo) => {
+  const start = eventInfo.event.start;
+  const end = eventInfo.event.end;
+
+  // 시간 포맷
+  const formatTime = (date) =>
+    date.toLocaleTimeString('ko-KR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+  const bgColor = eventInfo.event.backgroundColor || '#3788d8';
+  const textColor = eventInfo.event.textColor || eventInfo.event.color || '#fff';
+  const borderColor = '#fff';
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        backgroundColor: bgColor,
+        color: textColor,
+        borderRadius: '4px',
+        padding: '2px 6px',
+        fontSize: '0.85em',
+        gap: '6px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+      }}
+    >
+      {/* ● 앞의 점 */}
+      <span style={{
+          width: '8px',
+          height: '8px',
+          backgroundColor: borderColor,
+          borderRadius: '50%',
+          flexShrink: 0,
+        }}></span>
+
+      {/* 시간 + 제목 */}
+      <div>
+        <div style={{ fontWeight: 'bold' }}>
+          {formatTime(start)} ~ {formatTime(end)}
+        </div>
+        <div>{eventInfo.event.title}</div>
+      </div>
+    </div>
+  );
+};
+
 
 export default Schedule
