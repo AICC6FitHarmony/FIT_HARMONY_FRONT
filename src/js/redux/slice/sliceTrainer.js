@@ -1,17 +1,25 @@
+// sliceTrainer.js 개선본
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-const fetchTrainers = createAsyncThunk('trainer/fetchTrainers', async () => {
-  const response = await fetch('http://localhost:8000/trainer');
-  return response.json();
-});
+// 서버로부터 트레이너와 체육관 정보 가져오기
+export const fetchTrainers = createAsyncThunk(
+  'trainer/fetchTrainers',
+  async () => {
+    const response = await fetch('http://localhost:8000/trainer');
+    return response.json(); // { data: [...], gym: [...] } 형태를 기대
+  }
+);
 
-// Create the slice
 const trainerSlice = createSlice({
-  name: 'trainer', // Slicename
+  name: 'trainer',
   initialState: {
-    trainers: [], // Initialize as an empty array
+    trainers: {
+      data: [], // 트레이너 정보 배열
+      gym: [], // 체육관 정보 배열
+      products: [], // 트레이너 정보 배열
+    },
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
-    error: null, // To store error messages
+    error: null,
   },
   extraReducers: (builder) => {
     builder
@@ -20,7 +28,7 @@ const trainerSlice = createSlice({
       })
       .addCase(fetchTrainers.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.trainers = action.payload;
+        state.trainers = action.payload; // payload: { data: [...], gym: [...] }
       })
       .addCase(fetchTrainers.rejected, (state, action) => {
         state.status = 'failed';
@@ -29,5 +37,4 @@ const trainerSlice = createSlice({
   },
 });
 
-export { fetchTrainers };
 export default trainerSlice.reducer;
