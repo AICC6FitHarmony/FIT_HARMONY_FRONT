@@ -81,11 +81,11 @@ input[type='text'] {
 }
 
 /* 체크 박스 관련 */
-input[type='checkbox'] {
+input[type='checkbox'], input[type='radio'] {
   /* 스타일 정해지면 주석 해제 */
   display: none;
 }
-input[type='checkbox'] + label{
+input[type='checkbox'] + label, input[type='radio'] + label {
   cursor: pointer;
 }
 
@@ -149,9 +149,7 @@ textarea {
   color: #000000;
 }
 
-
-
-
+/* 로딩 화면 관련 CSS */
 .fit-loading-text {
   display: flex;
   gap: 4px;
