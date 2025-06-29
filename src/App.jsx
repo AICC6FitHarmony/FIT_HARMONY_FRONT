@@ -36,7 +36,7 @@ function App() {
             <div className='fixed w-screen h-screen top-0 left-0 z-100 flex justify-center items-center'>
                 <div className='absolute w-full h-full top-0 left-0 flex flex-col justify-center items-center z-101'>
 
-                  <div class="fit-loading-text">
+                  <div className="fit-loading-text">
                       <span>F</span>
                       <span>I</span>
                       <span>T</span>
