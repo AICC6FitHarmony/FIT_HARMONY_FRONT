@@ -2,15 +2,28 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import { getComments } from '../../../js/community/comunityUtils';
 import CommentInput from './CommentInput';
+import Comment from './Comment';
+import { useAuth } from '../../../js/login/AuthContext';
+
 
 const CommentsView = () => {
   const {postId} = useParams();
   const [comments, setComments] = useState([]);
+  const {user, loading} = useAuth();
+  const [userId, setUserId] = useState("");
 
   useEffect(()=>{
-    getComments(postId,setComments)
-  },[]);
+    if (loading == false &&user.isLoggedIn){
+      setUserId(user.user.userId);
+    }
+  },[loading]);
+  const loadComments = ()=>{
+    getComments(postId, setComments)
+  }
 
+  useEffect(()=>{
+    loadComments();
+  },[]);
 
 
   return (
@@ -20,10 +33,14 @@ const CommentsView = () => {
         <div>{comments.length}</div>
       </div>
       <div className="body">
-        <div className="list">
-
+        <div className="list py-2">
+          {
+            comments?.map((comment, idx)=>(
+              <Comment key={idx} comment={comment} load_comments={loadComments} auth_id={userId}/>
+            ))
+          }
         </div>
-        <CommentInput/>
+        <CommentInput load_comments={loadComments}/>
       </div>
     </div>
   )
