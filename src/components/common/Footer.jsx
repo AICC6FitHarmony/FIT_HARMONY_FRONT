@@ -53,7 +53,7 @@ const test = () => {
                 <span className="text-emerald-100">hello@fitharmony.kr</span>
               </div>
               <div className="flex items-start space-x-3">
-              <p className='text-2xl text-emerald-100'><BsHouseDoorFill /></p>b
+              <p className='text-2xl text-emerald-100'><BsHouseDoorFill /></p>
                 <span className="text-emerald-100">가산디지털단지 200<br />가산 123</span>
               </div>
             </div>
