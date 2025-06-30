@@ -6,7 +6,6 @@ const CommentInput = ({parent_comment_id, load_comments}) => {
   const {postId:post_id} = useParams();
   const [content, setContent] = useState("");
 
-  if(!parent_comment_id) parent_comment_id= null;
 
   const handleChange = (e)=>{
     setContent(e.target.value);

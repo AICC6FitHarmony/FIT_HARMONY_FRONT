@@ -12,19 +12,25 @@ const CommentsView = () => {
   const {user, loading} = useAuth();
   const [userId, setUserId] = useState("");
 
+  const [replyId, setReplyId] = useState(0)
+
   useEffect(()=>{
     if (loading == false &&user.isLoggedIn){
       setUserId(user.user.userId);
     }
   },[loading]);
   const loadComments = ()=>{
-    getComments(postId, setComments)
+    getComments(postId, setComments);
+    setReplyId(0);
   }
 
   useEffect(()=>{
     loadComments();
   },[]);
 
+  const handleReply = (commentId) => ()=>{
+    setReplyId(commentId);
+  }
 
   return (
     <div className='border min-h-[200px]'>
@@ -36,7 +42,18 @@ const CommentsView = () => {
         <div className="list py-2">
           {
             comments?.map((comment, idx)=>(
-              <Comment key={idx} comment={comment} load_comments={loadComments} auth_id={userId}/>
+              <div key={idx} style={
+                {
+                  paddingLeft:`${30*(comment.depth-1)}px`
+                }
+              }>
+                <Comment comment={comment} load_comments={loadComments} auth_id={userId} handleReply={handleReply(comment.commentId)}/>
+                  {
+                    (replyId===comment.commentId)?(
+                      <CommentInput load_comments={loadComments} parent_comment_id={comment.commentId}/>
+                    ):""
+                  }
+              </div>
             ))
           }
         </div>
