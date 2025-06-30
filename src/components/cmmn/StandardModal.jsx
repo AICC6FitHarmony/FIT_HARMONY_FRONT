@@ -25,7 +25,7 @@ const StandardModal = ({title, okEvent, cancelEvent, size, closeEvent, children}
           <div className="modal-wrapper z-1 bg-white rounded-2xl overflow-hidden flex flex-col justify-between" style={{width:width, minHeight:height}}>
             <div className='modal-header bg-green-50'>
                 <div className='border-b border-green-800 flex justify-between pb-4 pt-4 pl-10 pr-10 bg-green-50'>
-                  <h2 className='w-full text-ellipsis overflow-hidden text-xl font-bold'>{title}</h2>
+                  <h2 className='flex flex-col justify-center w-full text-ellipsis overflow-hidden text-xl font-bold'>{title}</h2>
                   {/* X 버튼 중앙 정렬 */}
                   <div className='flex flex-col justify-center'>
                       <button onClick={closeEvent}><X/></button> 
@@ -49,7 +49,7 @@ const StandardModal = ({title, okEvent, cancelEvent, size, closeEvent, children}
                 {
                     // 취소 버튼 이벤트 있는 경우 취소 버튼 노출
                     cancelEvent && (
-                      <button className="cancel" onClick={cancelEvent}>취소</button>
+                      <button className="cancel ml-2" onClick={cancelEvent}>취소</button>
                     )
                 }
             </div>

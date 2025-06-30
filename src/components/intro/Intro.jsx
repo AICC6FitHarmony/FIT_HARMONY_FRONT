@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import "../../css/intro.css";
 
 const items = Array.from({ length: 20 }, (_, i) => i + 1); // [1, 2, ..., 20]
 const PAGE_SIZE = 6;
@@ -31,7 +32,10 @@ const DietCarousel = () => {
       >
         <IoIosArrowBack />
       </button>
-      <div className="grid grid-cols-6 gap-4 flex-1 mx-4">
+      <div
+        className="grid grid-cols-6 gap-4 flex-1 mx-4"
+        // style={{ transform: `translateX(-${page * 10}%)` }}
+      >
         {visibleItems.map((item) => (
           <div key={item} className="text-center">
             <div className="bg-gray-200 h-24 w-24 mx-auto rounded-md flex items-center justify-center text-2xl font-bold">
@@ -74,37 +78,35 @@ const TrainerCarousel = () => {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <button
-          onClick={handlePrev}
-          disabled={page === 0}
-          className="w-8 h-8 flex items-center justify-center text-2xl mr-2"
-        >
-          <IoIosArrowBack />
-        </button>
-        <div className="grid grid-cols-6 gap-2 flex-1 mx-2">
-          {visibleTrainers.map((trainer) => (
-            <div key={trainer.id} className="text-center">
-              <img
-                src={trainer.img}
-                alt={trainer.name}
-                className="w-20 h-24 object-cover mx-auto rounded"
-              />
-              <div className="text-xs mt-1 whitespace-pre-line">
-                {trainer.desc}
-              </div>
+    <div className="flex items-center justify-between">
+      <button
+        onClick={handlePrev}
+        disabled={page === 0}
+        className="w-8 h-8 flex items-center justify-center text-2xl mr-2"
+      >
+        <IoIosArrowBack />
+      </button>
+      <div className="grid grid-cols-6 gap-2 flex-1 mx-2">
+        {visibleTrainers.map((trainer) => (
+          <div key={trainer.id} className="text-center">
+            <img
+              src={trainer.img}
+              alt={trainer.name}
+              className="w-20 h-24 object-cover mx-auto rounded"
+            />
+            <div className="text-xs mt-1 whitespace-pre-line">
+              {trainer.desc}
             </div>
-          ))}
-        </div>
-        <button
-          onClick={handleNext}
-          disabled={endIdx >= trainers.length}
-          className="w-8 h-8 flex items-center justify-center text-2xl ml-2"
-        >
-          <IoIosArrowForward />
-        </button>
+          </div>
+        ))}
       </div>
+      <button
+        onClick={handleNext}
+        disabled={endIdx >= trainers.length}
+        className="w-8 h-8 flex items-center justify-center text-2xl ml-2"
+      >
+        <IoIosArrowForward />
+      </button>
     </div>
   );
 };
