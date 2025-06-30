@@ -5,12 +5,6 @@ import {
   fetchInbodyMonthData,
 } from "../../js/redux/slice/sliceInbody";
 import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Legend,
   BarChart,
   Bar,
   XAxis,
@@ -24,10 +18,11 @@ import {
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { format } from "date-fns";
 import StandardModal from "../cmmn/StandardModal";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction";
 import InbodyRegisterForm from "./InbodyRegisterForm";
+import InbodyCalendarModal from "./InbodyCalendarModal";
+import InbodyRadarCharts from "./InbodyRadarCharts";
+import { useAuthRedirect } from "../../js/login/AuthContext";
+import InbodyDetailForm from "./InbodyDetailForm";
 
 const Inbody = () => {
   const dispatch = useDispatch();
@@ -37,27 +32,27 @@ const Inbody = () => {
   const [mainInbodyData, setMainInbodyData] = useState(null);
   const [modalInbodyData, setModalInbodyData] = useState(null);
   const [isShowRegisterModal, setIsShowRegisterModal] = useState(false);
-
+  const { user, loading } = useAuthRedirect();
+  const [userId, setUserId] = useState(null);
+  const [userName, setUserName] = useState(null);
+  const [isShowDetailModal, setIsShowDetailModal] = useState(false);
   // modalInbodyData 상태 변경 감지
   useEffect(() => {}, [modalInbodyData]);
 
-  const calendarModalOpen = async (inbodyMonthTime) => {
-    const formattedDate = inbodyMonthTime.slice(0, 7);
-    setIsShowCalendarModal(true);
-    try {
-      const result = await dispatch(
-        fetchInbodyMonthData({ userId, inbodyMonthTime: formattedDate })
-      ).unwrap();
-      setModalInbodyData(result.inbodyTimeResult);
-    } catch (error) {
-      console.error("데이터 가져오기 실패:", error);
-    }
-  };
-
-  const userId = "1"; // 테스트용
-
-  //inbodyTime 변경될 때마다 데이터 요청
+  // user 값이 있을 때만 userId 설정
   useEffect(() => {
+    if (user?.user?.userId) {
+      setUserId(user.user.userId);
+      setUserName(user.user.nickName);
+    }
+  }, [user]);
+
+  // user와 userId가 있을 때만 데이터 요청
+  useEffect(() => {
+    if (!user || !userId || loading) {
+      return; // user가 없거나 로딩 중이면 실행하지 않음
+    }
+    console.log("userId", userId);
     const fetchData = async () => {
       try {
         const result = await dispatch(
@@ -85,7 +80,58 @@ const Inbody = () => {
       }
     };
     fetchData();
-  }, [dispatch, userId, inbodyTime]);
+  }, [dispatch, userId, inbodyTime, user, loading]);
+
+  const calendarModalOpen = () => {
+    if (!userId) {
+      console.error("사용자 ID가 없습니다.");
+      return;
+    }
+    setIsShowCalendarModal(true);
+  };
+
+  // 날짜 클릭 핸들러
+  const handleDateClick = (arg) => {
+    const clickedDate = format(arg.date, "yyyy-MM-dd");
+
+    // modalInbodyData에서 해당 날짜가 있는지 확인
+    const isAvailableDate = modalInbodyData?.some(
+      (item) => format(item.inbodyTime, "yyyy-MM-dd") === clickedDate
+    );
+
+    if (isAvailableDate) {
+      // 모달 닫기
+      setIsShowCalendarModal(false);
+      // 해당 날짜로 inbodyTime 설정하여 메인 화면에 데이터 로드
+      setInbodyTime(clickedDate);
+    }
+  };
+
+  const handleDatesSet = async (arg) => {
+    console.log(format(arg.start, "yyyy-MM-dd"));
+    console.log(format(arg.end, "yyyy-MM-dd"));
+
+    try {
+      const result = await dispatch(
+        fetchInbodyMonthData({
+          userId,
+          startDate: format(arg.start, "yyyy-MM-dd"),
+          endDate: format(arg.end, "yyyy-MM-dd"),
+        })
+      ).unwrap();
+      setModalInbodyData(result.inbodyTimeResult);
+    } catch (error) {
+      console.error("데이터 가져오기 실패:", error);
+    }
+  };
+
+  // events 데이터 생성
+  const calendarEvents =
+    modalInbodyData?.map((item) => ({
+      date: format(item.inbodyTime, "yyyy-MM-dd"),
+      color: "green",
+      display: "background", // 배경으로 표시
+    })) || [];
 
   const handlePrevDate = () => {
     const idx = availableDates.indexOf(inbodyTime);
@@ -102,10 +148,17 @@ const Inbody = () => {
   };
 
   // 인바디 등록 처리
-  const handleInbodySubmit = (formData) => {
+  const handleInbodyInsertSubmit = (formData) => {
     console.log("등록 완료:", formData);
-    // 여기에 등록 로직 추가
+    // 등록 완료 후 페이지 리로드
     setIsShowRegisterModal(false);
+    window.location.reload();
+  };
+
+  const handleInbodyUpdateSubmit = (formData) => {
+    console.log("수정 완료:", formData);
+    setIsShowDetailModal(false);
+    window.location.reload();
   };
   // 데이터 로딩 상태 확인
   // console.log("Redux 상태:", { inbodyData, loading, error });
@@ -115,8 +168,12 @@ const Inbody = () => {
   // --------------------------------------------------------------------------------------------------------------
 
   // mainInbodyData가 있을 때만 변수 설정
-  if (!mainInbodyData) {
-    return <div>데이터를 불러오는 중...</div>;
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <div>로딩중...</div>
+      </div>
+    );
   }
 
   // 인바디 데이터 설정
@@ -252,354 +309,272 @@ const Inbody = () => {
   const fullMark_tM = standardValues?.trunk_muscle?.fullMark || 0;
   const fullMark_tF = standardValues?.trunk_fat?.fullMark || 0;
 
-  // 날짜 클릭 핸들러
-  const handleDateClick = (arg) => {
-    const clickedDate = format(arg.date, "yyyy-MM-dd");
-
-    // modalInbodyData에서 해당 날짜가 있는지 확인
-    const isAvailableDate = modalInbodyData?.some(
-      (item) => format(item.inbodyTime, "yyyy-MM-dd") === clickedDate
-    );
-
-    if (isAvailableDate) {
-      // 모달 닫기
-      setIsShowCalendarModal(false);
-      // 해당 날짜로 inbodyTime 설정하여 메인 화면에 데이터 로드
-      setInbodyTime(clickedDate);
-    } else {
-      // 선택적으로 사용자에게 알림
-    }
-  };
-
-  // events 데이터 생성
-  const calendarEvents =
-    modalInbodyData?.map((item) => ({
-      title: "인바디 측정",
-      date: format(item.inbodyTime, "yyyy-MM-dd"),
-      color: "green",
-      display: "background", // 배경으로 표시
-    })) || [];
-
   return (
-    <div className="flex flex-col md:flex-row gap-6 p-6 text-green-600">
-      {/* 왼쪽 */}
-      <div className="w-full md:w-1/2 space-y-4">
-        <div className="text-xl font-semibold text-center">
-          인바디 점수 ({inbodyScore}/100)
-        </div>
+    <>
+      {mainInbodyData &&
+      mainInbodyData.inbodyResult &&
+      mainInbodyData.inbodyResult.length > 0 ? (
+        <div className="flex flex-col md:flex-row gap-6 p-6 text-green-600">
+          <InbodyRadarCharts
+            inbodyScore={inbodyScore}
+            muscleData={muscleData}
+            fatData={fatData}
+            fullMark_tM={fullMark_tM}
+            fullMark_tF={fullMark_tF}
+          />
+          {/* 오른쪽 */}
+          <div className="w-full md:w-1/2 space-y-4">
+            <div className="p-4 bg-white rounded shadow">
+              <h2 className="text-lg font-semibold mb-4">체성분 분석</h2>
+              <ResponsiveContainer width="100%" height={150}>
+                <BarChart
+                  layout="vertical"
+                  data={bodyCompositionData}
+                  margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" domain={[0, 100]} />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tick={{ fontSize: 14, fill: "oklch(62.7% 0.194 149.214)" }}
+                  />
+                  <Tooltip
+                    content={({ payload }) => {
+                      if (!payload || payload.length === 0) return null;
+                      const item = payload[0].payload;
+                      return (
+                        <div
+                          style={{
+                            background: "white",
+                            padding: 8,
+                            borderRadius: 8,
+                            color: "#16a34a",
+                          }}
+                        >
+                          <div style={{ fontWeight: "bold" }}>{item.name}</div>
+                          <div>
+                            {Number(item.value).toFixed(1)} {item.unit}
+                          </div>
+                        </div>
+                      );
+                    }}
+                    formatter={(v, name, props) => `${v} ${props.payload.unit}`}
+                  />
 
-        <div className="flex flex-col gap-2">
-          <div>
-            <div className="text-xl font-semibold text-center p-2">근육량</div>
-            <div className="flex justify-center">
-              <RadarChart
-                outerRadius={90}
-                width={730}
-                height={250}
-                data={muscleData}
-              >
-                <PolarGrid />
-                <PolarAngleAxis dataKey="subject" />
-                <PolarRadiusAxis angle={30} domain={[0, fullMark_tM]} />
-                <Radar
-                  name="현재"
-                  dataKey="A"
-                  stroke="oklch(62.7% 0.194 149.214)"
-                  fill="oklch(62.7% 0.194 149.214)"
-                  fillOpacity={0.6}
-                />
-                <Radar
-                  name="표준"
-                  dataKey="B"
-                  stroke="oklch(87.1% 0.15 154.449)"
-                  fill="oklch(87.1% 0.15 154.449)"
-                  fillOpacity={0.6}
-                />
-                <Legend />
-              </RadarChart>
+                  <Bar
+                    dataKey="value"
+                    fill="oklch(62.7% 0.194 149.214)"
+                    radius={[0, 6, 6, 0]}
+                  >
+                    <LabelList
+                      dataKey="value"
+                      position="right"
+                      formatter={(v) => {
+                        return `${v}`;
+                      }}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="p-4 bg-white rounded shadow">
+              <h2 className="text-lg font-semibold mb-4">골격근 · 지방 분석</h2>
+              <ResponsiveContainer width="100%" height={150}>
+                <BarChart
+                  layout="vertical"
+                  data={muscleFatAnalysisData}
+                  margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    type="number"
+                    domain={[0, 400]}
+                    tickFormatter={(v) => `${v}%`}
+                  />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tick={{ fontSize: 14, fill: "oklch(62.7% 0.194 149.214)" }}
+                  />
+                  <Tooltip
+                    content={({ payload }) => {
+                      if (!payload || payload.length === 0) return null;
+                      const item = payload[0].payload;
+                      return (
+                        <div
+                          style={{
+                            background: "white",
+                            padding: 8,
+                            borderRadius: 8,
+                            color: "#16a34a",
+                          }}
+                        >
+                          <div style={{ fontWeight: "bold" }}>{item.name}</div>
+                          <div>{Number(item.value_percent).toFixed(1)}%</div>
+                        </div>
+                      );
+                    }}
+                    formatter={(v, name, props) =>
+                      `${Number(v).toFixed(1)} ${props.payload.unit}`
+                    }
+                  />
+
+                  {/* 기준 영역 배경 (표준 범위 시각화) */}
+                  {muscleFatAnalysisData.map((item, index) => (
+                    <ReferenceArea
+                      key={index}
+                      y1={item.name}
+                      y2={item.name}
+                      x1={item.min}
+                      x2={item.max}
+                      fill="oklch(87.1% 0.15 154.449)"
+                      fillOpacity={1}
+                      radius={[6, 6, 6, 6]}
+                    />
+                  ))}
+
+                  <Bar
+                    dataKey="value_percent"
+                    fill="oklch(62.7% 0.194 149.214)"
+                    radius={[0, 6, 6, 0]}
+                  >
+                    <LabelList
+                      dataKey="value"
+                      position="right"
+                      formatter={(v) => `${v}`}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="p-4 bg-white rounded shadow">
+              <h2 className="text-lg font-semibold mb-4">비만 분석</h2>
+              <ResponsiveContainer width="100%" height={150}>
+                <BarChart
+                  layout="vertical"
+                  data={obesityAnalysisData}
+                  margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    type="number"
+                    domain={[0, 55]}
+                    tickFormatter={(v) => `${v}`}
+                  />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tick={{ fontSize: 14, fill: "oklch(62.7% 0.194 149.214)" }}
+                  />
+                  <Tooltip
+                    content={({ payload }) => {
+                      if (!payload || payload.length === 0) return null;
+                      const item = payload[0].payload;
+                      return (
+                        <div
+                          style={{
+                            background: "white",
+                            padding: 8,
+                            borderRadius: 8,
+                            color: "#16a34a",
+                          }}
+                        >
+                          <div style={{ fontWeight: "bold" }}>{item.name}</div>
+                          <div>
+                            {Number(item.value).toFixed(1)} {item.unit}
+                          </div>
+                        </div>
+                      );
+                    }}
+                    formatter={(v, name, props) => `${v} ${props.payload.unit}`}
+                  />
+
+                  {/* 기준 영역 배경 (표준 범위 시각화) */}
+                  {obesityAnalysisData.map((item, index) => (
+                    <ReferenceArea
+                      key={index}
+                      y1={item.name}
+                      y2={item.name}
+                      x1={item.min}
+                      x2={item.max}
+                      fill="oklch(87.1% 0.15 154.449)"
+                      fillOpacity={1}
+                      radius={[6, 6, 6, 6]}
+                    />
+                  ))}
+
+                  <Bar
+                    dataKey="value"
+                    fill="oklch(62.7% 0.194 149.214)"
+                    radius={[0, 6, 6, 0]}
+                  >
+                    <LabelList
+                      dataKey="value"
+                      position="right"
+                      formatter={(v) => `${v}`}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
+              <div className="flex items-center">
+                {availableDates.indexOf(inbodyTime) > 0 && (
+                  <button
+                    className="w-8 h-8 text-2xl mr-2"
+                    onClick={handlePrevDate}
+                  >
+                    <IoIosArrowBack />
+                  </button>
+                )}
+                <button onClick={calendarModalOpen}>{inbodyTime}</button>
+                {availableDates.indexOf(inbodyTime) <
+                  availableDates.length - 1 && (
+                  <button
+                    className="w-8 h-8 text-2xl ml-2"
+                    onClick={handleNextDate}
+                  >
+                    <IoIosArrowForward />
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  className="ok"
+                  onClick={() => setIsShowDetailModal(true)}
+                >
+                  상세
+                </button>
+                <button
+                  className="ok"
+                  onClick={() => setIsShowRegisterModal(true)}
+                >
+                  등록
+                </button>
+              </div>
             </div>
           </div>
-
-          <div>
-            <div className="text-xl font-semibold text-center p-2">체지방</div>
-            <div className="flex justify-center">
-              <RadarChart
-                outerRadius={90}
-                width={730}
-                height={250}
-                data={fatData}
-              >
-                <PolarGrid />
-                <PolarAngleAxis dataKey="subject" />
-                <PolarRadiusAxis angle={30} domain={[0, fullMark_tF]} />
-                <Radar
-                  name="현재"
-                  dataKey="A"
-                  stroke="oklch(62.7% 0.194 149.214)"
-                  fill="oklch(62.7% 0.194 149.214)"
-                  fillOpacity={0.6}
-                />
-                <Radar
-                  name="표준"
-                  dataKey="B"
-                  stroke="oklch(87.1% 0.15 154.449)"
-                  fill="oklch(87.1% 0.15 154.449)"
-                  fillOpacity={0.6}
-                />
-                <Legend />
-              </RadarChart>
-            </div>
-          </div>
         </div>
-      </div>
-      {/* 오른쪽 */}
-      <div className="w-full md:w-1/2 space-y-4">
-        <div className="p-4 bg-white rounded shadow">
-          <h2 className="text-lg font-semibold mb-4">체성분 분석</h2>
-          <ResponsiveContainer width="100%" height={150}>
-            <BarChart
-              layout="vertical"
-              data={bodyCompositionData}
-              margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" domain={[0, 100]} />
-              <YAxis
-                dataKey="name"
-                type="category"
-                tick={{ fontSize: 14, fill: "oklch(62.7% 0.194 149.214)" }}
-              />
-              <Tooltip
-                content={({ payload }) => {
-                  if (!payload || payload.length === 0) return null;
-                  const item = payload[0].payload;
-                  return (
-                    <div
-                      style={{
-                        background: "white",
-                        padding: 8,
-                        borderRadius: 8,
-                        color: "#16a34a",
-                      }}
-                    >
-                      <div style={{ fontWeight: "bold" }}>{item.name}</div>
-                      <div>
-                        {Number(item.value).toFixed(1)} {item.unit}
-                      </div>
-                    </div>
-                  );
-                }}
-                formatter={(v, name, props) => `${v} ${props.payload.unit}`}
-              />
-
-              <Bar
-                dataKey="value"
-                fill="oklch(62.7% 0.194 149.214)"
-                radius={[0, 6, 6, 0]}
-              >
-                <LabelList
-                  dataKey="value"
-                  position="right"
-                  formatter={(v) => {
-                    return `${v}`;
-                  }}
-                />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="p-4 bg-white rounded shadow">
-          <h2 className="text-lg font-semibold mb-4">골격근 · 지방 분석</h2>
-          <ResponsiveContainer width="100%" height={150}>
-            <BarChart
-              layout="vertical"
-              data={muscleFatAnalysisData}
-              margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                type="number"
-                domain={[0, 400]}
-                tickFormatter={(v) => `${v}%`}
-              />
-              <YAxis
-                dataKey="name"
-                type="category"
-                tick={{ fontSize: 14, fill: "oklch(62.7% 0.194 149.214)" }}
-              />
-              <Tooltip
-                content={({ payload }) => {
-                  if (!payload || payload.length === 0) return null;
-                  const item = payload[0].payload;
-                  return (
-                    <div
-                      style={{
-                        background: "white",
-                        padding: 8,
-                        borderRadius: 8,
-                        color: "#16a34a",
-                      }}
-                    >
-                      <div style={{ fontWeight: "bold" }}>{item.name}</div>
-                      <div>{Number(item.value_percent).toFixed(1)}%</div>
-                    </div>
-                  );
-                }}
-                formatter={(v, name, props) =>
-                  `${Number(v).toFixed(1)} ${props.payload.unit}`
-                }
-              />
-
-              {/* 기준 영역 배경 (표준 범위 시각화) */}
-              {muscleFatAnalysisData.map((item, index) => (
-                <ReferenceArea
-                  key={index}
-                  y1={item.name}
-                  y2={item.name}
-                  x1={item.min}
-                  x2={item.max}
-                  fill="oklch(87.1% 0.15 154.449)"
-                  fillOpacity={1}
-                  radius={[6, 6, 6, 6]}
-                />
-              ))}
-
-              <Bar
-                dataKey="value_percent"
-                fill="oklch(62.7% 0.194 149.214)"
-                radius={[0, 6, 6, 0]}
-              >
-                <LabelList
-                  dataKey="value"
-                  position="right"
-                  formatter={(v) => `${v}`}
-                />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="p-4 bg-white rounded shadow">
-          <h2 className="text-lg font-semibold mb-4">비만 분석</h2>
-          <ResponsiveContainer width="100%" height={150}>
-            <BarChart
-              layout="vertical"
-              data={obesityAnalysisData}
-              margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                type="number"
-                domain={[0, 55]}
-                tickFormatter={(v) => `${v}`}
-              />
-              <YAxis
-                dataKey="name"
-                type="category"
-                tick={{ fontSize: 14, fill: "oklch(62.7% 0.194 149.214)" }}
-              />
-              <Tooltip
-                content={({ payload }) => {
-                  if (!payload || payload.length === 0) return null;
-                  const item = payload[0].payload;
-                  return (
-                    <div
-                      style={{
-                        background: "white",
-                        padding: 8,
-                        borderRadius: 8,
-                        color: "#16a34a",
-                      }}
-                    >
-                      <div style={{ fontWeight: "bold" }}>{item.name}</div>
-                      <div>
-                        {Number(item.value).toFixed(1)} {item.unit}
-                      </div>
-                    </div>
-                  );
-                }}
-                formatter={(v, name, props) => `${v} ${props.payload.unit}`}
-              />
-
-              {/* 기준 영역 배경 (표준 범위 시각화) */}
-              {obesityAnalysisData.map((item, index) => (
-                <ReferenceArea
-                  key={index}
-                  y1={item.name}
-                  y2={item.name}
-                  x1={item.min}
-                  x2={item.max}
-                  fill="oklch(87.1% 0.15 154.449)"
-                  fillOpacity={1}
-                  radius={[6, 6, 6, 6]}
-                />
-              ))}
-
-              <Bar
-                dataKey="value"
-                fill="oklch(62.7% 0.194 149.214)"
-                radius={[0, 6, 6, 0]}
-              >
-                <LabelList
-                  dataKey="value"
-                  position="right"
-                  formatter={(v) => `${v}`}
-                />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
-          <div className="flex items-center">
-            {availableDates.indexOf(inbodyTime) > 0 && (
-              <button
-                className="w-8 h-8 text-2xl mr-2"
-                onClick={handlePrevDate}
-              >
-                <IoIosArrowBack />
-              </button>
-            )}
-            <button onClick={() => calendarModalOpen(inbodyTime)}>
-              {inbodyTime}
-            </button>
-            {availableDates.indexOf(inbodyTime) < availableDates.length - 1 && (
-              <button
-                className="w-8 h-8 text-2xl ml-2"
-                onClick={handleNextDate}
-              >
-                <IoIosArrowForward />
-              </button>
-            )}
-          </div>
-          <button
-            className="bg-blue-500 text-white px-4 py-1 rounded"
-            onClick={() => setIsShowRegisterModal(true)}
-          >
+      ) : (
+        <div className="flex flex-col items-center justify-center h-screen">
+          <div>등록된 정보가 없습니다. 인바디를 등록해주세요.</div>
+          <button className="ok" onClick={() => setIsShowRegisterModal(true)}>
             등록
           </button>
         </div>
-      </div>
-      {isShowCalendarModal && (
-        <StandardModal
-          title="캘린더"
-          size={{ width: "50vw" }}
-          closeEvent={() => setIsShowCalendarModal(false)}
-        >
-          <FullCalendar
-            plugins={[dayGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            locale="ko"
-            headerToolbar={{
-              right: "next",
-              center: "title",
-              left: "prev",
-            }}
-            height="auto"
-            events={calendarEvents}
-            dateClick={handleDateClick}
-          />
-        </StandardModal>
       )}
+
+      {/* 모달들은 조건부 렌더링 밖에 있어야 함 */}
+      <InbodyCalendarModal
+        isOpen={isShowCalendarModal}
+        onClose={() => setIsShowCalendarModal(false)}
+        calendarEvents={calendarEvents}
+        onDateClick={handleDateClick}
+        onDatesSet={handleDatesSet}
+        initialDate={inbodyTime}
+      />
       {isShowRegisterModal && (
         <StandardModal
           title="인바디 등록"
@@ -607,12 +582,28 @@ const Inbody = () => {
           closeEvent={() => setIsShowRegisterModal(false)}
         >
           <InbodyRegisterForm
+            userName={userName}
+            userId={userId}
             onClose={() => setIsShowRegisterModal(false)}
-            onSubmit={handleInbodySubmit}
+            onSubmit={handleInbodyInsertSubmit}
           />
         </StandardModal>
       )}
-    </div>
+      {isShowDetailModal && (
+        <StandardModal
+          title="인바디 상세"
+          size={{ width: "50vw", height: "10vw" }}
+          closeEvent={() => setIsShowDetailModal(false)}
+        >
+          <InbodyDetailForm
+            userName={userName}
+            inbodyData={mainInbodyData?.inbodyResult[0]}
+            onClose={() => setIsShowDetailModal(false)}
+            onSubmit={handleInbodyUpdateSubmit}
+          />
+        </StandardModal>
+      )}
+    </>
   );
 };
 

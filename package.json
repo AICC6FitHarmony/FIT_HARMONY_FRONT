@@ -17,7 +17,6 @@
     "@fullcalendar/timegrid": "^6.1.17",
     "@reduxjs/toolkit": "^2.8.2",
     "@tailwindcss/vite": "^4.1.10",
-    "axios": "^1.10.0",
     "@tiptap/extension-color": "^2.23.0",
     "@tiptap/extension-document": "^2.23.0",
     "@tiptap/extension-image": "^2.23.0",
@@ -26,6 +25,7 @@
     "@tiptap/extension-underline": "^2.23.0",
     "@tiptap/react": "^2.23.0",
     "@tiptap/starter-kit": "^2.23.0",
+    "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.522.0",
     "ogl": "^1.0.11",
@@ -36,6 +36,7 @@
     "react-router-dom": "^7.6.2",
     "react-toastify": "^11.0.5",
     "recharts": "^3.0.0",
+    "sweetalert2": "^11.22.2",
     "tailwindcss": "^4.1.10",
     "tiptap-extension-resize-image": "^1.2.2"
   },
