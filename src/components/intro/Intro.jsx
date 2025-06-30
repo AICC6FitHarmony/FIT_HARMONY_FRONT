@@ -3,6 +3,7 @@ import { FcGoogle } from "react-icons/fc";
 import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import "../../css/intro.css";
+import { useAuth } from "../../js/login/AuthContext";
 
 const items = Array.from({ length: 20 }, (_, i) => i + 1); // [1, 2, ..., 20]
 const PAGE_SIZE = 6;
@@ -282,16 +283,22 @@ const ReviewCarousel = () => {
 };
 
 const Intro = () => {
+  const { user, loading } = useAuth();
+
   return (
     <div className="min-h-screen bg-white text-black p-6 font-sans px-10">
       <div className="text-center">
         <h1 className="text-5xl font-bold mb-2">Fit Harmony</h1>
-        <button className="border mt-2 px-4 py-2 rounded-md text-sm">
-          {/* `${import.meta.env.VITE_BACKEND_DOMAIN}/auth/google` */}
-          <a href="" className="flex items-center">
-            <FcGoogle className="mr-2" /> Login with Google
-          </a>
-        </button>
+        {user?.isLoggedIn ? (
+          <div className="text-sm">{user.user.nickName}님 환영 합니다</div>
+        ) : (
+          <button className="border mt-2 px-4 py-2 rounded-md text-sm">
+            {/* `${import.meta.env.VITE_BACKEND_DOMAIN}/auth/google` */}
+            <a href="/login" className="flex items-center">
+              <FcGoogle className="mr-2" /> Login with Google
+            </a>
+          </button>
+        )}
       </div>
 
       <div className="mt-10">
