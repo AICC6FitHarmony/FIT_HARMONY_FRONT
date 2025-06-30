@@ -15,14 +15,25 @@ const getRequest = async (url) => {
   });
 };
 
-// Inbody 데이터 가져오기 Thunk
-export const fetchInbodyData = createAsyncThunk(
-  'inbody/fetchInbodyData',
+// Inbody 일일 데이터 가져오기 Thunk
+export const fetchInbodyDayData = createAsyncThunk(
+  'inbody/fetchInbodyDayData',
   async ({ userId, inbodyTime }) => {
     const fullPath = `${GET_INBODY_API_URL}/${userId}?inbodyTime=${inbodyTime}`;
     //console.log('API 호출 URL:', fullPath);
     const response = await getRequest(fullPath);
     //console.log('API 응답 데이터:', response);
+    return response;
+  }
+);
+
+// Inbody 월간 데이터 가져오기 Thunk
+
+export const fetchInbodyMonthData = createAsyncThunk(
+  'inbody/fetchInbodyMonthData',
+  async ({ userId, inbodyMonthTime }) => {
+    const fullPath = `${GET_INBODY_API_URL}/${userId}/month?inbodyMonthTime=${inbodyMonthTime}`;
+    const response = await getRequest(fullPath);
     return response;
   }
 );
@@ -42,16 +53,30 @@ const inbodySlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchInbodyData.pending, (state) => {
+      .addCase(fetchInbodyDayData.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchInbodyData.fulfilled, (state, action) => {
+      .addCase(fetchInbodyDayData.fulfilled, (state, action) => {
         state.loading = false;
         state.inbodyData = action.payload;
         //console.log('Redux 스토어에 저장된 데이터:', action.payload);
       })
-      .addCase(fetchInbodyData.rejected, (state, action) => {
+      .addCase(fetchInbodyDayData.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        console.error('API 호출 실패:', action.error.message);
+      })
+      .addCase(fetchInbodyMonthData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchInbodyMonthData.fulfilled, (state, action) => {
+        state.loading = false;
+        state.inbodyData = action.payload;
+        //console.log('Redux 스토어에 저장된 데이터:', action.payload);
+      })
+      .addCase(fetchInbodyMonthData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
         console.error('API 호출 실패:', action.error.message);
