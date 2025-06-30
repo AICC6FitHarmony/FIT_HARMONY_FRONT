@@ -68,7 +68,7 @@ const TrainerMain = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleKeyPress}
-              className="border-2 border-[#1a7d45] rounded-md w-[35rem] h-[40px] shadow-md pr-10"
+              className="border-2 bg-white border-[#1a7d45] rounded-md w-[35rem] h-[40px] shadow-md pr-10"
             />
             <button
               onClick={handleSearch}
