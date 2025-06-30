@@ -33,7 +33,9 @@ button {
   padding: 0.5rem 0.75rem;
 }
 
-button.ok, button.cancel, button.disable {
+button.ok,
+button.cancel,
+button.disable {
   border: none;
   padding: 10px 20px;
   font-size: 1rem;
@@ -51,20 +53,22 @@ button.cancel {
   color: white;
 }
 
-button.ok:hover, button.cancel:hover  {
+button.ok:hover,
+button.cancel:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* hover 시 조금 더 입체감 */
   transform: translateY(-1px);
 }
 
-button.ok:active, button.cancel:active {
+button.ok:active,
+button.cancel:active {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* 눌렀을 때 납작해짐 */
   transform: translateY(1px);
 }
 
 button.disable {
-  transition:none;
+  transition: none;
   background-color: #ddd;
-  color:#444;
+  color: #444;
 }
 
 /* input CSS */
@@ -77,11 +81,11 @@ input[type='text'] {
 }
 
 /* 체크 박스 관련 */
-input[type='checkbox'] {
+input[type='checkbox'], input[type='radio'] {
   /* 스타일 정해지면 주석 해제 */
   display: none;
 }
-input[type='checkbox'] + label{
+input[type='checkbox'] + label, input[type='radio'] + label {
   cursor: pointer;
 }
 
@@ -143,4 +147,65 @@ textarea {
   border: 1px solid #000000;
 
   color: #000000;
+}
+
+/* 로딩 화면 관련 CSS */
+.fit-loading-text {
+  display: flex;
+  gap: 4px;
+  font-size: 3.9rem;
+  font-weight: bold;
+  color: #f0fdf4;
+  background-color: transparent;
+  overflow: hidden;
+  text-shadow:
+    0 0 6px rgba(0, 200, 150, 0.6),
+    0 0 12px rgba(0, 255, 200, 0.4),
+    0 0 18px rgba(0, 255, 200, 0.3);
+}
+
+.fit-loading-text span {
+  display: inline-block;
+  animation: bounceFast 0.7s ease-in-out infinite;
+}
+
+/* 순차적 딜레이 (리듬감 조성) */
+.fit-loading-text span:nth-child(1) { animation-delay: 0s; }
+.fit-loading-text span:nth-child(2) { animation-delay: 0.07s; }
+.fit-loading-text span:nth-child(3) { animation-delay: 0.14s; }
+.fit-loading-text span:nth-child(4) { animation-delay: 0.21s; }
+.fit-loading-text span:nth-child(5) { animation-delay: 0.28s; }
+.fit-loading-text span:nth-child(6) { animation-delay: 0.35s; }
+.fit-loading-text span:nth-child(7) { animation-delay: 0.42s; }
+.fit-loading-text span:nth-child(8) { animation-delay: 0.49s; }
+.fit-loading-text span:nth-child(9) { animation-delay: 0.56s; }
+.fit-loading-text span:nth-child(10) { animation-delay: 0.63s; }
+.fit-loading-text span:nth-child(11) { animation-delay: 0.7s; }
+
+/* 빠른 bounce + glow 강조 */
+@keyframes bounceFast {
+  0% {
+    transform: translateY(0);
+    opacity: 0.8;
+  }
+  20% {
+    transform: translateY(-16px);
+    opacity: 1;
+    text-shadow:
+      0 0 10px rgba(255, 255, 255, 0.7),
+      0 0 18px rgba(0, 255, 200, 0.5),
+      0 0 30px rgba(0, 255, 200, 0.4);
+  }
+  40% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(-6px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.8;
+  }
 }
