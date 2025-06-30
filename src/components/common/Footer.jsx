@@ -15,7 +15,7 @@ const test = () => {
        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
         {/* FIT문구구 */}
         <div>
-        <h2 className="text-2xl font-bold text-emerald-300 mb-4">Fit Harmony</h2>
+        <h2 className="text-2xl font-bold text-[#a0e881] mb-4">Fit Harmony</h2>
             <p className="text-emerald-100 mb-6 leading-relaxed">
               건강한 라이프스타일을 위한 완벽한 파트너. 
               함께 더 나은 당신을 만들어가세요.
@@ -29,7 +29,7 @@ const test = () => {
            
             {/* 서비스스 구분 */}
             <div className= "text-emerald-100" >
-              <h2 className='text-2xl font-bold text-emerald-300 mb-4'> 서비스</h2>
+              <h2 className='text-2xl font-bold text-[#a0e881] mb-4'> 서비스</h2>
                 <div className='space-y-2'>
                   <div><Link to="/schedule">캘린더</Link></div>
                   <div><Link to="/inbody">인바디</Link></div>
@@ -39,7 +39,7 @@ const test = () => {
         </div>
         {/* 연락처 */}
         <div>
-            <h3 className="text-lg font-semibold text-emerald-300 mb-4">연락처</h3>
+            <h3 className="text-lg font-semibold text-[#a0e881] mb-4">연락처</h3>
             <div className="space-y-3 mb-6">
               <div className="flex items-center space-x-3">
                 <p className='text-2xl text-emerald-100'><PiPhoneFill /></p>
