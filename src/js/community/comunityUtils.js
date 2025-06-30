@@ -1,15 +1,11 @@
-import { request } from "../config/requests";
+// import { request } from "../config/requests";
 
-//formData : 회원가입 정보
 export const postCreate = async (formData)=>{
   const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/post`, {
     method: 'POST',
     credentials: 'include',
-    // headers: { 'Content-Type': 'multipart/form-data'},
-    // body: JSON.stringify(formData)
     body: formData
   });
-  // 2. 직접 리디렉션 (백엔드가 바로 구글로 리디렉션하지 않고 URL만 응답하는 구조)
   const result = await response.json();
   return result;
 }
@@ -30,9 +26,40 @@ export const getPost = async (postId) =>{
 }
 
 export const deletePost = async(body)=>{
-  const res = await request(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/delete`,{
-    method:"DELETE",
-    body:body
-  })
+  // await request(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/delete`,{
+  //   method:"DELETE",
+  //   body:body
+  // })
+  
+  const res = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/delete`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      charset: 'UTF-8',
+    },
+    body: JSON.stringify(body)
+  });
+  return res;
+}
+
+export const getComments = async(postId, setComments)=>{
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/comments/${postId}`);
+  const res = await response.json();
+  // console.log(res);
+  setComments(res);
+  return res;
+}
+
+export const createComment = async(body)=>{
+  const res = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/delete`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      charset: 'UTF-8',
+    },
+    body: JSON.stringify(body)
+  });
   return res;
 }

@@ -11,12 +11,10 @@ const CommunityBoard = () => {
 )
 
 
-  const totalCount = 0;
-
   return (
-      <div className='board_wrapper border'>
-        <div className='board_header border'>
-          <div className='board_title'>커뮤니티</div>
+      <div className='board_wrapper p-2'>
+        <div className='board_header'>
+          <div className='board_title text-4xl p-5'>커뮤니티</div>
           <div className="board_action flex justify-between">
             <div className="search border">
               <span>검색</span>
@@ -28,7 +26,7 @@ const CommunityBoard = () => {
               </select>
             </div>
             <div className="info_and_create">
-              <span>total : {totalCount}</span>
+              <span>total : {posts.length}</span>
               <Link to={`/community/${boardId?boardId:1}/create`}>
               생성
               </Link>
@@ -42,16 +40,16 @@ const CommunityBoard = () => {
               <th className="px-4 py-2 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
                 번호
               </th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+              <th className="px-4 py-2 text-left text-xs w-2/3 font-medium text-green-700 uppercase tracking-wider">
                 제목
               </th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+              <th className="px-4 py-2 text-center text-xs font-medium text-green-700 uppercase tracking-wider">
                 작성자
               </th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+              <th className="px-4 py-2 text-center text-xs w-[7rem] font-medium text-green-700 uppercase tracking-wider">
                 작성일
               </th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+              <th className="px-4 py-2 text-center text-xs w-20 font-medium text-green-700 uppercase tracking-wider">
                 조회수
               </th>
             </tr>
@@ -63,11 +61,13 @@ const CommunityBoard = () => {
                 <tr key={post.postId} className="hover:bg-green-50">
                   <td className="px-4 py-2 text-sm text-gray-700">{post.postId}</td>
                   <td className="px-4 py-2 text-sm font-medium text-green-700 hover:underline cursor-pointer">
-                    <Link to={`/community/post/${post.postId}`}>{post.title}</Link>
+                    <Link to={`/community/post/${post.postId}`} className='w-full h-full'>
+                      <div className='w-full h-full'>{post.title}</div>
+                    </Link>
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-700">{post.userId}</td>
-                  <td className="px-4 py-2 text-sm text-gray-700">{post.createdTime}</td>
-                  <td className="px-4 py-2 text-sm text-gray-700">{post.view_cnt}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700 text-center">{post.nickName}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700 text-center">{post.createdTime.substr(0,10)}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700 text-center">{post.viewCnt}</td>
                 </tr>
               )
             })}

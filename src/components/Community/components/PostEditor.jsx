@@ -113,7 +113,12 @@ const PostEditor = () => {
     form.append('title',postTitle);
     form.append("content",JSON.stringify(cleanJSON));
     const result = await postCreate(form);
+    console.log(result)
+    if(result.success == false){
 
+      return
+    }
+    location.href = `/community/post/${result.postId}`
   }
 
   const handleSave = async ()=>{
