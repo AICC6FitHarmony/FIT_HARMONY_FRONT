@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { request } from '../../js/config/requests';
 import { Link, redirect, Route, Routes } from 'react-router-dom';
 import SignUpSelect from './SignUpSelect';
 import LoginPage from './LoginPage';

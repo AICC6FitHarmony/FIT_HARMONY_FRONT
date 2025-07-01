@@ -15,8 +15,6 @@ import { useSelector } from 'react-redux';
 
 function App() {
   const isLoading = useSelector((state) => state.loading.isLoading);
-  // const isLoading = true;
-
   return (
     <BrowserRouter>
       <Header />
@@ -28,7 +26,7 @@ function App() {
           <Route path="/inbody" element={<Inbody />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/schedule" element={<Schedule />} />
-          <Route path="/trainer" element={<Trainer />} />
+          <Route path="/trainer/*" element={<Trainer />} />
           <Route path="/community/*" element={<Community />} />
           {/* 구글 인증 처리 후 동작 페이지 */}
           <Route path="/auth/google/result" element={<AuthGoogleResult />} />
@@ -37,7 +35,7 @@ function App() {
         {isLoading && (
           <div className="fixed w-screen h-screen top-0 left-0 z-100 flex justify-center items-center">
             <div className="absolute w-full h-full top-0 left-0 flex flex-col justify-center items-center z-101">
-              <div class="fit-loading-text">
+              <div className="fit-loading-text">
                 <span>F</span>
                 <span>I</span>
                 <span>T</span>

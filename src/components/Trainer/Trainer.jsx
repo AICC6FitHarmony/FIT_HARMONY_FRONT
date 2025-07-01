@@ -8,7 +8,7 @@ const Trainer = () => {
     <div>
       <Routes>
         <Route path="/" element={<TrainerMain />} />
-        <Route path="/trainer/:id" element={<TrainerReadMore />} />
+        <Route path="/:id" element={<TrainerReadMore />} /> 
       </Routes>
     </div>
   );
