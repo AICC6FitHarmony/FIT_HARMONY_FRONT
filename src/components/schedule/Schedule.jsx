@@ -508,7 +508,10 @@ const contentFormat = (eventInfo) => {
               gap: '6px',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-          }}>
+              width:'calc(100% - 4px)',
+              textAlign:'left'
+          }}
+          >
           {/* ● 앞의 점 */}
           <span style={{
               width: '8px',
