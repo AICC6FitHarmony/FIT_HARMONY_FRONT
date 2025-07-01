@@ -9,7 +9,7 @@ const InputWithLabel = ({label, name, value, onChange, isNumber, waringText, isW
   }
 
   return (
-    <div className="w-full relative flex gap-2 items-center justify-between">
+    <div className="input-label w-full relative flex gap-2 items-center justify-between">
       {label&&(<div className='label'>{label}</div>)}
       <div className={`input-wrapper flex flex-col ${label?"w-[80%]":"w-full"}`}>
         <input

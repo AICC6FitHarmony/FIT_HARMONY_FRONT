@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import SignInputTab from "./SignInputTab";
-import InputWithLabel from "./InputWithLabel";
+import InputWithLabel from "../../cmmn/InputWithLabel";
 
 const SignBodyPage = ({
   userInfo,

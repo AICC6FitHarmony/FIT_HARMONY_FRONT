@@ -7,7 +7,7 @@ import SignButton from "./common/SignButton";
 import { toast, ToastContainer } from "react-toastify";
 import SignNav from "./common/SignNav";
 import SignGym from "./common/SignGym";
-import InputWithLabel from "./common/InputWithLabel";
+import InputWithLabel from "../cmmn/InputWithLabel";
 
 const SignTrainer = () => {
   const idxMax = 4;
