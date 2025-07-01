@@ -10,6 +10,16 @@ export const postCreate = async (formData)=>{
   return result;
 }
 
+export const postUpdate = async (formData)=>{
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/post`, {
+    method: 'PUT',
+    credentials: 'include',
+    body: formData
+  });
+  const result = await response.json();
+  return result;
+}
+
 export const getPosts = async (board_id, setPosts)=>{
   const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/${board_id}`);
   const res = await response.json();

@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { ALargeSmallIcon, AlignCenterIcon, AlignLeftIcon, AlignRightIcon, BaselineIcon, BoldIcon, BrushIcon, ImagePlusIcon, ImageUpIcon, ItalicIcon, PaintBucketIcon } from 'lucide-react';
+import { useImageFileUpload, useUpdateGroupId } from '../../../js/common/util';
 
 
 const MenuBar = ({ editor }) => {
@@ -7,6 +8,10 @@ const MenuBar = ({ editor }) => {
   const [fontColor, setFontColor] = useState('#000000');
   const [bgColor, setBgColor] = useState('#ffffff');
   const fileInputRef = useRef(null);
+
+  const fileUpload = useImageFileUpload();
+  const updateGroupId = useUpdateGroupId();
+
   if (!editor) {
     return null;
   }
@@ -19,18 +24,37 @@ const addImageFromUrl = () => {
   }
 };
 
+const uploadImage = async (file)=>{
+  const uploadFormData = new FormData();
+  uploadFormData.append('file', file);
+  const upload = await fileUpload(uploadFormData);
+  const updateGroupIdResult = await updateGroupId({groupId : upload.groupId, newGroupId: 'post-img-test'});
+  return upload;
+}
+
 // 로컬 파일 삽입
-const handleFileChange = (e) => {
+const handleFileChange = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = () => {
-    editor.chain().focus().setImage({ src: reader.result, width: '300px', style:{width:'300px'}}).run();
-  };
-  reader.readAsDataURL(file);
+  // 이미지 업로드 후 url 리턴
+  const img_info = await uploadImage(file);
+  if(img_info.fileIdArr.length === 0){
+    console.log("ERROR");
+    return
+  }
+  const img_url = `${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${img_info.fileIdArr[0]}`;
+  console.log(img_info);
 
-  e.target.value = '';
+  editor.chain().focus().setImage({ src: img_url, style:"width:300px"}).run();
+
+  return;
+  // const reader = new FileReader();
+  // reader.onload = () => {
+  //   editor.chain().focus().setImage({ src: reader.result, width: '300px', style:{width:'300px'}}).run();
+  // };
+  // reader.readAsDataURL(file);
+  // e.target.value = '';
 };
 
   const handleFontSizeChange = (e) => {
