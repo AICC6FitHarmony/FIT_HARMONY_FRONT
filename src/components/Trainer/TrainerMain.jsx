@@ -1,4 +1,4 @@
-// TrainerMain.jsx 개선본
+// TrainerMain.jsx 개선본 with 가로 목록 뷰 추가
 import React, { useEffect, useState } from 'react';
 import { IoSearchOutline } from 'react-icons/io5';
 import { useSelector, useDispatch } from 'react-redux';
@@ -7,6 +7,7 @@ import { TiArrowSortedDown } from 'react-icons/ti';
 import { FaListUl } from 'react-icons/fa6';
 import aa from '../Trainer/test/aa.png';
 import { useNavigate } from 'react-router-dom';
+import { GrAppsRounded } from 'react-icons/gr';
 
 const TrainerMain = () => {
   const dispatch = useDispatch();
@@ -16,6 +17,7 @@ const TrainerMain = () => {
 
   const [search, setSearch] = useState('');
   const [searchResult, setSearchResult] = useState([]);
+  const [listMode, setListMode] = useState('grid');
 
   useEffect(() => {
     if (status === 'idle') {
@@ -90,12 +92,25 @@ const TrainerMain = () => {
               <button className="trainer-array bg-white w-30 rounded-2xl h-10 flex items-center justify-center gap-2 hover:underline">
                 정렬 <TiArrowSortedDown />
               </button>
-              <button className="trainer-array bg-white w-15 rounded-2xl h-10 flex items-center justify-center gap-2 hover:text-[#1a7d45]">
+              <button
+                className="trainer-array bg-white w-15 rounded-2xl h-10 flex items-center justify-center gap-2 hover:text-[#1a7d45]"
+                onClick={() =>
+                  setListMode(listMode === 'grid' ? 'horizontal' : 'grid')
+                }
+              >
+                {listMode === 'grid' ? <FaListUl /> : <FaTh />}
+                {<GrAppsRounded />}
                 <FaListUl />
               </button>
             </div>
             <div className="trainer-list px-3 py-4 h-auto">
-              <div className="list-grid grid grid-cols-4 gap-4">
+              <div
+                className={
+                  listMode === 'grid'
+                    ? 'list-grid grid grid-cols-4 gap-4'
+                    : 'flex flex-col gap-4'
+                }
+              >
                 {status === 'loading' && <p>Loading...</p>}
                 {status === 'failed' && <p>Error: {error}</p>}
                 {status === 'succeeded' && searchResult.length > 0 ? (
@@ -103,13 +118,21 @@ const TrainerMain = () => {
                     <div
                       key={trainer.userId}
                       onClick={() => handleReadMore(trainer.userId)}
-                      className="cursor-pointer hover:shadow-lg p-2 rounded-lg bg-white"
+                      className={
+                        listMode === 'grid'
+                          ? 'cursor-pointer hover:shadow-lg p-2 rounded-lg bg-white'
+                          : 'cursor-pointer hover:shadow-md flex bg-white p-4 rounded-xl items-center gap-4'
+                      }
                     >
-                      <div className="img mb-2">
+                      <div
+                        className={
+                          listMode === 'grid' ? 'img mb-2' : 'w-40 h-32'
+                        }
+                      >
                         <img
                           src={aa}
                           alt="Trainer"
-                          className="w-full h-40 object-cover rounded-2xl"
+                          className="w-full h-full object-cover rounded-2xl"
                         />
                       </div>
                       <div className="p">
