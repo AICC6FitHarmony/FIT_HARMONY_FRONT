@@ -36,6 +36,7 @@ const Inbody = () => {
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState(null);
   const [isShowDetailModal, setIsShowDetailModal] = useState(false);
+
   // modalInbodyData 상태 변경 감지
   useEffect(() => {}, [modalInbodyData]);
 
