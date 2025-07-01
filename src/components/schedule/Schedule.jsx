@@ -8,7 +8,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid'
-import { format } from 'date-fns';
+import { format, isMonday } from 'date-fns';
 import { ToastContainer, toast } from 'react-toastify';
 
 // import standard modal
@@ -16,18 +16,27 @@ import StandardModal from '../cmmn/StandardModal';
 
 // import request 
 import { useRequest } from '../../js/config/requests';
+import { useGetScheduleList, useUpdateScheduleStatus } from '../../js/schedule/schedule';
 
 
 // schedule 페이지 css import
 import '../../css/schedule.css'
 import { CheckSquare, Square } from 'lucide-react';
+import RadioLabels from './common/RadioLabels';
+import DayScheduleTable from './common/DayScheduleTable';
+import { useDispatch, useSelector } from 'react-redux';
+import { setScheduleList } from '../../js/redux/slice/sliceSchedule';
+import DietScheduleTable from './common/DietScheduleTable';
+import DietCalCharts from './common/DietCalCharts';
+
+
 
 const Schedule = () => {
     const isMobile = window.innerWidth < 768; // 모바일 화면인지 체크
+    const dispath = useDispatch();
 
     // 캘린더 드래그 이벤트
-    const [scheduleList, setScheduleList] = useState([]);
-
+    const scheduleList = useSelector(state => state.schedule.scheduleList); //  리덕스 스토어 ▶ 스케쥴 리스트 
     const request = useRequest();
 
     const [labels, setLabels] = useState();
@@ -78,6 +87,7 @@ const Schedule = () => {
     useEffect(() => {
       if (islabelRender.current) { // 라벨 첫 세팅 시 데이터 조회 제한
         if(labels != undefined){ // 최초 데이터 세팅 후 변환이 없으면 동작을 제한
+          getCalendarScheduleList();
           islabelRender.current = false;
           return;
         }else{ // 최초 데이터 세팅 없는 경우 데이터 조회 제한
@@ -88,12 +98,13 @@ const Schedule = () => {
     }, [labels]); // 라벨 변환 감지 
 
     useEffect(() => {
-      setScheduleList([]); // 데이터 조회 전 먼저 레이아웃 내용 제거 처리
+      dispath(setScheduleList([])); // 데이터 조회 전 먼저 레이아웃 내용 제거 처리
       getCalendarScheduleList();
     }, [calendarTerm]) // 캘린더에 시작 - 끝 일자 변경 감지
 
 
     // calendar 용 스케쥴 조회 함수(function)
+    const getScheduleList = useGetScheduleList();
     const getCalendarScheduleList = async () => {
         const { startTime, endTime } = calendarTerm;
         
@@ -108,33 +119,14 @@ const Schedule = () => {
         const checkedStatus = (labels == undefined || labels.length == 0 ? "" : labels.filter(label => label.checked).map(label => label.codeId).join());
 
         if(!(labels == undefined || labels.length == 0) && checkedStatus == ""){ // 첫 진입을 제외하고, 체크 박스가 노출된 상황에서 하나도 체크가되지 않은경우
-            setScheduleList([]); // 그냥 빈 값처리 하고
+            dispath(setScheduleList([])); // 그냥 빈 값처리 하고
             return; // 동작 멈춤
         }
 
-
-        const result = await request(`/schedule/calendar/${startTime}/${endTime}?status=${checkedStatus}`, {method:"get"});
-
-        const { success, message, data } = result;
-        if(success){
-            setScheduleList(data);
-        }else{
-            if(message == "noAuth") {
-                toast.error("로그인 후 이용 가능한 서비스 입니다.", {
-                    position: "bottom-center"
-                });
-            } else if(message == "noBuyer"){
-                toast.error("강사님의 회원 정보만 조회할 수 있습니다.", {
-                    position: "bottom-center"
-                });
-            } else {
-                toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
-                    position: "bottom-center"
-                });
-            }
-        }
+        await getScheduleList({startTime, endTime, checkedStatus, callback : (data) => {
+            dispath(setScheduleList(data))
+        }});
     }
-
 
 
     // =========================================  캘린더 관련 END  ===================================================
@@ -146,40 +138,32 @@ const Schedule = () => {
     // 스케쥴 모달 노출 정보 세팅
     const [scheduleModal, setScheduleModal] = useState(null); // 최초 페이지 진입시 모달이 동작하지 않을 조건을 주기 위하여  null 처리
 
-    // useEffect로 scheduleModal가 변경됨을 감지
-    useEffect(() => {
-      if(scheduleModal){ // 최초 페이지 진입시 모달이 동작하지 않을 조건 처리
-        setIsShowScheduleDetailModal(true);
-      }
-    }, [scheduleModal])
-
-    // 스케쥴 모달 공통 데이터
-    const scheduleModalCommonData = {
-        okEvent:() => {
-          setIsShowScheduleDetailModal(false);
-        }, 
-        size : {width:"50vw"},
-        closeEvent: () => {
-          setIsShowScheduleDetailModal(false);
-        }
-    }
-
     // 일자 셀 클릭 이벤트
-    const dateCellModalOpen = (info) => {  
-      // scheduleModal 정보를 useState로 변환 처리 ▶ 변환 처리가 완료되면 useEffect에서 감지하여 모달 오픈 이벤트 발생 시킴
-      setScheduleModal({
-        title:`${info.dateStr} 스케쥴`, 
-        ...scheduleModalCommonData
-      });
+    const dateCellModalOpen = async (info) => {
+        const result = await getScheduleList({
+            startTime:format(info.dateStr, 'yyyy-MM-dd'), 
+            endTime:format(info.dateStr, 'yyyy-MM-dd'), 
+            callback:(data) => {
+
+              setScheduleModal({
+                  title:`${format(info.dateStr, 'yyyy-MM-dd')} 스케쥴`, 
+                  size : {width:"80vw"},
+                  closeEvent: () => {
+                    setIsShowScheduleDetailModal(false);
+                  },
+                  okEvent:() => {
+                    setIsShowScheduleDetailModal(false);
+                  },
+                  data:data
+              });
+
+              setIsShowScheduleDetailModal(true);
+            }
+        });
     }
 
-    // 일정 클릭 이벤트
-    const eventCellModalOpen = (info) => { 
-      setScheduleModal({
-        title:`${format(info.event.start, 'yyyy-MM-dd')} 스케쥴`, 
-        ...scheduleModalCommonData
-      });
-    }
+
+
     // ============================================== 스케쥴 상세 모달 관련 END =================================================================
 
 
@@ -281,88 +265,76 @@ const Schedule = () => {
 
     // 스케쥴 상태 변경 모달 이벤트
     const updateSchedulStatusModalOpen = (info) => {
-      const { title, start, end, extendedProps } = info.event;
+        const { title, start, end, extendedProps } = info.event;
 
-      const formarNowDate = format(new Date(), "yyyy-MM-dd");
-      const formatStart = format(start, "yyyy-MM-dd");
+        const formarNowDate = format(new Date(), "yyyy-MM-dd");
+        const formatStart = format(start, "yyyy-MM-dd");
 
+        setUpdateStatusRadio(extendedProps.status); // 현재 상태 값 조정
 
-      setUpdateStatusRadio(extendedProps.status); // 현재 상태 값 조정
+        let modalData = {
+            title:`스케쥴 : ${title}`,
+            size:{
+              width:"50vh",
+              height:"20vh"
+            }, 
+            data : extendedProps,
+            scheduleText : `${format(start, "MM-dd HH:mm")} ~ ${format(end, "MM-dd HH:mm")}`
+        };
 
-      let modalData = {
-          title:`스케쥴 : ${title}`,
-          closeEvent: () => {
-            updateSchedulStatusForm.current = "";
-            setShowUpdateSchedulStatusModal(false);
-          },
-          size:{
-            width:"50vh",
-            height:"20vh"
-          }, 
-          data : extendedProps,
-          scheduleText : `${format(start, "MM-dd HH:mm")} ~ ${format(end, "MM-dd HH:mm")}`
-      };
-      if(formarNowDate < formatStart){
-          modalData = {
-              ...modalData,
-              alertText:"금일 이후 스케쥴은 상태를 전환할 수 없습니다."
-          }
-      }else{
+        if(extendedProps.status == 'D'){ // 식단 데이터 클릭 시
           modalData = {
               ...modalData,
               okEvent:() => {
-                // AI 전달 이벤트 처리
-                if(updateSchedulStatusForm.current){
-                    updateSchedulStatusForm.current.requestSubmit();
-                }
+                  setShowUpdateSchedulStatusModal(false);
               }
           }
-      }
-
-      setUpdateSchedulStatusModalData(modalData);
-      setShowUpdateSchedulStatusModal(true);
+        }else if(formarNowDate < formatStart){
+            modalData = {
+                ...modalData,
+                alertText:"금일 이후 스케쥴은 상태를 전환할 수 없습니다.",
+                okEvent:() => {
+                    setShowUpdateSchedulStatusModal(false);
+                }
+            }
+        }else{
+            modalData = {
+                ...modalData,
+                okEvent:() => {
+                  if(updateSchedulStatusForm.current){
+                      updateSchedulStatusForm.current.requestSubmit();
+                  }
+                },
+                closeEvent: () => {
+                  updateSchedulStatusForm.current = "";
+                  setShowUpdateSchedulStatusModal(false);
+                }
+            }
+        }
+        setUpdateSchedulStatusModalData(modalData);
+        setShowUpdateSchedulStatusModal(true);
     }
 
     // 스케쥴 상태 변경 요청(백엔드)
+    const updateScheduleStatus = useUpdateScheduleStatus(); // 스케쥴 상태 변경 훅
     const sendRequestUpdateSchedulStatus = (e) => {
         e.preventDefault();
-
         // formData 처리
         const formData = new FormData(updateSchedulStatusForm.current);
-
-        const updateSchedulStatus = async () => {
-            const option = {
-                method:"PATCH",
-                body : Object.fromEntries(formData.entries())
-            }
-            const result = await request("/schedule/updateSchedule", option);
-            const { success, message } = result;
-
-            if(success){
-                  // form 초기화
-                  aiSchedulePromptForm.current = null;
-                  
-                  // modal close
-                  setShowUpdateSchedulStatusModal(false);
-                  
-                  // 변경된 데이터 조회
-                  getCalendarScheduleList();
-            }else{
-              if(message == "noAuth"){
-                  toast.error("로그인 후 이용 가능한 서비스 입니다.", {
-                      position: "bottom-center"
-                  });
-              }else{
-                  toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
-                      position: "bottom-center"
-                  });
-              }
-            }
-
-        }
-        updateSchedulStatus();
+        updateScheduleStatus(formData, () => {
+             // form 초기화
+             updateSchedulStatusForm.current = null;
+              
+             // 스케쥴 개별 클릭 이벤트 modal close
+             setShowUpdateSchedulStatusModal(false);
+             
+             // 변경된 데이터 조회
+             getCalendarScheduleList();
+        });
     }
-    // ============================================== 스케쥴 상태 변경 모달 관련  END  ========================================================
+
+    
+  // ============================================== 스케쥴 상태 변경 모달 관련  END  ========================================================
 
     return (
       <div className='pt-10 pb-10 pl-5 pr-5'>
@@ -374,8 +346,17 @@ const Schedule = () => {
                   okEvent={scheduleModal.okEvent} 
                   size={scheduleModal.size} 
                   closeEvent={scheduleModal.closeEvent}>
-                    <div>
-
+                    <div className=''>
+                        {/* 일자 스케쥴 테이블 */}
+                        <DayScheduleTable data={scheduleModal.data} labels={labels} calendarTerm={calendarTerm}/>
+                        <div className={`schedule-diet-chart-wrapper w-full mt-5 ${isMobile ? '' : 'flex gap-2.5'}`}>
+                            <div className={`${isMobile ? 'w-full' : 'w-1/2'} max-h-52`}>
+                                <DietScheduleTable data={scheduleModal.data}/>
+                            </div>
+                            <div className={`${isMobile ? 'w-full' : 'w-1/2'} max-h-52`}>
+                                <DietCalCharts data={scheduleModal.data}/>
+                            </div>
+                        </div>
                     </div>
                 </StandardModal>
             )
@@ -391,11 +372,11 @@ const Schedule = () => {
                   closeEvent={aiScheduleModalData.closeEvent}
                   cancelEvent={aiScheduleModalData.closeEvent}>
                     <form className='h-[200px]' ref={aiSchedulePromptForm} onSubmit={sendRequestAiSchedule}>
-                      <h2 className='text-center font-bold text-2xl'>AI에게 당신의 목표를 알려주세요!</h2>
+                      <h2 className='text-center font-bold text-2xl'>AI에게 당신의 한달 목표를 알려주세요!</h2>
                       <textarea 
                           name="prompt" 
                           className='ai-prompt-textarea w-full h-[150px] border mt-5 p-5 rounded-2xl' 
-                          placeholder='Ex) 다음주 월요일 부터 3개월 안에 지금 몸무게에서 5kg 빼고 싶어!'></textarea>                            
+                          placeholder='Ex) 몸무게에서 5kg 빼고 싶어!'></textarea>                            
                     </form>
                 </StandardModal>
               )
@@ -419,31 +400,12 @@ const Schedule = () => {
                         {
                           (!updateSchedulStatusModalData.alertText && (
                               <div className='flex justify-between mt-5 ml-10 mr-10'>
-                                {
-                                  labels?.map((label, idx) => (
-                                      (
-                                        label.codeId != 'D' ?  
-                                        <div key={idx} className='flex justify-between items-center gap-0.5 scale-120'>
-                                            <label className='relative cursor-pointer' htmlFor={`label-status-${label.codeId}`}>
-                                                <div className='w-[14px] h-[14px] m-[5px]' style={{backgroundColor:label.description}}></div>
-                                                <div className='absolute top-0 left-0 w-[24px] h-[24px]'>
-                                                  {(updateStatusRadio == label.codeId ? <CheckSquare/> : <Square/>)}
-                                                </div>
-                                            </label>
-                                            <div>{label.codeName}</div>
-                                            <input 
-                                                  type="radio" 
-                                                  name="status" 
-                                                  id={`label-status-${label.codeId}`} 
-                                                  value={label.codeId} 
-                                                  checked={(updateStatusRadio == label.codeId)}
-                                                  onChange={updateStatusRadioHandleChange}/>
-                                        </div>
-                                        : 
-                                        ''
-                                      )
-                                  ))
-                                }
+                                  <RadioLabels 
+                                      labels={labels} 
+                                      labelId="label-status"
+                                      labelName="status"
+                                      radioUseState={updateStatusRadio} 
+                                      radioUseStateHandleChange={updateStatusRadioHandleChange}/>
                               </div>
                             ))
                         }
@@ -520,8 +482,7 @@ const Schedule = () => {
 }
 
 const contentFormat = (eventInfo) => {
-  const start = eventInfo.event.start;
-  const end = eventInfo.event.end;
+  const {start, end, extendedProps} = eventInfo.event;
 
   // 시간 포맷
   const formatTime = (date) =>
@@ -562,11 +523,10 @@ const contentFormat = (eventInfo) => {
               <div style={{ fontWeight: 'bold' }}>
                 {formatTime(start)} ~ {formatTime(end)}
               </div>
-              <div>{eventInfo.event.title}</div>
+              <div>{eventInfo.event.title} {extendedProps.excersizeCnt}{extendedProps.unit}</div>
           </div>
       </div>
     );
 };
-
 
 export default Schedule
