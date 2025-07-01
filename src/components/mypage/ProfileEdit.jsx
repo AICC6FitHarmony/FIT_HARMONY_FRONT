@@ -1,17 +1,34 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const defaultProfileImg = "/defaultProfileImg.png";
 
-const ProfileEdit = () => {
+const ProfileEdit = ({ user }) => {
   const [profileImg, setProfileImg] = useState(defaultProfileImg);
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    nickname: "",
+    name: user?.user?.userName,
+    email: user?.user?.email,
+    nickname: user?.user?.nickName,
     phone: "",
-    fitHistory: "입문",
+    height: "",
+    weight: "",
+    age: "",
+    fitHistory: "",
+    fitGoal: "",
     introduction: "",
+    GYM: "",
   });
+  const [role, setRole] = useState(user?.user?.role || "");
+
+  // useEffect(() => {
+  //   if (user?.user?.role) {
+  //     setRole(user?.user?.role);
+  //   }
+  // }, [user]);
+
+  useEffect(() => {
+    setRole("TRAINER");
+  }, []);
+  console.log(user?.user);
   const fileInput = useRef();
 
   // 프로필 사진 변경
@@ -137,42 +154,137 @@ const ProfileEdit = () => {
                   value={form.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
-                  placeholder="전화번호를 입력하세요"
+                  placeholder="전화번호를 입력하세요 하이폰(-)제외"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700">
-                  운동 경력
+                  키(cm)
                 </label>
-                <select
-                  name="fitHistory"
-                  value={form.fitHistory}
+                <input
+                  name="height"
+                  value={form.height}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
-                >
-                  <option value="입문">입문 (0 ~ 6개월)</option>
-                  <option value="초급">초급 (6개월 ~ 1년)</option>
-                  <option value="중급">중급 (1년 ~ 3년)</option>
-                  <option value="고급">고급 (3년 ~ 5년)</option>
-                  <option value="전문가">전문가 (5년 이상)</option>
-                </select>
+                  placeholder="키를 입력하세요"
+                />
               </div>
 
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700">
-                  소개글
+                  몸무게(kg)
                 </label>
-                <textarea
-                  name="introduction"
-                  value={form.introduction}
+                <input
+                  name="weight"
+                  value={form.weight}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
-                  placeholder="소개글을 작성해주세요"
+                  placeholder="몸무게를 입력하세요"
                 />
               </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  나이
+                </label>
+                <input
+                  name="age"
+                  value={form.age}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
+                  placeholder="나이를 입력하세요"
+                />
+              </div>
+              {role === "TRAINER" ? (
+                <>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      운동 경력
+                    </label>
+
+                    <input
+                      name="fitHistory"
+                      value={form.fitHistory}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="운동 경력을 입력하세요"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      제공 서비스
+                    </label>
+                    <textarea
+                      name="fitGoal"
+                      value={form.fitGoal}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="제공 가능한 운동 서비스를 입력하세요"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      운동 센터
+                    </label>
+                    <textarea
+                      name="GYM"
+                      value={form.GYM}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="추후 주소API 사용 예정"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      소개글
+                    </label>
+                    <textarea
+                      name="introduction"
+                      value={form.introduction}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="소개글을 작성해주세요"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      운동 경력
+                    </label>
+
+                    <select
+                      name="fitHistory"
+                      value={form.fitHistory}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
+                    >
+                      <option value="입문">입문 (0 ~ 6개월)</option>
+                      <option value="초급">초급 (6개월 ~ 1년)</option>
+                      <option value="중급">중급 (1년 ~ 3년)</option>
+                      <option value="고급">고급 (3년 ~ 5년)</option>
+                      <option value="전문가">전문가 (5년 이상)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      운동 목표
+                    </label>
+                    <textarea
+                      name="fitGoal"
+                      value={form.fitGoal}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="운동 목표를 작성해주세요"
+                    />
+                  </div>
+                </>
+              )}
             </div>
-
             <div className="flex justify-end pt-6 border-t border-gray-200">
               <button type="submit" className="ok">
                 저장하기

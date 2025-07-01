@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import ProfileEdit from "./ProfileEdit";
 import Withdraw from "./Withdraw";
 import MyActivity from "./MyActivity";
+import { useAuthRedirect } from "../../js/login/AuthContext";
+import { useSelector } from "react-redux";
 
 const MyPage = () => {
   const [selectedMenu, setSelectedMenu] = useState("profile");
-
+  const { user, loading } = useAuthRedirect();
+  console.log("user", user);
   // NavBar 메뉴
   const navItems = [
     { key: "profile", label: "프로필 편집" },
@@ -20,14 +23,13 @@ const MyPage = () => {
         {navItems.map((item) => (
           <button
             key={item.key}
-            className={`w-full h-16 mb-4 rounded-2xl text-lg font-semibold transition-all duration-200 shadow-sm border-none
+            className={`w-full h-16 mb-4 rounded-2xl text-lg font-semibold transition-all duration-200 shadow-sm border-none space-x-1 tracking-wide
               ${
                 selectedMenu === item.key
                   ? "bg-gradient-to-r from-green-300 to-green-200 text-green-900 shadow-lg scale-105"
                   : "bg-white text-green-700 hover:bg-green-100 hover:text-green-900"
               }
             `}
-            style={{ letterSpacing: "1px" }}
             onClick={() => setSelectedMenu(item.key)}
           >
             {item.label}
@@ -36,7 +38,7 @@ const MyPage = () => {
       </nav>
       {/* 오른쪽 내용 */}
       <div className="flex-1 p-10">
-        {selectedMenu === "profile" && <ProfileEdit />}
+        {selectedMenu === "profile" && <ProfileEdit user={user} />}
         {selectedMenu === "withdraw" && <Withdraw />}
         {selectedMenu === "activity" && <MyActivity />}
       </div>
