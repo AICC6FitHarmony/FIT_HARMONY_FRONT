@@ -29,7 +29,8 @@ const CommentsView = () => {
   },[]);
 
   const handleReply = (commentId) => ()=>{
-    setReplyId(commentId);
+    if (commentId === replyId) setReplyId(0);
+    else setReplyId(commentId);
   }
 
   return (
@@ -50,14 +51,27 @@ const CommentsView = () => {
                 <Comment comment={comment} load_comments={loadComments} auth_id={userId} handleReply={handleReply(comment.commentId)}/>
                   {
                     (replyId===comment.commentId)?(
-                      <CommentInput load_comments={loadComments} parent_comment_id={comment.commentId}/>
+                      <div className='pl-[30px]'>
+                        <CommentInput load_comments={loadComments} parent_comment_id={comment.commentId}/>
+                      </div>
                     ):""
                   }
               </div>
             ))
           }
         </div>
-        <CommentInput load_comments={loadComments}/>
+        {
+          (replyId === 0)
+          ?(
+            <CommentInput load_comments={loadComments}/>
+          )
+          :(
+            <div className='w-full p-2'>
+              <div onClick={handleReply(0)} className='w-full bg-white border px-2 py-4 text-center rounded-sm cursor-pointer'>댓글 작성하기</div>
+            </div>
+          )
+        }
+        
       </div>
     </div>
   )

@@ -76,3 +76,16 @@ export const deleteComment = async(body)=>{
   });
   return res;
 }
+
+export const updateComment = async(body)=>{
+  const res = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/comment`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      charset: 'UTF-8',
+    },
+    body: JSON.stringify(body)
+  });
+  return res;
+}
