@@ -19,7 +19,7 @@ const Comment = ({load_comments, comment, auth_id, handleReply}) => {
       userId:auth_id, commentId, content:editContent
     })
     console.log(res)
-    load_comments();
+    await load_comments();
     setEditComment(false);
   }
 
@@ -31,7 +31,7 @@ const Comment = ({load_comments, comment, auth_id, handleReply}) => {
     setContent(e.target.value);
   }
   return (
-    <div className='p-2 relative bg-white rounded-xl shadow-xl mt-0.5'>
+    <div className={`p-2 relative rounded-xl shadow-xl mt-0.5 ${isDeleted?"bg-gray-100":"bg-white"}`}>
       <div className="header flex justify-between">
         <div className="nick-name font-bold text-green-700 flex">
           {(depth>1)?(<CornerDownRight/>):""}

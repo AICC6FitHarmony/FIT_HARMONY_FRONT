@@ -19,8 +19,8 @@ const CommentsView = () => {
       setUserId(user.user.userId);
     }
   },[loading]);
-  const loadComments = ()=>{
-    getComments(postId, setComments);
+  const loadComments = async ()=>{
+    await getComments(postId, setComments);
     setReplyId(0);
   }
 
@@ -45,7 +45,7 @@ const CommentsView = () => {
             comments?.map((comment, idx)=>(
               <div key={comment.commentId} style={
                 {
-                  paddingLeft:`${30*(comment.depth-1)}px`
+                  paddingLeft:`${30*((comment.depth-1))}px`
                 }
               }>
                 <Comment comment={comment} load_comments={loadComments} auth_id={userId} handleReply={handleReply(comment.commentId)}/>
