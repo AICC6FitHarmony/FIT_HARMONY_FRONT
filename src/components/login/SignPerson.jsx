@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import SignInputTab from "./components/SignInputTab";
+import SignInputTab from "./common/SignInputTab";
 import { ToastContainer, toast } from "react-toastify";
-import SignNav from "./components/SignNav";
-import SignProfilePage from "./components/SignProfilePage";
-import SignBodyPage from "./components/SignBodyPage";
+import SignNav from "./common/SignNav";
+import SignProfilePage from "./common/SignProfilePage";
+import SignBodyPage from "./common/SignBodyPage";
 import { googleRegister } from "../../js/login/loginUtils";
-import SignSelectText from "./components/SignSelectText";
-import SignButton from "./components/SignButton";
+import SignSelectText from "./common/SignSelectText";
+import SignButton from "./common/SignButton";
 
 const SignPerson = () => {
   const [tabIdx, setTabIdx] = useState(0);
@@ -99,7 +99,7 @@ const SignPerson = () => {
     handleSign();
   };
   return (
-    <div className="sign-box shadow-xl relative w-1/3">
+    <div className="sign-box bg-white py-5 shadow-xl relative w-1/3">
       <form action="">
         <SignInputTab idx={tabIdx} thisIdx={0}>
           <SignProfilePage

@@ -21,7 +21,7 @@ const SignSelectText = ({texts,title,infoHeader, userInfo, setUserInfo, handleCh
             <div 
             key={idx} 
             onClick={handleSelect(txt)}
-            className={`text-center text-xl box-border px-2 py-2 relative ${txt===select?"bg-green-50 text-green-700":""}`}>
+            className={`text-center text-xl box-border px-2 py-2 cursor-pointer select-none relative ${txt===select?"bg-green-50 text-green-700":""}`}>
               {txt}
             {txt===select?(
               <div className='border-b border-green-700 absolute bottom-0 w-full left-0'/>
