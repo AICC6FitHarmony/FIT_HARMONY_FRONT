@@ -1,4 +1,4 @@
-// TrainerMain.jsx 개선본 with 가로 목록 뷰 추가
+// TrainerMain.jsx 수정본 - gym 정보 매핑 개선
 import React, { useEffect, useState } from 'react';
 import { IoSearchOutline } from 'react-icons/io5';
 import { useSelector, useDispatch } from 'react-redux';
@@ -18,12 +18,15 @@ const TrainerMain = () => {
   const [search, setSearch] = useState('');
   const [searchResult, setSearchResult] = useState([]);
   const [listMode, setListMode] = useState('grid');
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [sortBy, setSortBy] = useState('기본순');
 
   // 페이지 관리
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const itemsPerPage = 10; // 한 페이지 에 보여줄 트레이너 수
+  const itemsPerPage = 10;
+
   useEffect(() => {
     dispatch(
       fetchTrainers({
@@ -33,33 +36,90 @@ const TrainerMain = () => {
     );
     console.log('요청 보내는 offset:', (currentPage - 1) * itemsPerPage);
   }, [currentPage, dispatch]);
-  // useeffect 실행 조건 : status 변하면 작동/ dispatch는 쓸모없는 관례,원칙용임
+
+  // gym 정보를 매핑하는 함수
+  const mapTrainersWithGym = (trainersData, gymData) => {
+    if (!trainersData || !gymData) return [];
+
+    const gymMap = new Map(gymData.map((g) => [g.gymId, g]));
+
+    return trainersData.map((trainer) => ({
+      ...trainer,
+      gym: gymMap.get(trainer.gymId) || null,
+    }));
+  };
 
   useEffect(() => {
-    if (status === 'succeeded') {
-      setSearchResult(trainers?.data || []); // 받으온 데이터를 SearchResult에 ㅈ저장 || 데이터가 없다면 빈 배열로 처리
-      setTotalItems(trainers?.total || 0); // 트레이너 총 수 데이터 가져옴
-      setTotalPages(Math.ceil((trainers?.total || 0) / itemsPerPage)); //전체 페이지 수 계산 math 라이브러리 사용 .트레이너 총수 / 한 페이지 . ex) 100/ 4 = 25
+    if (status === 'succeeded' && trainers) {
+      // 트레이너 데이터에 gym 정보 매핑
+      const mappedTrainers = mapTrainersWithGym(trainers.data, trainers.gym);
+      setSearchResult(mappedTrainers);
+      setTotalItems(trainers?.total || 0);
+      setTotalPages(Math.ceil((trainers?.total || 0) / itemsPerPage));
     }
-  }, [status, trainers, itemsPerPage]); //useeffect 실행 조건 셋중 하나라도 변하면 해당 훅 실행
+  }, [status, trainers, itemsPerPage]);
 
-  console.log('Trainers data:', trainers); // 디버깅용
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showSortDropdown && !event.target.closest('.relative')) {
+        setShowSortDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSortDropdown]);
+
+  console.log('Trainers data:', trainers);
   console.log('Total items:', trainers?.total);
+  console.log('Mapped search result:', searchResult); // 매핑된 결과 확인
 
   const handleSearch = () => {
     const keyword = search.trim().toLowerCase();
+
+    // 매핑된 전체 데이터에서 검색
+    const allMappedTrainers = mapTrainersWithGym(
+      trainers?.data || [],
+      trainers?.gym || []
+    );
+
     if (!keyword) {
-      setSearchResult(trainers?.data || []);
+      setSearchResult(allMappedTrainers);
       return;
     }
 
-    const gymMap = new Map(trainers.gym.map((g) => [g.gymId, g]));
-
-    const results = trainers.data
-      .filter((t) => t.userName.toLowerCase().includes(keyword))
-      .map((t) => ({ ...t, gym: gymMap.get(t.gymId) || null }));
+    const results = allMappedTrainers.filter((trainer) =>
+      trainer.userName.toLowerCase().includes(keyword)
+    );
 
     setSearchResult(results);
+  };
+
+  // 정렬 함수
+  const handleSort = (sortType) => {
+    setSortBy(sortType);
+    setShowSortDropdown(false);
+
+    const sortedResults = [...searchResult].sort((a, b) => {
+      switch (sortType) {
+        case '인기순':
+          // 인기순 정렬 로직 (예: userId 기준 내림차순)
+          return b.userId - a.userId;
+        case '조회순':
+          // 조회순 정렬 로직 (예: 임시로 userName 길이 기준)
+          return b.userName.length - a.userName.length;
+        case '별점순':
+          // 별점순 정렬 로직 (예: 임시로 age 기준)
+          return (b.age || 0) - (a.age || 0);
+        default:
+          return 0;
+      }
+    });
+
+    setSearchResult(sortedResults);
   };
 
   const handleKeyPress = (e) => {
@@ -77,15 +137,13 @@ const TrainerMain = () => {
     const maxVisiblePages = 10;
 
     if (totalPages <= maxVisiblePages) {
-      // 총 페이지가 10 이하면 모든 페이지 표시
       for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i); // 숫자 버튼  만드는 코드 .
+        pageNumbers.push(i);
       }
     } else {
-      // 총 페이지가 10 초과일 때
-      const currentGroup = Math.ceil(currentPage / maxVisiblePages); //현재 페이지가 있는 그룹 1~10
-      const startPage = (currentGroup - 1) * maxVisiblePages + 1; //현재 그룹의 시작 번호
-      const endPage = Math.min(currentGroup * maxVisiblePages, totalPages); //현재 그룹의 끝 번호
+      const currentGroup = Math.ceil(currentPage / maxVisiblePages);
+      const startPage = (currentGroup - 1) * maxVisiblePages + 1;
+      const endPage = Math.min(currentGroup * maxVisiblePages, totalPages);
 
       for (let i = startPage; i <= endPage; i++) {
         pageNumbers.push(i);
@@ -101,8 +159,6 @@ const TrainerMain = () => {
     }
   };
 
-  // 페이지 이동 이벤트 처리
-  // 숫자 클릭
   const handlePrevGroup = () => {
     const currentGroup = Math.ceil(currentPage / 10);
     if (currentGroup > 1) {
@@ -111,7 +167,6 @@ const TrainerMain = () => {
     }
   };
 
-  // 이전
   const handleNextGroup = () => {
     const currentGroup = Math.ceil(currentPage / 10);
     const maxGroup = Math.ceil(totalPages / 10);
@@ -121,14 +176,12 @@ const TrainerMain = () => {
     }
   };
 
-  // 다음
   const pageNumbers = getPageNumbers();
   const showPrevGroup = Math.ceil(currentPage / 10) > 1;
   const showNextGroup =
     Math.ceil(currentPage / 10) < Math.ceil(totalPages / 10);
 
   return (
-    // 검색
     <div className="main-wrapper pt-20 w-full">
       <div className="search-title">
         <div className="flex justify-center">
@@ -144,7 +197,6 @@ const TrainerMain = () => {
               onKeyDown={handleKeyPress}
               className="border-2 bg-white border-[#1a7d45] rounded-md w-[35rem] h-[40px] shadow-md pr-10"
             />
-            {/* 검색버튼 */}
             <button
               onClick={handleSearch}
               className="absolute right-0 top-1/2 transform -translate-y-1/2 mr-2 text-2xl text-[#1a7d45] hover:text-black"
@@ -160,13 +212,57 @@ const TrainerMain = () => {
           <div className="trainer-navbar w-[20%] bg-orange-50 h-full">
             필터검색
           </div>
-          <div className="trainer-container bg-orange-50 w-[80%]  flex flex-col">
+          <div className="trainer-container bg-orange-50 w-[80%] flex flex-col">
             <div className="array-wrapper flex w-full justify-between p-2">
-              <button className="trainer-array bg-white w-30 rounded-2xl h-10 flex items-center justify-center gap-2 hover:underline">
-                정렬 <TiArrowSortedDown />
-              </button>
+              <div className="relative">
+                <button
+                  className="trainer-array bg-white w-30 rounded-2xl h-10 flex items-center justify-center gap-2 hover:underline px-4"
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                >
+                  {sortBy} <TiArrowSortedDown />
+                </button>
 
-              {/* 목록 이미지로 보기, 가로로 보기 */}
+                {/* 정렬 드롭다운 */}
+                {showSortDropdown && (
+                  <div className="absolute top-12 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 w-32">
+                    <ul className="py-2">
+                      <li>
+                        <button
+                          className="w-full text-center px-4 py-3 hover:bg-gray-100 text-sm"
+                          onClick={() => handleSort('기본순')}
+                        >
+                          기본순
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="w-full text-center px-4 py-3 hover:bg-gray-100 text-sm"
+                          onClick={() => handleSort('인기순')}
+                        >
+                          인기순
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="w-full text-center px-4 py-3 hover:bg-gray-100 text-sm"
+                          onClick={() => handleSort('조회순')}
+                        >
+                          조회순
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="w-full text-center px-4 py-3 hover:bg-gray-100 text-sm"
+                          onClick={() => handleSort('별점순')}
+                        >
+                          별점순
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+
               <button
                 className="trainer-array bg-white w-15 rounded-2xl h-10 flex items-center justify-center gap-2 hover:text-[#1a7d45] text-2xl"
                 onClick={() =>
@@ -176,7 +272,7 @@ const TrainerMain = () => {
                 {listMode === 'grid' ? <FaListUl /> : <MdDialpad />}
               </button>
             </div>
-            {/* 검색 결과 목록 */}
+
             <div className="trainer-list px-3 py-4 h-auto">
               <div
                 className={
@@ -216,12 +312,19 @@ const TrainerMain = () => {
                           </p>
                           <p className="text-sm text-gray-400">강사님</p>
                         </div>
+
                         <p className="text-sm">
                           {trainer.gym?.gym || '정보 없음'}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {trainer.gym?.gymAddress}
+                          {trainer.gym?.gymAddress || '주소 정보 없음'}
                         </p>
+                        {/* listMode가 horizontal(flex)일 때만 introduction 표시 */}
+                        {listMode === 'horizontal' && (
+                          <p className="text-sm text-gray-500 mt-2">
+                            {trainer.introduction || '소개글이 없습니다.'}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))
@@ -232,18 +335,17 @@ const TrainerMain = () => {
                 )}
               </div>
             </div>
-            {/* 페이지 번호 */}
+
             <div className="page-number flex align-center justify-center my-10 gap-4">
               {showPrevGroup && (
                 <button
                   onClick={handlePrevGroup}
-                  className=" text-blue-600 hover:underline"
+                  className="text-blue-600 hover:underline"
                 >
                   이전
                 </button>
               )}
 
-              {/* 페이지 번호들 */}
               {pageNumbers.map((pageNum) => (
                 <button
                   key={pageNum}
@@ -258,7 +360,6 @@ const TrainerMain = () => {
                 </button>
               ))}
 
-              {/* 다음 그룹 버튼 */}
               {showNextGroup && (
                 <button
                   onClick={handleNextGroup}
