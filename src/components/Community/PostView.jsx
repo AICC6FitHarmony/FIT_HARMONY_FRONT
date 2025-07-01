@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { deletePost, getPost } from '../../js/community/comunityUtils';
+import { Link, useParams } from 'react-router-dom'
+import { deletePost, getPost } from '../../js/community/communityUtils';
 import { generateHTML } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -11,6 +11,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import { FontSize } from './components/PostEditor';
 import { useAuth } from '../../js/login/AuthContext';
 import CommentsView from './components/CommentsView';
+import ImageResize from 'tiptap-extension-resize-image';
 
 
 
@@ -36,6 +37,7 @@ const PostView = ({}) => {
       }),
       FontSize,
       Image,
+      ImageResize,
       ]);
       setPostHtml(html);
       setPostInfo({
@@ -76,7 +78,7 @@ const PostView = ({}) => {
       <div className='post_body rounded-sm min-h-[400px] p-2' dangerouslySetInnerHTML={{ __html: postHtml }}/>
       <div className='w-full h-[2px] bg-green-700'/>
       <div className='controls py-2 flex justify-end gap-3'>
-        <button>수정</button>
+        <Link to={`/community/${postId}/update`}>수정</Link>
         <button onClick={handleDelete}>삭제</button>
       </div>
       

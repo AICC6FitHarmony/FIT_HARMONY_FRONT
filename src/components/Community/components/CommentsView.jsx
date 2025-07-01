@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
-import { getComments } from '../../../js/community/comunityUtils';
+import { getComments } from '../../../js/community/communityUtils';
 import CommentInput from './CommentInput';
 import Comment from './Comment';
 import { useAuth } from '../../../js/login/AuthContext';
