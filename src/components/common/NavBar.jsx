@@ -14,12 +14,14 @@ const NavBar = () => {
     setIsMenuOpen(false);
   };
 
+  const isLoggedIn = false;
+
   return (
     // 사이트 전체 배경
     <div className="bg-orange-50">
       {/* 로고 섹션 */}
-      <div className="hidden justify-center align-center my-5 px-4  sm:flex">
-        <div className="flex flex-col justify-center">
+      <div className="hidden relative my-5 px-4 sm:flex">
+        <div className="flex flex-col justify-center mx-auto">
           <Link to="/">
             <div className="text-2xl md:text-3xl font-black tracking-tight text-slate-800 group-hover:text-slate-900 transition-colors duration-300">
               <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
@@ -31,6 +33,27 @@ const NavBar = () => {
               Modern Fitness
             </div>
           </Link>
+        </div>
+        {/* 최상단 로그인/회원가입 바 */}
+        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+          {!isLoggedIn ? (
+            <div className="flex items-center space-x-2">
+              <Link
+                to="/login"
+                className="text-green-700 text-sm hover:bg-green-100 px-3 py-1 rounded-full transition"
+              >
+                로그인
+              </Link>
+              <Link
+                to="/login/signup"
+                className="text-white bg-green-700 text-sm px-3 py-1 rounded-full transition hover:bg-green-800"
+              >
+                회원가입
+              </Link>
+            </div>
+          ) : (
+            <div className="text-green-700 text-sm">안녕하세요, 사용자님</div>
+          )}
         </div>
       </div>
 
@@ -80,12 +103,17 @@ const NavBar = () => {
             </button>
           </div>
           {/* 중앙: 타이틀 (절대 위치) */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 text-xl font-extrabold text-slate-800 tracking-tight">
+          
+          <div className="absolute md:hidden left-1/2 transform -translate-x-1/2 text-xl font-extrabold text-slate-800 tracking-tight">
+          <Link to="/">
             <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            
               Fit
             </span>
             <span className="text-[#4a902c] ml-1">Harmony</span>
+            </Link>
           </div>
+          
           {/* 마이페이지 */}
           <div className="hover:bg-green-200 p-3 rounded-full transition">
             <Link to="/mypage" className="text-green-700 text-lg">
@@ -93,49 +121,60 @@ const NavBar = () => {
             </Link>
           </div>
         </div>
+        
 
         {/* 모바일 드롭다운 메뉴 */}
         {isMenuOpen && (
-          <div className="md:hidden bg-white border-t border-green-100 rounded-b-2xl shadow-lg">
-            <div className="flex flex-col space-y-2 px-4 py-4">
-              <Link
-                to="/dashboard"
-                onClick={closeMenu}
-                className="hover:bg-green-100 px-4 py-3 rounded-lg transition text-green-700 font-medium"
-              >
-                대쉬보드
-              </Link>
-              <Link
-                to="/schedule"
-                onClick={closeMenu}
-                className="hover:bg-green-100 px-4 py-3 rounded-lg transition text-green-700 font-medium"
-              >
-                캘린더
-              </Link>
-              <Link
-                to="/inbody"
-                onClick={closeMenu}
-                className="hover:bg-green-100 px-4 py-3 rounded-lg transition text-green-700 font-medium"
-              >
-                인바디
-              </Link>
-              <Link
-                to="/community"
-                onClick={closeMenu}
-                className="hover:bg-green-100 px-4 py-3 rounded-lg transition text-green-700 font-medium"
-              >
-                커뮤니티
-              </Link>
-              <Link
-                to="/trainer"
-                onClick={closeMenu}
-                className="hover:bg-green-100 px-4 py-3 rounded-lg transition text-green-700 font-medium"
-              >
-                강사 찾기
-              </Link>
-            </div>
-          </div>
-        )}
+  <>
+    {/* 딤 배경: 클릭 시 메뉴 닫힘 */}
+    <div
+      className="fixed inset-0 bg-black opacity-40 z-40"
+      onClick={closeMenu}
+    ></div>
+
+    {/* 모바일 메뉴: z-50으로 위에 뜨게 */}
+    <div className="fixed top-16 left-0 w-full z-50 md:hidden bg-white border-t border-green-100 rounded-b-2xl shadow-lg">
+      <div className="flex flex-col space-y-2 px-4 py-4">
+        <Link
+          to="/dashboard"
+          onClick={closeMenu}
+          className="hover:bg-green-100 px-4 py-3 rounded-lg transition text-green-700 font-medium"
+        >
+          대쉬보드
+        </Link>
+        <Link
+          to="/schedule"
+          onClick={closeMenu}
+          className="hover:bg-green-100 px-4 py-3 rounded-lg transition text-green-700 font-medium"
+        >
+          캘린더
+        </Link>
+        <Link
+          to="/inbody"
+          onClick={closeMenu}
+          className="hover:bg-green-100 px-4 py-3 rounded-lg transition text-green-700 font-medium"
+        >
+          인바디
+        </Link>
+        <Link
+          to="/community"
+          onClick={closeMenu}
+          className="hover:bg-green-100 px-4 py-3 rounded-lg transition text-green-700 font-medium"
+        >
+          커뮤니티
+        </Link>
+        <Link
+          to="/trainer"
+          onClick={closeMenu}
+          className="hover:bg-green-100 px-4 py-3 rounded-lg transition text-green-700 font-medium"
+        >
+          강사 찾기
+        </Link>
+      </div>
+    </div>
+  </>
+)}
+
       </div>
     </div>
   );
