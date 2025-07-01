@@ -46,7 +46,7 @@ const handleFileChange = async (e) => {
   const img_url = `${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${img_info.fileIdArr[0]}`;
   console.log(img_info);
 
-  editor.chain().focus().setImage({ src: img_url, width: '300px' }).run();
+  editor.chain().focus().setImage({ src: img_url, style:"width:300px"}).run();
 
   return;
   // const reader = new FileReader();
