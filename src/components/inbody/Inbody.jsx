@@ -1,67 +1,193 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchInbodyData } from "../../js/redux/slice/sliceInbody";
+import { useDispatch } from "react-redux";
 import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Legend,
+  fetchInbodyDayData,
+  fetchInbodyMonthData,
+} from "../../js/redux/slice/sliceInbody";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  LabelList,
+  ResponsiveContainer,
+  ReferenceArea,
 } from "recharts";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { format, addDays } from "date-fns";
-
-// 바 그래프 아이템
-const BarItem = ({ label, value }) => (
-  <div className="mb-2">
-    <div className="text-sm mb-1">{label}</div>
-    <div className="bg-gray-200 h-4 rounded">
-      <div
-        className="bg-blue-500 h-4 rounded"
-        style={{ width: `${value}%` }}
-      ></div>
-    </div>
-    <div className="text-xs text-right text-gray-500">{value}</div>
-  </div>
-);
+import { format } from "date-fns";
+import StandardModal from "../cmmn/StandardModal";
+import InbodyRegisterForm from "./InbodyRegisterForm";
+import InbodyCalendarModal from "./InbodyCalendarModal";
+import InbodyRadarCharts from "./InbodyRadarCharts";
+import { useAuthRedirect } from "../../js/login/AuthContext";
+import InbodyDetailForm from "./InbodyDetailForm";
 
 const Inbody = () => {
   const dispatch = useDispatch();
-  const { inbodyData, loading, error } = useSelector((state) => state.inbody);
-  let [inbodyTime, setInbodyTime] = useState();
+  const [isShowCalendarModal, setIsShowCalendarModal] = useState(false);
+  const [inbodyTime, setInbodyTime] = useState("1000-01-01");
+  const [availableDates, setAvailableDates] = useState([]);
+  const [mainInbodyData, setMainInbodyData] = useState(null);
+  const [modalInbodyData, setModalInbodyData] = useState(null);
+  const [isShowRegisterModal, setIsShowRegisterModal] = useState(false);
+  const { user, loading } = useAuthRedirect();
+  const [userId, setUserId] = useState(null);
+  const [userName, setUserName] = useState(null);
+  const [isShowDetailModal, setIsShowDetailModal] = useState(false);
+  // modalInbodyData 상태 변경 감지
+  useEffect(() => {}, [modalInbodyData]);
 
-  // 테스트용 userId (실제로는 인증된 사용자 ID를 사용해야 함)
-  const userId = "1";
-  const handlePrevDate = () => setInbodyTime((prev) => addDays(prev, -1));
-  const handleNextDate = () => setInbodyTime((prev) => addDays(prev, 1));
-
+  // user 값이 있을 때만 userId 설정
   useEffect(() => {
-    console.log("사용자 ID:", userId);
-    // 컴포넌트 마운트 시 데이터 가져오기
+    if (user?.user?.userId) {
+      setUserId(user.user.userId);
+      setUserName(user.user.nickName);
+    }
+  }, [user]);
+
+  // user와 userId가 있을 때만 데이터 요청
+  useEffect(() => {
+    if (!user || !userId || loading) {
+      return; // user가 없거나 로딩 중이면 실행하지 않음
+    }
+    console.log("userId", userId);
     const fetchData = async () => {
       try {
-        console.log("type 1 ", typeof inbodyTime);
-        console.log("inbodyTime : ", inbodyTime);
-        await dispatch(fetchInbodyData({ userId, inbodyTime })).unwrap();
+        const result = await dispatch(
+          fetchInbodyDayData({ userId, inbodyTime })
+        ).unwrap();
+
+        // 날짜 리스트 추출 및 저장
+        const inbodyTimeResult = result?.inbodyTimeResult || [];
+        const dates = inbodyTimeResult.map((date) =>
+          format(date.inbodyTime, "yyyy-MM-dd")
+        );
+        setAvailableDates(dates);
+        setMainInbodyData(result);
+
+        // 최초 진입 시 실제 데이터 날짜로 설정
+        if (inbodyTime === "1000-01-01" && result?.inbodyResult?.length > 0) {
+          const initDate = format(
+            result.inbodyResult[0].inbodyTime,
+            "yyyy-MM-dd"
+          );
+          setInbodyTime(initDate);
+        }
       } catch (error) {
         console.error("데이터 가져오기 실패:", error);
       }
     };
     fetchData();
-  }, [dispatch, userId, inbodyTime]);
+  }, [dispatch, userId, inbodyTime, user, loading]);
 
+  const calendarModalOpen = () => {
+    if (!userId) {
+      console.error("사용자 ID가 없습니다.");
+      return;
+    }
+    setIsShowCalendarModal(true);
+  };
+
+  // 날짜 클릭 핸들러
+  const handleDateClick = (arg) => {
+    const clickedDate = format(arg.date, "yyyy-MM-dd");
+
+    // modalInbodyData에서 해당 날짜가 있는지 확인
+    const isAvailableDate = modalInbodyData?.some(
+      (item) => format(item.inbodyTime, "yyyy-MM-dd") === clickedDate
+    );
+
+    if (isAvailableDate) {
+      // 모달 닫기
+      setIsShowCalendarModal(false);
+      // 해당 날짜로 inbodyTime 설정하여 메인 화면에 데이터 로드
+      setInbodyTime(clickedDate);
+    }
+  };
+
+  const handleDatesSet = async (arg) => {
+    try {
+      const result = await dispatch(
+        fetchInbodyMonthData({
+          userId,
+          startDate: format(arg.start, "yyyy-MM-dd"),
+          endDate: format(arg.end, "yyyy-MM-dd"),
+        })
+      ).unwrap();
+      setModalInbodyData(result.inbodyTimeResult);
+    } catch (error) {
+      console.error("데이터 가져오기 실패:", error);
+    }
+  };
+
+  // events 데이터 생성
+  const calendarEvents =
+    modalInbodyData?.map((item) => ({
+      date: format(item.inbodyTime, "yyyy-MM-dd"),
+      color: "green",
+      display: "background", // 배경으로 표시
+    })) || [];
+
+  const handlePrevDate = () => {
+    const idx = availableDates.indexOf(inbodyTime);
+    if (idx > 0) {
+      setInbodyTime(availableDates[idx - 1]);
+    }
+  };
+
+  const handleNextDate = () => {
+    const idx = availableDates.indexOf(inbodyTime);
+    if (idx < availableDates.length - 1) {
+      setInbodyTime(availableDates[idx + 1]);
+    }
+  };
+
+  // 인바디 등록 처리
+  const handleInbodyInsertSubmit = (formData) => {
+    console.log("등록 완료:", formData);
+    // 등록 완료 후 페이지 리로드
+    setIsShowRegisterModal(false);
+    window.location.reload();
+  };
+
+  const handleInbodyUpdateSubmit = (formData) => {
+    console.log("수정 완료:", formData);
+    setIsShowDetailModal(false);
+    window.location.reload();
+  };
   // 데이터 로딩 상태 확인
   // console.log("Redux 상태:", { inbodyData, loading, error });
 
-  if (loading) return <div>데이터를 불러오는 중...</div>;
-  if (error) return <div>에러 발생: {error}</div>;
-  if (inbodyData !== null) {
-    // console.log("inbodyResult : ", inbodyData.inbodyResult[0]);
-    //console.log("standardData : ", inbodyData.standardData);
+  // --------------------------------------------------------------------------------------------------------------
+  // -------------------------------------------------  변수 설정  -------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------
+
+  // mainInbodyData가 있을 때만 변수 설정
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <div>로딩중...</div>
+      </div>
+    );
   }
 
-  // 변수 설정
+  // 표준값 안전 접근 헬퍼 함수
+  const getStandardStat = (key, field, fallback = 0) => {
+    const item = standardValues[key];
+    return item && typeof item[field] === "number" ? item[field] : fallback;
+  };
+
+  // muscle / fat 데이터 생성 함수
+  const buildSectionData = (keys) =>
+    keys.map(({ key, label, value }) => ({
+      subject: label,
+      A: value,
+      B: 100,
+    }));
+
+  // 인바디 데이터 설정
   const {
     inbodyId, // 인바디 아이디
     weight, // 체중
@@ -70,6 +196,7 @@ const Inbody = () => {
     protein, // 단백질
     bodyMineral, // 무기질
     bodyFat, // 체지방
+    bodyFatPercent, // 체지방률
     bmi, // BMI
     skeletalMuscle, // 골격근량
     trunkMuscle, // 몸통 근육량
@@ -82,217 +209,432 @@ const Inbody = () => {
     rightArmFat, // 오른팔 체지방
     leftLegFat, // 왼다리 체지방
     rightLegFat, // 오른다리 체지방
-  } = inbodyData?.inbodyResult[0] || {};
+  } = mainInbodyData?.inbodyResult[0] || {};
 
-  const date = inbodyData?.inbodyResult[0]?.inbodyTime || "1000-01-01";
-  inbodyTime = format(date, "yyyy-MM-dd");
-
-  const standardData = inbodyData?.standardData || [];
+  // 표준값 설정
+  const standardData = mainInbodyData?.standardData || [];
   const standardValues = {};
+
   standardData.forEach((item) => {
+    const min = parseFloat(item.minValue);
+    const max = parseFloat(item.maxValue);
     standardValues[item.itemName] = {
-      min: parseFloat(item.minValue),
-      max: parseFloat(item.maxValue),
-      avg: (parseFloat(item.minValue) + parseFloat(item.maxValue)) / 2,
-      fullMark:
-        ((parseFloat(item.minValue) + parseFloat(item.maxValue)) / 2) * 1.5,
+      min,
+      max,
+      avg: (min + max) / 2,
     };
   });
-  //console.log("standardValues : ", standardValues);
 
-  // fullMark 변수 설정 (표준값 * 1.5)
-  // _t = trunk, _r = right, _l = left, _a = arm, _f = fat, m = muscle , f = fat
-  const fullMark_tM = standardValues["trunk_muscle"]?.fullMark || 0;
-  const fullMark_rAM = standardValues["right_arm_muscle"]?.fullMark || 0;
-  const fullMark_rLM = standardValues["right_leg_muscle"]?.fullMark || 0;
-  const fullMark_lLM = standardValues["left_leg_muscle"]?.fullMark || 0;
-  const fullMark_lAM = standardValues["left_arm_muscle"]?.fullMark || 0;
-  const fullMark_tF = standardValues["trunk_fat"]?.fullMark || 0;
-  const fullMark_rAF = standardValues["right_arm_fat"]?.fullMark || 0;
-  const fullMark_rLF = standardValues["right_leg_fat"]?.fullMark || 0;
-  const fullMark_lLF = standardValues["left_leg_fat"]?.fullMark || 0;
-  const fullMark_lAF = standardValues["left_arm_fat"]?.fullMark || 0;
-
-  const muscleData = [
+  // muscle / fat 키 배열
+  const muscleKeys = [
     {
-      subject: "몸통",
-      A: trunkMuscle,
-      B: standardValues["trunk_muscle"]?.avg || 0,
-      fullMark: fullMark_tM,
+      key: "trunk_muscle",
+      label: "몸통",
+      value: (100 * trunkMuscle) / getStandardStat("trunk_muscle", "avg"),
     },
     {
-      subject: "오른팔",
-      A: rightArmMuscle,
-      B: standardValues["right_arm_muscle"]?.avg || 0,
-      fullMark: fullMark_rAM,
+      key: "right_arm_muscle",
+      label: "오른팔",
+      value:
+        (100 * rightArmMuscle) / getStandardStat("right_arm_muscle", "avg"),
     },
     {
-      subject: "오른다리",
-      A: rightLegMuscle,
-      B: standardValues["right_leg_muscle"]?.avg || 0,
-      fullMark: fullMark_rLM,
+      key: "right_leg_muscle",
+      label: "오른다리",
+      value:
+        (100 * rightLegMuscle) / getStandardStat("right_leg_muscle", "avg"),
     },
     {
-      subject: "왼다리",
-      A: leftLegMuscle,
-      B: standardValues["left_leg_muscle"]?.avg || 0,
-      fullMark: fullMark_lLM,
+      key: "left_leg_muscle",
+      label: "왼다리",
+      value: (100 * leftLegMuscle) / getStandardStat("left_leg_muscle", "avg"),
     },
     {
-      subject: "왼팔",
-      A: leftArmMuscle,
-      B: standardValues["left_arm_muscle"]?.avg || 0,
-      fullMark: fullMark_lAM,
+      key: "left_arm_muscle",
+      label: "왼팔",
+      value: (100 * leftArmMuscle) / getStandardStat("left_arm_muscle", "avg"),
     },
   ];
 
-  const fatData = [
+  const fatKeys = [
     {
-      subject: "몸통",
-      A: trunkFat,
-      B: standardValues["trunk_fat"]?.avg || 0,
-      fullMark: fullMark_tF,
+      key: "trunk_fat",
+      label: "몸통",
+      value: (100 * trunkFat) / getStandardStat("trunk_fat", "avg"),
     },
     {
-      subject: "오른팔",
-      A: rightArmFat,
-      B: standardValues["right_arm_fat"]?.avg || 0,
-      fullMark: fullMark_rAF,
+      key: "right_arm_fat",
+      label: "오른팔",
+      value: (100 * rightArmFat) / getStandardStat("right_arm_fat", "avg"),
     },
     {
-      subject: "오른다리",
-      A: rightLegFat,
-      B: standardValues["right_leg_fat"]?.avg || 0,
-      fullMark: fullMark_rLF,
+      key: "right_leg_fat",
+      label: "오른다리",
+      value: (100 * rightLegFat) / getStandardStat("right_leg_fat", "avg"),
     },
     {
-      subject: "왼다리",
-      A: leftLegFat,
-      B: standardValues["left_leg_fat"]?.avg || 0,
-      fullMark: fullMark_lLF,
+      key: "left_leg_fat",
+      label: "왼다리",
+      value: (100 * leftLegFat) / getStandardStat("left_leg_fat", "avg"),
     },
     {
-      subject: "왼팔",
-      A: leftArmFat,
-      B: standardValues["left_arm_fat"]?.avg || 0,
-      fullMark: fullMark_lAF,
+      key: "left_arm_fat",
+      label: "왼팔",
+      value: (100 * leftArmFat) / getStandardStat("left_arm_fat", "avg"),
+    },
+  ];
+
+  const muscleData = buildSectionData(muscleKeys);
+  const fatData = buildSectionData(fatKeys);
+
+  // BarChartdata
+  // 체성분 구성 데이터
+  const bodyCompositionData = [
+    { name: "체수분 (L)", value: bodyWater, unit: "L" },
+    { name: "단백질 (kg)", value: protein, unit: "kg" },
+    { name: "무기질 (kg)", value: bodyMineral, unit: "kg" },
+  ];
+
+  // 골격근·지방 분석 데이터
+  const muscleFatAnalysisData = [
+    {
+      name: "체중 (kg)",
+      value: weight,
+      value_percent: (weight * 100) / getStandardStat("weight", "avg"),
+      min: 85,
+      max: 115,
+      unit: "kg",
+    },
+    {
+      name: "골격근량 (kg)",
+      value: skeletalMuscle,
+      value_percent:
+        (skeletalMuscle * 100) / getStandardStat("skeletal_muscle", "avg"),
+      min: 90,
+      max: 110,
+      unit: "kg",
+    },
+    {
+      name: "체지방 (kg)",
+      value: bodyFat,
+      value_percent: (bodyFat * 100) / getStandardStat("body_fat", "avg"),
+      min: 80,
+      max: 160,
+      unit: "kg",
+    },
+  ];
+
+  // 비만 분석 데이터
+  const obesityAnalysisData = [
+    {
+      name: "BMI (kg/m²)",
+      value: bmi,
+      min: getStandardStat("bmi", "min"),
+      max: getStandardStat("bmi", "max"),
+      unit: "kg/m²",
+    },
+    {
+      name: "체지방률 (%)",
+      value: bodyFatPercent,
+      min: getStandardStat("body_fat_percent", "min"),
+      max: getStandardStat("body_fat_percent", "max"),
+      unit: "%",
     },
   ];
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 p-6">
-      {/* 왼쪽 */}
-      <div className="w-full md:w-1/2 space-y-4">
-        <div className="text-xl font-semibold text-center">
-          인바디 점수 ({inbodyScore}/100)
-        </div>
+    <>
+      {mainInbodyData &&
+      mainInbodyData.inbodyResult &&
+      mainInbodyData.inbodyResult.length > 0 ? (
+        <div className="flex flex-col md:flex-row gap-6 p-6 text-green-600">
+          <InbodyRadarCharts
+            inbodyScore={inbodyScore}
+            muscleData={muscleData}
+            fatData={fatData}
+          />
+          {/* 오른쪽 */}
+          <div className="w-full md:w-1/2 space-y-4">
+            <div className="p-4 bg-white rounded shadow">
+              <h2 className="text-lg font-semibold mb-4">체성분 분석</h2>
+              <ResponsiveContainer width="100%" height={150}>
+                <BarChart
+                  layout="vertical"
+                  data={bodyCompositionData}
+                  margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" domain={[0, 100]} />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tick={{ fontSize: 14, fill: "oklch(62.7% 0.194 149.214)" }}
+                  />
+                  <Tooltip
+                    content={({ payload }) => {
+                      if (!payload || payload.length === 0) return null;
+                      const item = payload[0].payload;
+                      return (
+                        <div
+                          style={{
+                            background: "white",
+                            padding: 8,
+                            borderRadius: 8,
+                            color: "#16a34a",
+                          }}
+                        >
+                          <div style={{ fontWeight: "bold" }}>{item.name}</div>
+                          <div>
+                            {Number(item.value).toFixed(1)} {item.unit}
+                          </div>
+                        </div>
+                      );
+                    }}
+                    formatter={(v, name, props) => `${v} ${props.payload.unit}`}
+                  />
 
-        <div className="flex flex-col gap-2">
-          <div>
-            <div className="text-xl font-semibold text-center p-2">근육량</div>
-            <div className="flex justify-center">
-              <RadarChart
-                outerRadius={90}
-                width={730}
-                height={250}
-                data={muscleData}
-              >
-                <PolarGrid />
-                <PolarAngleAxis dataKey="subject" />
-                <PolarRadiusAxis angle={30} domain={[0, fullMark_tM]} />
-                <Radar
-                  name="현재"
-                  dataKey="A"
-                  stroke="#8884d8"
-                  fill="#8884d8"
-                  fillOpacity={0.6}
-                />
-                <Radar
-                  name="표준"
-                  dataKey="B"
-                  stroke="#82ca9d"
-                  fill="#82ca9d"
-                  fillOpacity={0.6}
-                />
-                <Legend />
-              </RadarChart>
+                  <Bar
+                    dataKey="value"
+                    fill="oklch(62.7% 0.194 149.214)"
+                    radius={[0, 6, 6, 0]}
+                  >
+                    <LabelList
+                      dataKey="value"
+                      position="right"
+                      formatter={(v) => {
+                        return `${v}`;
+                      }}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="p-4 bg-white rounded shadow">
+              <h2 className="text-lg font-semibold mb-4">골격근 · 지방 분석</h2>
+              <ResponsiveContainer width="100%" height={150}>
+                <BarChart
+                  layout="vertical"
+                  data={muscleFatAnalysisData}
+                  margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    type="number"
+                    domain={[0, 400]}
+                    tickFormatter={(v) => `${v}%`}
+                  />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tick={{ fontSize: 14, fill: "oklch(62.7% 0.194 149.214)" }}
+                  />
+                  <Tooltip
+                    content={({ payload }) => {
+                      if (!payload || payload.length === 0) return null;
+                      const item = payload[0].payload;
+                      return (
+                        <div
+                          style={{
+                            background: "white",
+                            padding: 8,
+                            borderRadius: 8,
+                            color: "#16a34a",
+                          }}
+                        >
+                          <div style={{ fontWeight: "bold" }}>{item.name}</div>
+                          <div>{Number(item.value_percent).toFixed(1)}%</div>
+                        </div>
+                      );
+                    }}
+                    formatter={(v, name, props) =>
+                      `${Number(v).toFixed(1)} ${props.payload.unit}`
+                    }
+                  />
+
+                  {/* 기준 영역 배경 (표준 범위 시각화) */}
+                  {muscleFatAnalysisData.map((item, index) => (
+                    <ReferenceArea
+                      key={index}
+                      y1={item.name}
+                      y2={item.name}
+                      x1={item.min}
+                      x2={item.max}
+                      fill="oklch(87.1% 0.15 154.449)"
+                      fillOpacity={1}
+                      radius={[6, 6, 6, 6]}
+                    />
+                  ))}
+
+                  <Bar
+                    dataKey="value_percent"
+                    fill="oklch(62.7% 0.194 149.214)"
+                    radius={[0, 6, 6, 0]}
+                  >
+                    <LabelList
+                      dataKey="value"
+                      position="right"
+                      formatter={(v) => `${v}`}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="p-4 bg-white rounded shadow">
+              <h2 className="text-lg font-semibold mb-4">비만 분석</h2>
+              <ResponsiveContainer width="100%" height={150}>
+                <BarChart
+                  layout="vertical"
+                  data={obesityAnalysisData}
+                  margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    type="number"
+                    domain={[0, 55]}
+                    tickFormatter={(v) => `${v}`}
+                  />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tick={{ fontSize: 14, fill: "oklch(62.7% 0.194 149.214)" }}
+                  />
+                  <Tooltip
+                    content={({ payload }) => {
+                      if (!payload || payload.length === 0) return null;
+                      const item = payload[0].payload;
+                      return (
+                        <div
+                          style={{
+                            background: "white",
+                            padding: 8,
+                            borderRadius: 8,
+                            color: "#16a34a",
+                          }}
+                        >
+                          <div style={{ fontWeight: "bold" }}>{item.name}</div>
+                          <div>
+                            {Number(item.value).toFixed(1)} {item.unit}
+                          </div>
+                        </div>
+                      );
+                    }}
+                    formatter={(v, name, props) => `${v} ${props.payload.unit}`}
+                  />
+
+                  {/* 기준 영역 배경 (표준 범위 시각화) */}
+                  {obesityAnalysisData.map((item, index) => (
+                    <ReferenceArea
+                      key={index}
+                      y1={item.name}
+                      y2={item.name}
+                      x1={item.min}
+                      x2={item.max}
+                      fill="oklch(87.1% 0.15 154.449)"
+                      fillOpacity={1}
+                      radius={[6, 6, 6, 6]}
+                    />
+                  ))}
+
+                  <Bar
+                    dataKey="value"
+                    fill="oklch(62.7% 0.194 149.214)"
+                    radius={[0, 6, 6, 0]}
+                  >
+                    <LabelList
+                      dataKey="value"
+                      position="right"
+                      formatter={(v) => `${v}`}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
+              <div className="flex items-center">
+                {availableDates.indexOf(inbodyTime) > 0 && (
+                  <button
+                    className="w-8 h-8 text-2xl mr-2"
+                    onClick={handlePrevDate}
+                  >
+                    <IoIosArrowBack />
+                  </button>
+                )}
+                <button onClick={calendarModalOpen}>{inbodyTime}</button>
+                {availableDates.indexOf(inbodyTime) <
+                  availableDates.length - 1 && (
+                  <button
+                    className="w-8 h-8 text-2xl ml-2"
+                    onClick={handleNextDate}
+                  >
+                    <IoIosArrowForward />
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  className="ok"
+                  onClick={() => setIsShowDetailModal(true)}
+                >
+                  상세
+                </button>
+                <button
+                  className="ok"
+                  onClick={() => setIsShowRegisterModal(true)}
+                >
+                  등록
+                </button>
+              </div>
             </div>
           </div>
-
-          <div>
-            <div className="bg-blue-200 text-xl font-semibold text-center">
-              체지방
-            </div>
-            <div className="flex justify-center">
-              <RadarChart
-                outerRadius={90}
-                width={730}
-                height={250}
-                data={fatData}
-              >
-                <PolarGrid />
-                <PolarAngleAxis dataKey="subject" />
-                <PolarRadiusAxis angle={30} domain={[0, fullMark_tF]} />
-                <Radar
-                  name="현재"
-                  dataKey="A"
-                  stroke="#8884d8"
-                  fill="#8884d8"
-                  fillOpacity={0.6}
-                />
-                <Radar
-                  name="표준"
-                  dataKey="B"
-                  stroke="#82ca9d"
-                  fill="#82ca9d"
-                  fillOpacity={0.6}
-                />
-                <Legend />
-              </RadarChart>
-            </div>
-          </div>
         </div>
-      </div>
-
-      {/* 오른쪽 */}
-      <div className="w-full md:w-1/2 space-y-4">
-        <div>
-          <div className="font-bold text-lg mb-2">체성분 분석</div>
-          <BarItem label="체수분" value={bodyWater} />
-          <BarItem label="단백질" value={protein} />
-          <BarItem label="무기질" value={bodyMineral} />
-          <BarItem label="체지방" value={bodyFat} />
-        </div>
-
-        <div>
-          <div className="font-bold text-lg mb-2">골격근 지방 분석</div>
-          <BarItem label="체중" value={weight} />
-          <BarItem label="골격근량" value={skeletalMuscle} />
-          <BarItem label="체지방" value={bodyFat} />
-        </div>
-
-        <div>
-          <div className="font-bold text-lg mb-2">비만 분석</div>
-          <BarItem label="BMI" value={bmi} />
-          <BarItem label="체지방률" value={bodyFat} />
-        </div>
-
-        <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
-          <div>
-            <button className="w-8 h-8 text-2xl mr-2" onClick={handlePrevDate}>
-              <IoIosArrowBack />
-            </button>
-            <button>{inbodyTime}</button>
-            <button className="w-8 h-8 text-2xl ml-2" onClick={handleNextDate}>
-              <IoIosArrowForward />
-            </button>
-          </div>
-          <button className="bg-blue-500 text-white px-4 py-1 rounded">
+      ) : (
+        <div className="flex flex-col items-center justify-center h-screen">
+          <div>등록된 정보가 없습니다. 인바디를 등록해주세요.</div>
+          <button className="ok" onClick={() => setIsShowRegisterModal(true)}>
             등록
           </button>
         </div>
-      </div>
-    </div>
+      )}
+
+      {/* 모달들은 조건부 렌더링 밖에 있어야 함 */}
+      <InbodyCalendarModal
+        isOpen={isShowCalendarModal}
+        onClose={() => setIsShowCalendarModal(false)}
+        calendarEvents={calendarEvents}
+        onDateClick={handleDateClick}
+        onDatesSet={handleDatesSet}
+        initialDate={inbodyTime}
+      />
+      {isShowRegisterModal && (
+        <StandardModal
+          title="인바디 등록"
+          size={{ width: "50vw", height: "10vw" }}
+          closeEvent={() => setIsShowRegisterModal(false)}
+        >
+          <InbodyRegisterForm
+            userName={userName}
+            userId={userId}
+            onClose={() => setIsShowRegisterModal(false)}
+            onSubmit={handleInbodyInsertSubmit}
+          />
+        </StandardModal>
+      )}
+      {isShowDetailModal && (
+        <StandardModal
+          title="인바디 상세"
+          size={{ width: "50vw", height: "10vw" }}
+          closeEvent={() => setIsShowDetailModal(false)}
+        >
+          <InbodyDetailForm
+            userName={userName}
+            inbodyData={mainInbodyData?.inbodyResult[0]}
+            onClose={() => setIsShowDetailModal(false)}
+            onSubmit={handleInbodyUpdateSubmit}
+          />
+        </StandardModal>
+      )}
+    </>
   );
 };
 

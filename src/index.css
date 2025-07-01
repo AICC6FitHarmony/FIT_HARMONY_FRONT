@@ -4,6 +4,33 @@
   box-sizing: border-box;
 }
 
+/* 스크롤 바 */
+/* 전체 요소에 적용하려면 */
+::-webkit-scrollbar {
+  width: 8px;         /* 세로 스크롤바 너비 */
+  height: 8px;        /* 가로 스크롤바 높이 */
+}
+
+/* 스크롤 트랙 (배경) */
+::-webkit-scrollbar-track {
+  background: #ccc;
+}
+
+/* 스크롤 바(움직이는 부분) */
+::-webkit-scrollbar-thumb {
+  background-color: #008236;  /* 지정한 연두색 */
+  border-radius: 4px;         /* 모서리 둥글게 */
+  border: 2px solid #008236;
+  background-clip: content-box; /* 테두리 안쪽만 색칠 */
+}
+
+/* 스크롤 버튼(화살표) 제거: 크롬/사파리 기준 */
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+
+
 html,
 body {
   width: 100%;
@@ -79,6 +106,19 @@ input {
 input[type='text'] {
   font-size: 1rem;
 }
+
+
+table {
+  border-collapse: collapse; /* 셀 사이 간격 제거 */
+  width: 100%;
+}
+
+table, th, td {
+  border: 1px solid #000; /* 선 두께 및 색상 지정 */
+  text-align: center;
+  padding:5px 10px;
+}
+
 
 /* 체크 박스 관련 */
 input[type='checkbox'], input[type='radio'] {

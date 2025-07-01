@@ -8,11 +8,11 @@ import store from './js/redux/store.js';
 import { AuthProvider } from './js/login/AuthContext.jsx';
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <Provider store={store}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </Provider>
-  </StrictMode>
+  // <StrictMode>
+  <Provider store={store}>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </Provider>
+  // </StrictMode>
 );

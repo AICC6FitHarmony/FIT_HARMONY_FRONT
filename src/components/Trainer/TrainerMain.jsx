@@ -25,17 +25,15 @@ const TrainerMain = () => {
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10; // 한 페이지 에 보여줄 트레이너 수
   useEffect(() => {
-    if (status === 'idle') {
-      //sliceTrainer.js 에서 초기상태 지정 / //idle 인 상태일때만 정보 정보 가져옴
-      dispatch(
-        fetchTrainers({
-          //  disptch로 데이터 가져올때 백엔드에서 정해놓은 limit와 offset 변경
-          limit: itemsPerPage,
-          offset: (currentPage - 1) * itemsPerPage,
-        })
-      );
-    }
-  }, [status, dispatch, currentPage]); // useeffect 실행 조건 : status 변하면 작동/ dispatch는 쓸모없는 관례,원칙용임
+    dispatch(
+      fetchTrainers({
+        limit: itemsPerPage,
+        offset: (currentPage - 1) * itemsPerPage,
+      })
+    );
+    console.log('요청 보내는 offset:', (currentPage - 1) * itemsPerPage);
+  }, [currentPage, dispatch]);
+  // useeffect 실행 조건 : status 변하면 작동/ dispatch는 쓸모없는 관례,원칙용임
 
   useEffect(() => {
     if (status === 'succeeded') {
@@ -98,13 +96,9 @@ const TrainerMain = () => {
   };
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
-    dispatch(
-      fetchTrainers({
-        limit: itemsPerPage,
-        offset: (page - 1) * itemsPerPage,
-      })
-    );
+    if (page !== currentPage) {
+      setCurrentPage(page);
+    }
   };
 
   // 페이지 이동 이벤트 처리
