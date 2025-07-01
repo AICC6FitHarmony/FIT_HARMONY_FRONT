@@ -5,7 +5,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchTrainers = createAsyncThunk(
   'trainer/fetchTrainers',
   async () => {
-    const response = await fetch('http://localhost:8000/trainer');
+    const response = await fetch('http://localhost:8000/trainer', {
+      credentials: 'include',
+    });
     return response.json(); // { data: [...], gym: [...] } 형태를 기대
   }
 );
@@ -18,6 +20,7 @@ const trainerSlice = createSlice({
       data: [], // 트레이너 정보 배열 형태로 받아옴
       gym: [], // 체육관 정보 배열
       products: [], // 트레이너 정보 배열
+      total: 0, // 총 트레이너 수
     },
     status: 'idle', // staus  초기 사상태
     error: null,

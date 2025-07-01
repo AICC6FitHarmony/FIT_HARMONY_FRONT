@@ -19,18 +19,34 @@ const TrainerMain = () => {
   const [searchResult, setSearchResult] = useState([]);
   const [listMode, setListMode] = useState('grid');
 
+  // 페이지 관리
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 10; // 한 페이지 에 보여줄 트레이너 수
   useEffect(() => {
     if (status === 'idle') {
-      //sliceTrainer.js 에서 초기상태 지정
-      dispatch(fetchTrainers()); //idle 인 상태일때만 정보 정보 가져옴
+      //sliceTrainer.js 에서 초기상태 지정 / //idle 인 상태일때만 정보 정보 가져옴
+      dispatch(
+        fetchTrainers({
+          //  disptch로 데이터 가져올때 백엔드에서 정해놓은 limit와 offset 변경
+          limit: itemsPerPage,
+          offset: (currentPage - 1) * itemsPerPage,
+        })
+      );
     }
-  }, [status, dispatch]); // status 가 변하거나 dipatch 되면 동작?
+  }, [status, dispatch, currentPage]); // useeffect 실행 조건 : status 변하면 작동/ dispatch는 쓸모없는 관례,원칙용임
 
   useEffect(() => {
     if (status === 'succeeded') {
-      setSearchResult(trainers?.data || []);
+      setSearchResult(trainers?.data || []); // 받으온 데이터를 SearchResult에 ㅈ저장 || 데이터가 없다면 빈 배열로 처리
+      setTotalItems(trainers?.total || 0); // 트레이너 총 수 데이터 가져옴
+      setTotalPages(Math.ceil((trainers?.total || 0) / itemsPerPage)); //전체 페이지 수 계산 math 라이브러리 사용 .트레이너 총수 / 한 페이지 . ex) 100/ 4 = 25
     }
-  }, [status, trainers]);
+  }, [status, trainers, itemsPerPage]); //useeffect 실행 조건 셋중 하나라도 변하면 해당 훅 실행
+
+  console.log('Trainers data:', trainers); // 디버깅용
+  console.log('Total items:', trainers?.total);
 
   const handleSearch = () => {
     const keyword = search.trim().toLowerCase();
@@ -56,6 +72,66 @@ const TrainerMain = () => {
   const handleReadMore = (userId) => {
     navigate(`/trainer/${userId}`);
   };
+
+  // 페이지 번호 생성
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 10;
+
+    if (totalPages <= maxVisiblePages) {
+      // 총 페이지가 10 이하면 모든 페이지 표시
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i); // 숫자 버튼  만드는 코드 .
+      }
+    } else {
+      // 총 페이지가 10 초과일 때
+      const currentGroup = Math.ceil(currentPage / maxVisiblePages); //현재 페이지가 있는 그룹 1~10
+      const startPage = (currentGroup - 1) * maxVisiblePages + 1; //현재 그룹의 시작 번호
+      const endPage = Math.min(currentGroup * maxVisiblePages, totalPages); //현재 그룹의 끝 번호
+
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
+    }
+
+    return pageNumbers;
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    dispatch(
+      fetchTrainers({
+        limit: itemsPerPage,
+        offset: (page - 1) * itemsPerPage,
+      })
+    );
+  };
+
+  // 페이지 이동 이벤트 처리
+  // 숫자 클릭
+  const handlePrevGroup = () => {
+    const currentGroup = Math.ceil(currentPage / 10);
+    if (currentGroup > 1) {
+      const newPage = (currentGroup - 2) * 10 + 1;
+      handlePageChange(newPage);
+    }
+  };
+
+  // 이전
+  const handleNextGroup = () => {
+    const currentGroup = Math.ceil(currentPage / 10);
+    const maxGroup = Math.ceil(totalPages / 10);
+    if (currentGroup < maxGroup) {
+      const newPage = currentGroup * 10 + 1;
+      handlePageChange(newPage);
+    }
+  };
+
+  // 다음
+  const pageNumbers = getPageNumbers();
+  const showPrevGroup = Math.ceil(currentPage / 10) > 1;
+  const showNextGroup =
+    Math.ceil(currentPage / 10) < Math.ceil(totalPages / 10);
 
   return (
     // 검색
@@ -162,18 +238,41 @@ const TrainerMain = () => {
                 )}
               </div>
             </div>
-            <div className=" flex align-center justify-center my-10">
-              <button>이전</button>
-              <button
-                className="hover:underline hover:text-[#1a7d45]"
-                key={num}
-                onClick={() => {
-                  setPage(num);
-                }}
-              >
-                1
-              </button>
-              <button>다음</button>
+            {/* 페이지 번호 */}
+            <div className="page-number flex align-center justify-center my-10">
+              {showPrevGroup && (
+                <button
+                  onClick={handlePrevGroup}
+                  className="px-3 py-2 text-blue-600 hover:underline"
+                >
+                  이전
+                </button>
+              )}
+
+              {/* 페이지 번호들 */}
+              {pageNumbers.map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  className={`px-3 py-2 mx-1 rounded ${
+                    currentPage === pageNum
+                      ? 'bg-[#1a7d45] text-white'
+                      : 'text-blue-600 hover:underline hover:text-[#1a7d45]'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+
+              {/* 다음 그룹 버튼 */}
+              {showNextGroup && (
+                <button
+                  onClick={handleNextGroup}
+                  className="px-3 py-2 text-blue-600 hover:underline"
+                >
+                  다음
+                </button>
+              )}
             </div>
           </div>
         </div>
