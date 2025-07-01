@@ -21,7 +21,7 @@ export const getPosts = async (board_id, setPosts)=>{
 export const getPost = async (postId) =>{
   const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/post/${postId}`);
   const res = await response.json();
-  console.log(res);
+  // console.log(res);
   return res;
 }
 
@@ -52,8 +52,34 @@ export const getComments = async(postId, setComments)=>{
 }
 
 export const createComment = async(body)=>{
-  const res = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/delete`, {
+  const res = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/comment/create`, {
     method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      charset: 'UTF-8',
+    },
+    body: JSON.stringify(body)
+  });
+  return res;
+}
+
+export const deleteComment = async(body)=>{
+  const res = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/comment`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      charset: 'UTF-8',
+    },
+    body: JSON.stringify(body)
+  });
+  return res;
+}
+
+export const updateComment = async(body)=>{
+  const res = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/comment`, {
+    method: 'PUT',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
