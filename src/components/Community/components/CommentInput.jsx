@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useParams } from 'react-router-dom';
-import { createComment } from '../../../js/community/comunityUtils';
+import { createComment } from '../../../js/community/communityUtils';
 
 const CommentInput = ({parent_comment_id, load_comments, title}) => {
   const {postId:post_id} = useParams();
@@ -16,7 +16,7 @@ const CommentInput = ({parent_comment_id, load_comments, title}) => {
       post_id, parent_comment_id, content
     }
     const res = await createComment(body);
-    load_comments();
+    await load_comments();
     setContent("");
     console.log(res)
   }

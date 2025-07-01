@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { useImageFileUpload, useUpdateGroupId } from '../../../js/common/util';
+import { useRequest } from '../../../js/config/requests';
 
 const DietScheduleTable = ({data}) => {
 
@@ -9,6 +10,8 @@ const DietScheduleTable = ({data}) => {
     const [file, setFile] = useState(null); // 파일 세팅 useState
     const fileUpload = useImageFileUpload(); // fileupload hook
     const updateGroupId = useUpdateGroupId(); // groupId 수정
+
+    const request = useRequest();
 
     const aiPictureCalcCal = (e) => {
         setFile(e.target.files[0])
@@ -27,7 +30,16 @@ const DietScheduleTable = ({data}) => {
         uploadFormData.append('file', file);
 
         const upload = await fileUpload(uploadFormData);
-        const updateGroupIdResult = await updateGroupId({groupId : upload.groupId, newGroupId: 'diet-test'});
+
+        const option = {
+            method:'POST',
+            body : {
+                fileId : upload.fileIdArr[0]
+            }
+        }
+        
+        const dietResult = await request('/schedule/requestAiDiet', option);
+        const updateGroupIdResult = await updateGroupId({groupId : upload.groupId, newGroupId: `diet-${dietResult.dietId}`});
 
     }
 

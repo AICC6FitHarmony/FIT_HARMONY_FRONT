@@ -1,5 +1,5 @@
 // components/Editor.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import Document from '@tiptap/extension-document'
 import StarterKit from '@tiptap/starter-kit';
@@ -71,17 +71,13 @@ function sanitizeContent(node) {
   if (Array.isArray(node.content)) {
     node.content = node.content.map(sanitizeContent);
   }
-
   return node;
 }
 
 import MenuBar from './MenuBar';
 // import { ResizableImage } from './ResizableImage';
 import Image from '@tiptap/extension-image';
-import { useParams } from 'react-router-dom';
-import { postCreate } from '../../../js/community/comunityUtils';
-const PostEditor = () => {
-  const {boardId} = useParams();
+const PostEditor = ({handleSubmit, defaultPost}) => {
   const [postTitle, setPostTitle] = useState('');
   const editor = useEditor({
     extensions: [
@@ -99,35 +95,33 @@ const PostEditor = () => {
     ],
     content: '',
   });
+  
 
   if (!editor) {
     return null;
   }
 
-  const PostUpload = async()=>{
+  useEffect(()=>{
+    if(!defaultPost) return;
+    setPostTitle(defaultPost.title)
+    editor?.commands.setContent(defaultPost.content);
+  },[defaultPost]);
+
+  const generateForm = async()=>{
     const form = new FormData();
-    
     const jsonContent = editor.getJSON();
     const cleanJSON = sanitizeContent(structuredClone(jsonContent));
-    form.append('board_id',boardId);
     form.append('title',postTitle);
     form.append("content",JSON.stringify(cleanJSON));
-    const result = await postCreate(form);
-    console.log(result)
-    if(result.success == false){
-
-      return
-    }
-    location.href = `/community/post/${result.postId}`
+    return form;
   }
 
   const handleSave = async ()=>{
     if(!postTitle){
       return;
     }
-
-
-    PostUpload();
+    const form = await generateForm();
+    handleSubmit(form);
   }
 
   return (
@@ -139,6 +133,7 @@ const PostEditor = () => {
           <input
           type="text"
           placeholder="제목을 입력하세요"
+          value={postTitle}
           style={{
             width: '100%',
             fontSize: '1.5em',

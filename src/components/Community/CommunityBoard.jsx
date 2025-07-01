@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom';
-import { getPosts } from '../../js/community/comunityUtils';
+import { getPosts } from '../../js/community/communityUtils';
 
 const CommunityBoard = () => {
   const {boardId} = useParams();

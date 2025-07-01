@@ -1,14 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ProfileEdit from "./ProfileEdit";
 import Withdraw from "./Withdraw";
 import MyActivity from "./MyActivity";
 import { useAuthRedirect } from "../../js/login/AuthContext";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { format } from "date-fns";
+import { fetchUserData } from "../../js/redux/slice/sliceMypage";
 
 const MyPage = () => {
+  const dispatch = useDispatch();
   const [selectedMenu, setSelectedMenu] = useState("profile");
   const { user, loading } = useAuthRedirect();
+  const userId = user?.user?.userId || "";
   console.log("user", user);
+  const [userData, setUserData] = useState(null);
+  // user와 userId가 있을 때만 데이터 요청
+  useEffect(() => {
+    if (!user || !userId || loading) {
+      return; // user가 없거나 로딩 중이면 실행하지 않음
+    }
+    console.log("userId", userId);
+    const fetchData = async () => {
+      try {
+        const result = await dispatch(fetchUserData({ userId })).unwrap();
+
+        if (result?.message === "success") {
+          setUserData(result?.userResult);
+        }
+      } catch (error) {
+        console.error("데이터 가져오기 실패:", error);
+      }
+    };
+    fetchData();
+  }, [dispatch, userId, user, loading]);
+
   // NavBar 메뉴
   const navItems = [
     { key: "profile", label: "프로필 편집" },
@@ -38,7 +63,7 @@ const MyPage = () => {
       </nav>
       {/* 오른쪽 내용 */}
       <div className="flex-1 p-10">
-        {selectedMenu === "profile" && <ProfileEdit user={user} />}
+        {selectedMenu === "profile" && <ProfileEdit user={userData} />}
         {selectedMenu === "withdraw" && <Withdraw />}
         {selectedMenu === "activity" && <MyActivity />}
       </div>
