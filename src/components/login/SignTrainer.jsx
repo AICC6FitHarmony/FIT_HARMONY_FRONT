@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import SignInputTab from "./components/SignInputTab";
-import SignProfilePage from "./components/SignProfilePage";
-import SignBodyPage from "./components/SignBodyPage";
-import SignSelectText from "./components/SignSelectText";
-import SignButton from "./components/SignButton";
+import SignInputTab from "./common/SignInputTab";
+import SignProfilePage from "./common/SignProfilePage";
+import SignBodyPage from "./common/SignBodyPage";
+import SignSelectText from "./common/SignSelectText";
+import SignButton from "./common/SignButton";
 import { toast, ToastContainer } from "react-toastify";
-import SignNav from "./components/SignNav";
-import SignGym from "./components/SignGym";
+import SignNav from "./common/SignNav";
+import SignGym from "./common/SignGym";
+import InputWithLabel from "./common/InputWithLabel";
 
 const SignTrainer = () => {
   const idxMax = 4;
@@ -105,7 +106,7 @@ const SignTrainer = () => {
     handleSign();
   };
   return (
-    <div className="sign-box shadow-xl relative w-1/3">
+    <div className="sign-box bg-white shadow-xl relative w-1/3">
       <form action="">
         <div className="pb-20">
           <SignInputTab idx={tabIdx} thisIdx={0}>
@@ -124,15 +125,13 @@ const SignTrainer = () => {
             thisIdx={1}
           />
           <SignInputTab idx={tabIdx} thisIdx={2}>
-            <SignSelectText
-              infoHeader="history"
-              title="운동 수준"
-              texts={["입문", "초급", "중급", "고급", "전문가"]}
-              userInfo={userInfo}
-              setUserInfo={setUserInfo}
-              handleChangeValue={handleChangeValue}
-              handleInputNumber={handleInputNumber}
-            />
+            <div className="text-2xl text-center pb-5">운동 경력</div>
+
+            <InputWithLabel name="experience" onChange={handleChangeValue} 
+            value={userInfo.experience} 
+            isNumber={true} 
+            waringText={"0~100 범위의 값을 입력해주세요"} 
+            isWaring={userInfo.experience < 0 || userInfo.experience >100}/>
           </SignInputTab>
           <SignInputTab idx={tabIdx} thisIdx={3}>
             <SignSelectText

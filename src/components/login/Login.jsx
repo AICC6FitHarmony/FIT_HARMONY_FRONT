@@ -17,7 +17,7 @@ const Login = () => {
     }
 
     return (
-        <div className='my-10 mx-auto w-full flex justify-center'>
+        <div className='py-10 mx-auto w-full flex justify-center'>
             <Routes>
                 <Route path='/' element={<LoginPage loginFail={false}/>} />
                 <Route path='/fail' element={<LoginPage loginFail={true}/>} />
