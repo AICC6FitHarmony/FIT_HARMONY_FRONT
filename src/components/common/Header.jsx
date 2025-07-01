@@ -3,9 +3,9 @@ import NavBar from './NavBar';
 
 const Header = () => {
   return (
-    <div className="header-wrapper">
+    <div className="header-wrapper bg-orange-50">
       <div className="flex items-center justify-cente">
-        <div>logo</div>
+        <div></div>
       </div>
       <NavBar />
     </div>

@@ -1,10 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  insertInbodyData,
+  clearInsertSuccess,
+} from "../../js/redux/slice/sliceInbody";
+import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2";
 
-const InbodyRegisterForm = ({ onClose, onSubmit }) => {
+const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
+  const dispatch = useDispatch();
+  const { loading, insertSuccess, error } = useSelector(
+    (state) => state.inbody
+  );
   const [inputMode, setInputMode] = useState(null); // 'photo' 또는 'manual'
   const [formData, setFormData] = useState({
-    name: "",
+    name: userName,
     date: format(new Date(), "yyyy-MM-dd"),
     weight: "",
     bodyWater: "",
@@ -35,6 +46,36 @@ const InbodyRegisterForm = ({ onClose, onSubmit }) => {
     }));
   };
 
+  const handleCancel = () => {
+    Swal.fire({
+      title: "취소하시겠습니까?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "확인",
+      cancelButtonText: "취소",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onClose();
+      }
+    });
+  };
+
+  const handleOk = () => {
+    Swal.fire({
+      title: "등록하시겠습니까?",
+      icon: "success",
+      showCancelButton: true,
+      confirmButtonText: "확인",
+      cancelButtonText: "취소",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({ html: `등록완료` }).then(() => {
+          onSubmit(formData);
+        });
+      }
+    });
+  };
+
   const handleManualInput = () => {
     setInputMode("manual");
   };
@@ -47,7 +88,7 @@ const InbodyRegisterForm = ({ onClose, onSubmit }) => {
   const handleBackToSelection = () => {
     setInputMode(null);
     setFormData({
-      name: "",
+      name: userName,
       date: format(new Date(), "yyyy-MM-dd"),
       weight: "",
       bodyWater: "",
@@ -71,9 +112,150 @@ const InbodyRegisterForm = ({ onClose, onSubmit }) => {
     });
   };
 
-  const handleSubmit = () => {
-    onSubmit(formData);
+  const handleSubmit = async () => {
+    if (!userId) {
+      toast.error("사용자 ID가 없습니다.");
+      return;
+    }
+
+    // 숫자 변환 및 유효성 검사
+    const inbodyData = {
+      weight: parseFloat(formData.weight),
+      bodyWater: parseFloat(formData.bodyWater),
+      inbodyScore: parseInt(formData.inbodyScore),
+      protein: parseFloat(formData.protein),
+      bodyMineral: parseFloat(formData.bodyMineral),
+      bodyFat: parseFloat(formData.bodyFat),
+      bodyFatPercent: parseFloat(formData.bodyFatPercent),
+      bmi: parseFloat(formData.bmi),
+      skeletalMuscle: parseFloat(formData.skeletalMuscle),
+      trunkMuscle: parseFloat(formData.trunkMuscle),
+      leftArmMuscle: parseFloat(formData.leftArmMuscle),
+      rightArmMuscle: parseFloat(formData.rightArmMuscle),
+      leftLegMuscle: parseFloat(formData.leftLegMuscle),
+      rightLegMuscle: parseFloat(formData.rightLegMuscle),
+      trunkFat: parseFloat(formData.trunkFat),
+      leftArmFat: parseFloat(formData.leftArmFat),
+      rightArmFat: parseFloat(formData.rightArmFat),
+      leftLegFat: parseFloat(formData.leftLegFat),
+      rightLegFat: parseFloat(formData.rightLegFat),
+      inbodyTime: formData.date,
+    };
+
+    // 선택적 필드 검증 (입력된 경우에만)
+    const validationChecks = [
+      { field: "weight", name: "체중", value: inbodyData.weight },
+      { field: "bodyWater", name: "체수분", value: inbodyData.bodyWater },
+      {
+        field: "inbodyScore",
+        name: "인바디 점수",
+        value: inbodyData.inbodyScore,
+      },
+      { field: "protein", name: "단백질", value: inbodyData.protein },
+      { field: "bodyMineral", name: "무기질", value: inbodyData.bodyMineral },
+      { field: "bodyFat", name: "체지방", value: inbodyData.bodyFat },
+      {
+        field: "bodyFatPercent",
+        name: "체지방률",
+        value: inbodyData.bodyFatPercent,
+      },
+      { field: "bmi", name: "BMI", value: inbodyData.bmi },
+      {
+        field: "skeletalMuscle",
+        name: "골격근량",
+        value: inbodyData.skeletalMuscle,
+      },
+      {
+        field: "trunkMuscle",
+        name: "몸통 근육량",
+        value: inbodyData.trunkMuscle,
+      },
+      {
+        field: "leftArmMuscle",
+        name: "왼팔 근육량",
+        value: inbodyData.leftArmMuscle,
+      },
+      {
+        field: "rightArmMuscle",
+        name: "오른팔 근육량",
+        value: inbodyData.rightArmMuscle,
+      },
+      {
+        field: "leftLegMuscle",
+        name: "왼다리 근육량",
+        value: inbodyData.leftLegMuscle,
+      },
+      {
+        field: "rightLegMuscle",
+        name: "오른다리 근육량",
+        value: inbodyData.rightLegMuscle,
+      },
+      { field: "trunkFat", name: "몸통 체지방", value: inbodyData.trunkFat },
+      {
+        field: "leftArmFat",
+        name: "왼팔 체지방",
+        value: inbodyData.leftArmFat,
+      },
+      {
+        field: "rightArmFat",
+        name: "오른팔 체지방",
+        value: inbodyData.rightArmFat,
+      },
+      {
+        field: "leftLegFat",
+        name: "왼다리 체지방",
+        value: inbodyData.leftLegFat,
+      },
+      {
+        field: "rightLegFat",
+        name: "오른다리 체지방",
+        value: inbodyData.rightLegFat,
+      },
+    ];
+
+    for (const check of validationChecks) {
+      // 값이 입력되었지만 유효하지 않은 경우
+      if (isNaN(check.value) || check.value < 0) {
+        toast.error(`올바른 ${check.name}을(를) 입력해주세요.`);
+        return;
+      }
+    }
+
+    // 특별한 범위 검증
+    if (
+      inbodyData.bodyFatPercent &&
+      (inbodyData.bodyFatPercent < 0 || inbodyData.bodyFatPercent > 100)
+    ) {
+      toast.error("체지방률은 0%에서 100% 사이의 값이어야 합니다.");
+      return;
+    }
+
+    if (inbodyData.inbodyScore && inbodyData.inbodyScore < 0) {
+      toast.error("인바디 점수는 0보다 커야합니다.");
+      return;
+    }
+
+    try {
+      const result = await dispatch(
+        insertInbodyData({ userId, inbodyData })
+      ).unwrap();
+
+      if (result.success) {
+        handleOk();
+      }
+    } catch (error) {
+      toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
+        position: "bottom-center",
+      });
+    }
   };
+
+  // 등록 성공 시 처리
+  useEffect(() => {
+    if (insertSuccess) {
+      dispatch(clearInsertSuccess());
+    }
+  }, [insertSuccess, dispatch]);
 
   return (
     <div className="p-6">
@@ -427,17 +609,11 @@ const InbodyRegisterForm = ({ onClose, onSubmit }) => {
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
-              <button
-                onClick={onClose}
-                className="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
-              >
+              <button onClick={handleCancel} className="cancel">
                 취소
               </button>
-              <button
-                onClick={handleSubmit}
-                className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-              >
-                등록
+              <button onClick={handleSubmit} className="ok" disabled={loading}>
+                {loading ? "등록 중..." : "등록"}
               </button>
             </div>
           </div>
@@ -455,6 +631,7 @@ const InbodyRegisterForm = ({ onClose, onSubmit }) => {
           </button>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

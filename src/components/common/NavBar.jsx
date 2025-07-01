@@ -5,13 +5,21 @@ import { BsPeopleFill } from 'react-icons/bs';
 const NavBar = () => {
   return (
     // 사이트 전체 배경
-    <div className=" bg-[#fffaf0]">
-      {/* 로고 영역 */}
-      <div className="header h-20 flex justify-center items-center">
-        <span className="text-2xl font-bold">
-          <Link to="/">Fit Harmony</Link>
-        </span>
-      </div>
+    <div className=" bg-orange-50">
+      <div className=' flex justify-center align-center my-5'>
+            {/* 로고 */}
+            
+            <div className="flex flex-col justify-center"><Link to="/" >
+              <div className="text-3xl font-black tracking-tight text-slate-800 group-hover:text-slate-900 transition-colors duration-300">
+                <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Fit</span>
+                <span className= "text-[#4a902c] bg-clip-text  ml-1">Harmony</span>
+              </div>
+              <div className="text-xs font-medium text-slate-500 tracking-wider uppercase mt-0.5">
+                Modern Fitness
+              </div>
+              </Link>
+            </div>
+            </div>
 
       {/* 내비게이션 바 */}
       <div className="bg-white sticky top-0 z-50 shadow-md shadow-green-800/10 rounded-2xl mx-4">
