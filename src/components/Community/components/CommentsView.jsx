@@ -52,7 +52,7 @@ const CommentsView = () => {
                   {
                     (replyId===comment.commentId)?(
                       <div className='pl-[30px]'>
-                        <CommentInput load_comments={loadComments} parent_comment_id={comment.commentId}/>
+                        <CommentInput load_comments={loadComments} parent_comment_id={comment.commentId} title={"답글 작성"}/>
                       </div>
                     ):""
                   }
