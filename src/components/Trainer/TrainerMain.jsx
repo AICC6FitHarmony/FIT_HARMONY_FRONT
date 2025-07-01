@@ -233,11 +233,11 @@ const TrainerMain = () => {
               </div>
             </div>
             {/* 페이지 번호 */}
-            <div className="page-number flex align-center justify-center my-10">
+            <div className="page-number flex align-center justify-center my-10 gap-4">
               {showPrevGroup && (
                 <button
                   onClick={handlePrevGroup}
-                  className="px-3 py-2 text-blue-600 hover:underline"
+                  className=" text-blue-600 hover:underline"
                 >
                   이전
                 </button>
@@ -248,7 +248,7 @@ const TrainerMain = () => {
                 <button
                   key={pageNum}
                   onClick={() => handlePageChange(pageNum)}
-                  className={`px-3 py-2 mx-1 rounded ${
+                  className={`px-3 py-2 mx-1 w-6 rounded ${
                     currentPage === pageNum
                       ? 'bg-[#1a7d45] text-white'
                       : 'text-blue-600 hover:underline hover:text-[#1a7d45]'
