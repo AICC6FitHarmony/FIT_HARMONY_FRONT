@@ -108,9 +108,6 @@ const Inbody = () => {
   };
 
   const handleDatesSet = async (arg) => {
-    console.log(format(arg.start, "yyyy-MM-dd"));
-    console.log(format(arg.end, "yyyy-MM-dd"));
-
     try {
       const result = await dispatch(
         fetchInbodyMonthData({
@@ -176,6 +173,20 @@ const Inbody = () => {
     );
   }
 
+  // 표준값 안전 접근 헬퍼 함수
+  const getStandardStat = (key, field, fallback = 0) => {
+    const item = standardValues[key];
+    return item && typeof item[field] === "number" ? item[field] : fallback;
+  };
+
+  // muscle / fat 데이터 생성 함수
+  const buildSectionData = (keys) =>
+    keys.map(({ key, label, value }) => ({
+      subject: label,
+      A: value,
+      B: 100,
+    }));
+
   // 인바디 데이터 설정
   const {
     inbodyId, // 인바디 아이디
@@ -211,41 +222,67 @@ const Inbody = () => {
       min,
       max,
       avg: (min + max) / 2,
-      fullMark: ((min + max) / 2) * 1.5,
     };
   });
 
-  // 표준값 안전 접근 헬퍼 함수
-  const getStandardStat = (key, field, fallback = 0) => {
-    const item = standardValues[key];
-    return item && typeof item[field] === "number" ? item[field] : fallback;
-  };
-
   // muscle / fat 키 배열
   const muscleKeys = [
-    { key: "trunk_muscle", label: "몸통", value: trunkMuscle },
-    { key: "right_arm_muscle", label: "오른팔", value: rightArmMuscle },
-    { key: "right_leg_muscle", label: "오른다리", value: rightLegMuscle },
-    { key: "left_leg_muscle", label: "왼다리", value: leftLegMuscle },
-    { key: "left_arm_muscle", label: "왼팔", value: leftArmMuscle },
+    {
+      key: "trunk_muscle",
+      label: "몸통",
+      value: (100 * trunkMuscle) / getStandardStat("trunk_muscle", "avg"),
+    },
+    {
+      key: "right_arm_muscle",
+      label: "오른팔",
+      value:
+        (100 * rightArmMuscle) / getStandardStat("right_arm_muscle", "avg"),
+    },
+    {
+      key: "right_leg_muscle",
+      label: "오른다리",
+      value:
+        (100 * rightLegMuscle) / getStandardStat("right_leg_muscle", "avg"),
+    },
+    {
+      key: "left_leg_muscle",
+      label: "왼다리",
+      value: (100 * leftLegMuscle) / getStandardStat("left_leg_muscle", "avg"),
+    },
+    {
+      key: "left_arm_muscle",
+      label: "왼팔",
+      value: (100 * leftArmMuscle) / getStandardStat("left_arm_muscle", "avg"),
+    },
   ];
 
   const fatKeys = [
-    { key: "trunk_fat", label: "몸통", value: trunkFat },
-    { key: "right_arm_fat", label: "오른팔", value: rightArmFat },
-    { key: "right_leg_fat", label: "오른다리", value: rightLegFat },
-    { key: "left_leg_fat", label: "왼다리", value: leftLegFat },
-    { key: "left_arm_fat", label: "왼팔", value: leftArmFat },
+    {
+      key: "trunk_fat",
+      label: "몸통",
+      value: (100 * trunkFat) / getStandardStat("trunk_fat", "avg"),
+    },
+    {
+      key: "right_arm_fat",
+      label: "오른팔",
+      value: (100 * rightArmFat) / getStandardStat("right_arm_fat", "avg"),
+    },
+    {
+      key: "right_leg_fat",
+      label: "오른다리",
+      value: (100 * rightLegFat) / getStandardStat("right_leg_fat", "avg"),
+    },
+    {
+      key: "left_leg_fat",
+      label: "왼다리",
+      value: (100 * leftLegFat) / getStandardStat("left_leg_fat", "avg"),
+    },
+    {
+      key: "left_arm_fat",
+      label: "왼팔",
+      value: (100 * leftArmFat) / getStandardStat("left_arm_fat", "avg"),
+    },
   ];
-
-  // muscle / fat 데이터 생성 함수
-  const buildSectionData = (keys) =>
-    keys.map(({ key, label, value }) => ({
-      subject: label,
-      A: value,
-      B: getStandardStat(key, "avg"),
-      fullMark: getStandardStat(key, "fullMark"),
-    }));
 
   const muscleData = buildSectionData(muscleKeys);
   const fatData = buildSectionData(fatKeys);
@@ -305,10 +342,6 @@ const Inbody = () => {
     },
   ];
 
-  // fullMark 변수 설정 (표준값 * 1.5)
-  const fullMark_tM = standardValues?.trunk_muscle?.fullMark || 0;
-  const fullMark_tF = standardValues?.trunk_fat?.fullMark || 0;
-
   return (
     <>
       {mainInbodyData &&
@@ -319,8 +352,6 @@ const Inbody = () => {
             inbodyScore={inbodyScore}
             muscleData={muscleData}
             fatData={fatData}
-            fullMark_tM={fullMark_tM}
-            fullMark_tF={fullMark_tF}
           />
           {/* 오른쪽 */}
           <div className="w-full md:w-1/2 space-y-4">

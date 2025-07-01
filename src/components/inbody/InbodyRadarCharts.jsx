@@ -8,17 +8,17 @@ import {
   Legend,
 } from "recharts";
 
-const InbodyRadarCharts = ({
-  inbodyScore,
-  muscleData,
-  fatData,
-  fullMark_tM,
-  fullMark_tF,
-}) => {
+const InbodyRadarCharts = ({ inbodyScore, muscleData, fatData }) => {
   return (
     <div className="w-full md:w-1/2 space-y-4">
       <div className="text-xl font-semibold text-center">
-        인바디 점수 ({inbodyScore}/100)
+        <p>
+          인바디 점수 (<span className="font-bold text-2xl">{inbodyScore}</span>
+          /100)
+        </p>
+        <span className="text-sm text-gray-400">
+          *체성분 종합점수입니다. 근육이 많은 경우 100점을 넘을 수 있습니다.
+        </span>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -33,7 +33,7 @@ const InbodyRadarCharts = ({
             >
               <PolarGrid />
               <PolarAngleAxis dataKey="subject" />
-              <PolarRadiusAxis angle={30} domain={[0, fullMark_tM]} />
+              <PolarRadiusAxis angle={30} domain={[0, 150]} />
               <Radar
                 name="현재"
                 dataKey="A"
@@ -64,7 +64,7 @@ const InbodyRadarCharts = ({
             >
               <PolarGrid />
               <PolarAngleAxis dataKey="subject" />
-              <PolarRadiusAxis angle={30} domain={[0, fullMark_tF]} />
+              <PolarRadiusAxis angle={30} domain={[0, 300]} />
               <Radar
                 name="현재"
                 dataKey="A"
