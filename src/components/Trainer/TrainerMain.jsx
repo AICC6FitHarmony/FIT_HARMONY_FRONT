@@ -7,7 +7,7 @@ import { TiArrowSortedDown } from 'react-icons/ti';
 import { FaListUl } from 'react-icons/fa6';
 import aa from '../Trainer/test/aa.png';
 import { useNavigate } from 'react-router-dom';
-import { GrAppsRounded } from 'react-icons/gr';
+import { MdDialpad } from 'react-icons/md';
 
 const TrainerMain = () => {
   const dispatch = useDispatch();
@@ -21,9 +21,10 @@ const TrainerMain = () => {
 
   useEffect(() => {
     if (status === 'idle') {
-      dispatch(fetchTrainers());
+      //sliceTrainer.js 에서 초기상태 지정
+      dispatch(fetchTrainers()); //idle 인 상태일때만 정보 정보 가져옴
     }
-  }, [status, dispatch]);
+  }, [status, dispatch]); // status 가 변하거나 dipatch 되면 동작?
 
   useEffect(() => {
     if (status === 'succeeded') {
@@ -57,6 +58,7 @@ const TrainerMain = () => {
   };
 
   return (
+    // 검색
     <div className="main-wrapper pt-20 w-full">
       <div className="search-title">
         <div className="flex justify-center">
@@ -72,6 +74,7 @@ const TrainerMain = () => {
               onKeyDown={handleKeyPress}
               className="border-2 bg-white border-[#1a7d45] rounded-md w-[35rem] h-[40px] shadow-md pr-10"
             />
+            {/* 검색버튼 */}
             <button
               onClick={handleSearch}
               className="absolute right-0 top-1/2 transform -translate-y-1/2 mr-2 text-2xl text-[#1a7d45] hover:text-black"
@@ -87,22 +90,23 @@ const TrainerMain = () => {
           <div className="trainer-navbar w-[20%] bg-orange-50 h-full">
             필터검색
           </div>
-          <div className="trainer-container bg-orange-50 w-[80%] h-[40rem] flex flex-col">
+          <div className="trainer-container bg-orange-50 w-[80%]  flex flex-col">
             <div className="array-wrapper flex w-full justify-between p-2">
               <button className="trainer-array bg-white w-30 rounded-2xl h-10 flex items-center justify-center gap-2 hover:underline">
                 정렬 <TiArrowSortedDown />
               </button>
+
+              {/* 목록 이미지로 보기, 가로로 보기 */}
               <button
-                className="trainer-array bg-white w-15 rounded-2xl h-10 flex items-center justify-center gap-2 hover:text-[#1a7d45]"
+                className="trainer-array bg-white w-15 rounded-2xl h-10 flex items-center justify-center gap-2 hover:text-[#1a7d45] text-2xl"
                 onClick={() =>
                   setListMode(listMode === 'grid' ? 'horizontal' : 'grid')
                 }
               >
-                {listMode === 'grid' ? <FaListUl /> : <FaTh />}
-                {<GrAppsRounded />}
-                <FaListUl />
+                {listMode === 'grid' ? <FaListUl /> : <MdDialpad />}
               </button>
             </div>
+            {/* 검색 결과 목록 */}
             <div className="trainer-list px-3 py-4 h-auto">
               <div
                 className={
@@ -157,6 +161,19 @@ const TrainerMain = () => {
                   </p>
                 )}
               </div>
+            </div>
+            <div className=" flex align-center justify-center my-10">
+              <button>이전</button>
+              <button
+                className="hover:underline hover:text-[#1a7d45]"
+                key={num}
+                onClick={() => {
+                  setPage(num);
+                }}
+              >
+                1
+              </button>
+              <button>다음</button>
             </div>
           </div>
         </div>
