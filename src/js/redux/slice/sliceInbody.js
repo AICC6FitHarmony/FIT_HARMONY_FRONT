@@ -7,7 +7,9 @@ const GET_INBODY_API_URL = `${DOMAIN}/inbody`;
 // API 요청 함수들
 const getRequest = async (url) => {
   console.log("url : ", url);
-  return await fetch(url).then((response) => {
+  return await fetch(url, {
+    credentials: 'include',
+  }).then((response) => {
     if (!response.ok) {
       throw new Error('Slice Inbody => Network response was not ok');
     }
@@ -21,6 +23,7 @@ const postRequest = async (url, data) => {
   console.log("POST data : ", data);
   return await fetch(url, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -39,6 +42,7 @@ const putRequest = async (url, data) => {
   console.log("PUT data : ", data);
   return await fetch(url, {
     method: 'PUT',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
