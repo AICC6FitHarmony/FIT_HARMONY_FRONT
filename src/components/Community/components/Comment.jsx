@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { deleteComment, updateComment } from '../../../js/community/comunityUtils';
+import { CornerDownRight } from 'lucide-react';
 
 const Comment = ({load_comments, comment, auth_id, handleReply}) => {
-  const {nickName, content, createdTime, userId, commentId,isDeleted} = comment;
+  const {nickName, content, createdTime, userId, commentId,isDeleted, depth} = comment;
   const [editComment, setEditComment] = useState(false);
   const [editContent, setContent] = useState(content);
   const handleDelete = async()=>{
@@ -30,9 +31,12 @@ const Comment = ({load_comments, comment, auth_id, handleReply}) => {
     setContent(e.target.value);
   }
   return (
-    <div className='p-2 relative'>
+    <div className='p-2 relative bg-white rounded-xl shadow-xl mt-0.5'>
       <div className="header flex justify-between">
-        <div className="nick-name font-bold">{nickName}</div>
+        <div className="nick-name font-bold text-green-700 flex">
+          {(depth>1)?(<CornerDownRight/>):""}
+          <span>{nickName}</span>
+        </div>
         <div className="nav">
           {(auth_id === userId && isDeleted === false)?(
               <div className='flex gap-1.5'>
@@ -46,7 +50,7 @@ const Comment = ({load_comments, comment, auth_id, handleReply}) => {
         editComment
         ?(
           <div className='py-2 flex gap-2'>
-            <textarea name="" id="" rows={3} value={editContent} onChange={handleChange} className='w-[calc(100%-100px)] bg-white border p-2'></textarea>
+            <textarea name="" id="" rows={3} value={editContent} onChange={handleChange} className='w-[calc(100%-100px)] bg-neutral-100 border p-2'></textarea>
             <div className='cursor-pointer border px-3 flex justify-center items-center' onClick={handleUpdate}>댓글 수정</div>
           </div>
         )
@@ -62,7 +66,10 @@ const Comment = ({load_comments, comment, auth_id, handleReply}) => {
             }
           </div>
       </div>
-      <div className='absolute w-[95%] border-b bottom-0 left-[50%] translate-x-[-50%]'/>
+      {/* <div className='absolute w-[100%] border-b bottom-0 left-0'/>
+      <div className='absolute w-[100%] border-b top-[-1px] left-0'/> */}
+      
+      {/* {(depth>1)?(<div className='absolute rounded-2xl h-full border-l bottom-0 left-0'/>):""} */}
     </div>
   )
 }

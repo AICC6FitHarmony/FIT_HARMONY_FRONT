@@ -61,24 +61,29 @@ const PostView = ({}) => {
   }
 
   return (
-    <div className='p-7'>
-      <div className='post-wrapper flex flex-col gap-5'>
-      <div className='post-header flex'>
-        <div className='post_title text-2xl border border-[#ccc] p-2'>
+    <div className='p-4.5'>
+      <div className='post-wrapper flex flex-col gap-5 rounded-xl bg-white shadow-xl p-2'>
+
+      <div className='post-header p-2'>
+        <div className='post_title text-2xl border-[#ccc] text-green-700 font-bold'>
           {postInfo.title}
         </div>
-        <div className='user-info'>
+        <div className='user-info font-light'>
           {postInfo.nickName}
         </div>
       </div>
-      <div className='post_body border border-[#ccc] rounded-sm min-h-[400px] p-2' dangerouslySetInnerHTML={{ __html: postHtml }}/>
-      <div className='controls flex justify-end gap-3'>
+      <div className='w-full h-[2px] bg-green-700'/>
+      <div className='post_body rounded-sm min-h-[400px] p-2' dangerouslySetInnerHTML={{ __html: postHtml }}/>
+      <div className='w-full h-[2px] bg-green-700'/>
+      <div className='controls py-2 flex justify-end gap-3'>
         <button>수정</button>
         <button onClick={handleDelete}>삭제</button>
       </div>
-      <CommentsView/>
-      </div>
       
+      </div>
+      <div className='pt-5'>
+        <CommentsView/>
+      </div>
     </div>
   )
 }

@@ -131,33 +131,49 @@ const PostEditor = () => {
   }
 
   return (
-    <div>
-      {/* 제목 입력 */}
-      <input
-        type="text"
-        placeholder="제목을 입력하세요"
-        style={{
-          width: '100%',
-          padding: '10px',
-          fontSize: '1.5em',
-          marginBottom: '1em',
-        }}
-        onChange={(e)=>{setPostTitle(e.target.value)}}
-      />
+      <div className='p-4.5'>
+      <div className='post-wrapper flex flex-col gap-5 rounded-xl bg-white shadow-xl p-2'>
 
-      {/* 메뉴바 */}
-      <MenuBar editor={editor} />
+      <div className='post-header p-2'>
+        <div className='post_title border-[#ccc] text-green-700 font-bold'>
+          <input
+          type="text"
+          placeholder="제목을 입력하세요"
+          style={{
+            width: '100%',
+            fontSize: '1.5em',
+            marginBottom: '1em',
+          }}
+          onChange={(e)=>{setPostTitle(e.target.value)}}
+        />
+        </div>
+        <div className='user-info font-light'>
+          {/* {postInfo.nickName} */}
+        </div>
+      </div>
+      <div className='w-full h-[2px] bg-green-700'/>
 
-      {/* 에디터 */}
-      <EditorContent
-        editor={editor}
-        style={{
-          border: '1px solid #ccc',
-          padding: '10px',
-          minHeight: '300px',
-        }}
-      />
-      <button onClick={handleSave}>저장</button>
+      
+
+      <div className='post_body rounded-sm min-h-[400px] px-2'>
+        {/* 메뉴바 */}
+        <MenuBar editor={editor} />
+        {/* 에디터 */}
+        <EditorContent
+          editor={editor}
+          style={{
+            border: '1px solid #ccc',
+            padding: '10px',
+            minHeight: '300px',
+          }}
+        />
+      </div>
+      <div className='w-full h-[2px] bg-green-700'/>
+      <div className='controls py-2 flex justify-end gap-3'>
+        <button onClick={handleSave}>저장</button>
+      </div>
+      
+      </div>
     </div>
   );
 }

@@ -34,16 +34,16 @@ const CommentsView = () => {
   }
 
   return (
-    <div className='border min-h-[200px]'>
-      <div className="header flex justify-between p-2">
+    <div className='border-green-700 rounded-xl min-h-[200px]'>
+      <div className="header flex justify-between p-2 rounded-sm items-center text-[#a0e881] bg-[#82b16c]">
         <div>comment</div>
         <div>{comments.length}</div>
       </div>
       <div className="body">
-        <div className="list py-2">
+        <div className="list">
           {
             comments?.map((comment, idx)=>(
-              <div key={idx} style={
+              <div key={comment.commentId} style={
                 {
                   paddingLeft:`${30*(comment.depth-1)}px`
                 }
@@ -51,7 +51,7 @@ const CommentsView = () => {
                 <Comment comment={comment} load_comments={loadComments} auth_id={userId} handleReply={handleReply(comment.commentId)}/>
                   {
                     (replyId===comment.commentId)?(
-                      <div className='pl-[30px]'>
+                      <div className='pl-[30px] py-6'>
                         <CommentInput load_comments={loadComments} parent_comment_id={comment.commentId} title={"답글 작성"}/>
                       </div>
                     ):""
@@ -60,17 +60,20 @@ const CommentsView = () => {
             ))
           }
         </div>
+        <div className='pt-10'>
         {
           (replyId === 0)
           ?(
             <CommentInput load_comments={loadComments}/>
           )
           :(
-            <div className='w-full p-2'>
-              <div onClick={handleReply(0)} className='w-full bg-white border px-2 py-4 text-center rounded-sm cursor-pointer'>댓글 작성하기</div>
+            <div className='w-full bg-white p-4 pt-6 rounded-xl shadow-xl'>
+              <div onClick={handleReply(0)}
+              className='w-full bg-[#82b16c] text-emerald-100 border px-2 py-2 text-center rounded-sm cursor-pointer'>댓글 작성하기</div>
             </div>
           )
         }
+        </div>
         
       </div>
     </div>
