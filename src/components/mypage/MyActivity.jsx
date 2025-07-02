@@ -132,7 +132,6 @@ const MyActivity = ({ userId }) => {
                 <th className="px-4 py-2 text-left">날짜</th>
                 <th className="px-4 py-2 text-left">카테고리</th>
                 <th className="px-4 py-2 text-left">제목 / 내용</th>
-                <th className="px-4 py-2 text-left">조회수</th>
               </tr>
             </thead>
             <tbody>
@@ -145,34 +144,15 @@ const MyActivity = ({ userId }) => {
                     <td className="px-4 py-2">
                       <span
                         className={`px-2 py-1 rounded text-xs ${
-                          activity.type === "schedule"
+                          activity.type === "post"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-green-100 text-green-800"
                         }`}
                       >
-                        {activity.type === "schedule" ? "스케쥴" : "식단"}
+                        {activity.type === "post" ? "게시글" : "댓글"}
                       </span>
                     </td>
                     <td className="px-4 py-2">{activity.activity}</td>
-                    <td className="px-4 py-2">
-                      <span
-                        className={`px-2 py-1 rounded text-xs ${
-                          activity.status === "A"
-                            ? "bg-green-100 text-green-800"
-                            : activity.status === "B"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {activity.status === "A"
-                          ? "완료"
-                          : activity.status === "B"
-                          ? "미완료"
-                          : activity.status === "D"
-                          ? "식단"
-                          : "대기"}
-                      </span>
-                    </td>
                   </tr>
                 ))
               ) : (
@@ -187,28 +167,6 @@ const MyActivity = ({ userId }) => {
               )}
             </tbody>
           </table>
-        </div>
-      </section>
-
-      {/* 활동 요약 */}
-      <section className="bg-gray-50 p-6 rounded-lg shadow-sm">
-        <h3 className="font-semibold mb-4 text-lg">활동 요약</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-4 rounded-lg border">
-            <h4 className="font-medium mb-2">운동 활동</h4>
-            <p className="text-sm text-gray-600">
-              총 {scheduleActivity.totalSchedules || 0}개의 스케쥴 중{" "}
-              {scheduleActivity.completedSchedules || 0}개를 완료했습니다.
-              달성률은 {scheduleCompletionRate}%입니다.
-            </p>
-          </div>
-          <div className="bg-white p-4 rounded-lg border">
-            <h4 className="font-medium mb-2">식단 활동</h4>
-            <p className="text-sm text-gray-600">
-              총 {dietActivity.totalDiets || 0}개의 식단을 기록했습니다. 평균{" "}
-              {avgCalorie}칼로리를 섭취했습니다.
-            </p>
-          </div>
         </div>
       </section>
     </div>

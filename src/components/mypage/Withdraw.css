@@ -1,0 +1,17 @@
+@keyframes blink {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.blink-animation {
+  animation: blink 0.5s ease-in-out;
+  
+  
+} 
