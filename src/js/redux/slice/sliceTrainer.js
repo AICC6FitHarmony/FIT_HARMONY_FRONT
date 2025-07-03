@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// 서버로부터 트레이너와 체육관 정보 가져오기
+// 서버로부터 트레이너 정보 가져오기
 export const fetchTrainers = createAsyncThunk(
   'trainer/fetchTrainers',
   async ({ limit, offset }) => {
@@ -17,12 +17,10 @@ const trainerSlice = createSlice({
   initialState: {
     // 초기상태 지정
     trainers: {
-      data: [], // 트레이너 정보 배열 형태로 받아옴
-      gym: [], // 체육관 정보 배열
-      products: [], // 트레이너 정보 배열
+      data: [], // 트레이너 정보 배열 (gym, product 정보 포함)
       total: 0, // 총 트레이너 수
     },
-    status: 'idle', // staus  초기 사상태
+    status: 'idle', // status 초기 상태
     error: null,
   },
   extraReducers: (builder) => {
@@ -32,7 +30,9 @@ const trainerSlice = createSlice({
       })
       .addCase(fetchTrainers.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.trainers = action.payload; // payload: { data: [...], gym: [...] }
+        // 백엔드 응답: { success: true, data: [...], total: [{total: n}], message: '...' }
+        state.trainers.data = action.payload.data;
+        state.trainers.total = action.payload.total[0]?.total || 0;
       })
       .addCase(fetchTrainers.rejected, (state, action) => {
         state.status = 'failed';
