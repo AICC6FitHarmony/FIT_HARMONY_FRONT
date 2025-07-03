@@ -2,12 +2,17 @@
     background-color: var(--color-green-50);
 }
 
+
+.fc-scrollgrid-sync-table tbody, .fc-scrollgrid tbody {
+    background-color: #fff;
+}
+
 .fc-daygrid-day-frame {
     cursor: pointer;
 }
 
 
-.fc-dayGridMonth-button, .fc-timeGridWeek-button {
+.fc-dayGridMonth-button, .fc-timeGridWeek-button, .fc-timeGridDay-button {
     padding: 0.4em 1.5em !important;
 }
 
@@ -36,4 +41,54 @@
 
 .ai-prompt-textarea::placeholder{
     text-align: center;
+}
+
+
+
+.diet-file-upload {
+    background-color: #3498db;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+.diet-file-upload:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* hover 시 조금 더 입체감 */
+  transform: translateY(-1px);
+}
+
+.calandar-wrapper table {
+    padding:0;
+}
+
+
+@media screen and (max-width: 767px) {
+    .schedule-header-wrapper {
+        flex-direction: column-reverse;
+        gap:20px;
+    }
+    .schedule-header-wrapper > div {
+        justify-content: center;
+        gap:40px;
+    }
+    .schedule-header-wrapper > div > div {
+        transform: scale(1.3);
+    }
+
+    .fc-header-toolbar{
+        padding-top: 45px;
+        position: relative;
+        margin-bottom: 10px !important;
+    }
+    .fc-toolbar-title {
+        position: absolute;
+        width: 100%;
+        top: 0;
+        left: 0;
+        text-align: center;
+    }
 }

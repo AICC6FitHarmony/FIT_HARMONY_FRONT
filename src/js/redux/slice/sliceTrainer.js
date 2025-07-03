@@ -1,17 +1,28 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-const fetchTrainers = createAsyncThunk('trainer/fetchTrainers', async () => {
-  const response = await fetch('http://localhost:8000/trainer');
-  return response.json();
-});
+// 서버로부터 트레이너 정보 가져오기
+export const fetchTrainers = createAsyncThunk(
+  'trainer/fetchTrainers',
+  async ({ limit, offset }) => {
+    const response = await fetch(
+      `http://localhost:8000/trainer?limit=${limit}&offset=${offset}`,
+      { credentials: 'include' }
+    );
+    return response.json();
+  }
+);
 
-// Create the slice
 const trainerSlice = createSlice({
-  name: 'trainer', // Slicename
+  name: 'trainer',
   initialState: {
-    trainers: [], // Initialize as an empty array
-    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
-    error: null, // To store error messages
+    // 초기상태 지정
+    trainers: {
+      data: [], // 트레이너 정보 배열 (gym, product 정보 포함)
+      total: 0, // 총 트레이너 수
+      detail: [],
+    },
+    status: 'idle', // status 초기 상태
+    error: null,
   },
   extraReducers: (builder) => {
     builder
@@ -20,7 +31,10 @@ const trainerSlice = createSlice({
       })
       .addCase(fetchTrainers.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.trainers = action.payload;
+        // 백엔드 응답: { success: true, data: [...], total: [{total: n}], message: '...' }
+        state.trainers.data = action.payload.data;
+        state.trainers.total = action.payload.total[0]?.total || 0;
+        state.trainers.detail = action.payload.detail;
       })
       .addCase(fetchTrainers.rejected, (state, action) => {
         state.status = 'failed';
@@ -29,5 +43,4 @@ const trainerSlice = createSlice({
   },
 });
 
-export { fetchTrainers };
 export default trainerSlice.reducer;

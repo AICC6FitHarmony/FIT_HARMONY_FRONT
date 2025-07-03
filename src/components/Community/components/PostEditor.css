@@ -1,0 +1,12 @@
+.tiptap{
+  min-height: 400px;
+}
+
+.tiptap:focus{
+  outline: none;
+}
+
+button{
+ margin: 0;
+ padding: 0; 
+}
