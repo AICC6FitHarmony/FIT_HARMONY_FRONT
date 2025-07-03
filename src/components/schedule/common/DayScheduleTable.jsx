@@ -9,7 +9,6 @@ const DayScheduleTable = ({data, labels, calendarTerm}) => {
     const isMobile = window.innerWidth < 768; // 모바일 화면인지 체크
     const [raidoCheck, setRadioCheck] = useState();
 
-
     const formarNowDate = format(new Date(), "yyyy-MM-dd");
 
     // 스케쥴 상태 변경 요청(백엔드)
@@ -95,7 +94,7 @@ const DayScheduleTable = ({data, labels, calendarTerm}) => {
                                               <RadioLabels
                                                   labels={labels}
                                                   labelName="status"
-                                                  disabled={!(formarNowDate > format(schedule.start, 'yyyy-MM-dd'))}
+                                                  disabled={!(formarNowDate >= format(schedule.start, 'yyyy-MM-dd'))}
                                                   labelId={`day-schedule-table-form-${idx}`}
                                                   radioUseState={raidoCheck[idx] || ''} 
                                                   radioUseStateHandleChange={(event) => {radioUseStateHandleChange(event, idx)}}/>

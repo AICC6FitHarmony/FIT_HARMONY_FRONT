@@ -44,12 +44,22 @@ const StandardModal = ({
     }
   }
 
+
+  useEffect(() => {
+    // 마운트 시
+    document.body.style.overflow = 'hidden';
+
+    return () => { // 언마운트 시 원래대로 복원 : 해당 훅이 없어질 때 동작?
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
+
   return (
     <div className="fixed w-screen h-screen top-0 left-0 z-80 flex justify-center items-center">
       {/*  modal 노출시 전체 화면 wrapper  */}
       <div
         className="modal-wrapper z-1 bg-white rounded-2xl overflow-hidden flex flex-col justify-between"
-        style={{ width: width, minHeight: height, maxHeight: "80vh" }}
+        style={{ width: width, minHeight: height, maxHeight: "90vh" }}
       >
         <div className="modal-header bg-green-50">
           <div className="border-b border-green-800 flex justify-between pb-4 pt-4 pl-10 pr-10 bg-green-50">
