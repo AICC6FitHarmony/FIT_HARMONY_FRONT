@@ -1,4 +1,4 @@
-// TrainerMain.jsx - 백엔드 변경사항 반영
+// TrainerMain.jsx - 페이징 처리 수정
 import React, { useEffect, useState } from 'react';
 import { IoSearchOutline } from 'react-icons/io5';
 import { useSelector, useDispatch } from 'react-redux';
@@ -18,6 +18,7 @@ const TrainerMain = () => {
   const [search, setSearch] = useState('');
   const [searchResult, setSearchResult] = useState([]);
   const [filteredResult, setFilteredResult] = useState([]);
+  const [displayedResult, setDisplayedResult] = useState([]); // 현재 페이지에 표시할 데이터
   const [listMode, setListMode] = useState('grid');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [sortBy, setSortBy] = useState('최신순');
@@ -32,21 +33,21 @@ const TrainerMain = () => {
     maxPrice: 500000, // 최대 가격
   });
 
-  // 페이지 관리
+  // 페이지 관리 - 프론트엔드에서 처리
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
 
+  // 백엔드에서 초기 데이터 가져오기 (한 번만 실행)
   useEffect(() => {
     dispatch(
       fetchTrainers({
-        limit: itemsPerPage,
-        offset: (currentPage - 1) * itemsPerPage,
+        limit: 1000, // 모든 데이터를 가져와서 프론트엔드에서 처리
+        offset: 0,
       })
     );
-    console.log('요청 보내는 offset:', (currentPage - 1) * itemsPerPage);
-  }, [currentPage, dispatch]);
+  }, [dispatch]);
 
   // 백엔드에서 받은 데이터를 프론트엔드에서 사용할 형태로 변환
   const transformTrainerData = (trainersData) => {
@@ -81,6 +82,7 @@ const TrainerMain = () => {
     });
   };
 
+  // 백엔드 데이터 변환 및 초기 설정
   useEffect(() => {
     if (status === 'succeeded' && trainers) {
       console.log('Raw trainers data:', trainers);
@@ -90,10 +92,8 @@ const TrainerMain = () => {
       console.log('Transformed trainers:', transformedTrainers);
 
       setSearchResult(transformedTrainers);
-      setTotalItems(trainers.total || 0);
-      setTotalPages(Math.ceil((trainers.total || 0) / itemsPerPage));
     }
-  }, [status, trainers, itemsPerPage]);
+  }, [status, trainers]);
 
   // 필터 적용 함수
   const applyFilters = (data) => {
@@ -153,16 +153,23 @@ const TrainerMain = () => {
           trainer.gym?.gymAddress?.toLowerCase().includes(keyword)
       );
     }
-    console.log('-------1111111111------------');
-    console.log(result);
-    console.log('-------------------');
+
     // 필터 적용
     result = applyFilters(result);
-    console.log('-------------------');
-    console.log(result);
-    console.log('-------------------');
+
     setFilteredResult(result);
+    setTotalItems(result.length);
+    setTotalPages(Math.ceil(result.length / itemsPerPage));
+    setCurrentPage(1); // 필터 변경 시 첫 페이지로 이동
   }, [searchResult, search, filters]);
+
+  // 페이지 변경 시 표시할 데이터 계산
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentData = filteredResult.slice(startIndex, endIndex);
+    setDisplayedResult(currentData);
+  }, [filteredResult, currentPage, itemsPerPage]);
 
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
@@ -180,6 +187,8 @@ const TrainerMain = () => {
 
   console.log('Trainers data:', trainers);
   console.log('Filtered result:', filteredResult);
+  console.log('Displayed result:', displayedResult);
+  console.log('Current page:', currentPage, 'Total pages:', totalPages);
 
   const handleSearch = () => {
     // 검색은 useEffect에서 자동으로 처리됨
@@ -285,7 +294,7 @@ const TrainerMain = () => {
   };
 
   const handlePageChange = (page) => {
-    if (page !== currentPage) {
+    if (page !== currentPage && page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
@@ -341,7 +350,7 @@ const TrainerMain = () => {
       <div className="search-results flex mt-10">
         <div className="flex w-full gap-5 p-3">
           {/* 필터 사이드바 */}
-          <div className="trainer-navbar w-[20%] sticky z-10 top-20 border-2 border-gray-200 bg-white rounded-lg shadow-md p-4 h-fit">
+          <div className="trainer-navbar w-[20%]  mb-30 sticky z-10 top-20 border-2 border-gray-200 bg-white rounded-lg shadow-md p-4 h-fit">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">필터 검색</h3>
               <button
@@ -553,7 +562,7 @@ const TrainerMain = () => {
 
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">
-                  총 {filteredResult.length}개 결과
+                  총 {totalItems}개 결과 (페이지 {currentPage}/{totalPages})
                 </span>
                 <button
                   className="trainer-array bg-white w-15 rounded-2xl h-10 flex items-center justify-center gap-2 hover:text-[#1a7d45] text-2xl"
@@ -576,10 +585,10 @@ const TrainerMain = () => {
               >
                 {status === 'loading' && <p>Loading...</p>}
                 {status === 'failed' && <p>Error: {error}</p>}
-                {status === 'succeeded' && filteredResult.length > 0 ? (
-                  filteredResult.map((trainer, idx) => (
+                {status === 'succeeded' && displayedResult.length > 0 ? (
+                  displayedResult.map((trainer, idx) => (
                     <div
-                      key={idx}
+                      key={trainer.userId}
                       onClick={() => handleReadMore(trainer.userId)}
                       className={
                         listMode === 'grid'
@@ -646,39 +655,42 @@ const TrainerMain = () => {
               </div>
             </div>
 
-            <div className="page-number flex align-center justify-center my-10 gap-4">
-              {showPrevGroup && (
-                <button
-                  onClick={handlePrevGroup}
-                  className="text-blue-600 hover:underline"
-                >
-                  이전
-                </button>
-              )}
+            {/* 페이지네이션 - 데이터가 있을 때만 표시 */}
+            {totalPages > 1 && (
+              <div className="page-number flex align-center justify-center my-10 gap-4">
+                {showPrevGroup && (
+                  <button
+                    onClick={handlePrevGroup}
+                    className="text-blue-600 hover:underline"
+                  >
+                    이전
+                  </button>
+                )}
 
-              {pageNumbers.map((pageNum) => (
-                <button
-                  key={pageNum}
-                  onClick={() => handlePageChange(pageNum)}
-                  className={`px-3 py-2 mx-1 w-6 rounded ${
-                    currentPage === pageNum
-                      ? 'bg-[#1a7d45] text-white'
-                      : 'text-blue-600 hover:underline hover:text-[#1a7d45]'
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              ))}
+                {pageNumbers.map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`px-3 py-2 mx-1 w-8 h-8 rounded flex items-center justify-center ${
+                      currentPage === pageNum
+                        ? 'bg-[#1a7d45] text-white'
+                        : 'text-blue-600 hover:underline hover:text-[#1a7d45]'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
 
-              {showNextGroup && (
-                <button
-                  onClick={handleNextGroup}
-                  className="px-3 py-2 text-blue-600 hover:underline"
-                >
-                  다음
-                </button>
-              )}
-            </div>
+                {showNextGroup && (
+                  <button
+                    onClick={handleNextGroup}
+                    className="px-3 py-2 text-blue-600 hover:underline"
+                  >
+                    다음
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

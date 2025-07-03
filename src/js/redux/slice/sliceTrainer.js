@@ -19,6 +19,7 @@ const trainerSlice = createSlice({
     trainers: {
       data: [], // 트레이너 정보 배열 (gym, product 정보 포함)
       total: 0, // 총 트레이너 수
+      detail: [],
     },
     status: 'idle', // status 초기 상태
     error: null,
@@ -33,6 +34,7 @@ const trainerSlice = createSlice({
         // 백엔드 응답: { success: true, data: [...], total: [{total: n}], message: '...' }
         state.trainers.data = action.payload.data;
         state.trainers.total = action.payload.total[0]?.total || 0;
+        state.trainers.detail = action.payload.detail;
       })
       .addCase(fetchTrainers.rejected, (state, action) => {
         state.status = 'failed';
