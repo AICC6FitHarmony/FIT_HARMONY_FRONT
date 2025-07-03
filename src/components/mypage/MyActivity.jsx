@@ -69,7 +69,7 @@ const MyActivity = ({ userId }) => {
       {/* 스케쥴 활동 통계 */}
       <section className="bg-gray-50 p-6 rounded-lg shadow-sm">
         <h3 className="font-semibold mb-4 text-lg">스케쥴 활동 통계</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600">
               {scheduleActivity.totalSchedules || 0}
@@ -80,13 +80,19 @@ const MyActivity = ({ userId }) => {
             <div className="text-3xl font-bold text-green-600">
               {scheduleActivity.completedSchedules || 0}
             </div>
-            <div className="text-sm text-gray-600">완료된 스케쥴</div>
+            <div className="text-sm text-gray-600">목표 성공</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-yellow-600">
+              {scheduleActivity.notStartedSchedules || 0}
+            </div>
+            <div className="text-sm text-gray-600">진행 예정</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-red-600">
               {scheduleActivity.missedSchedules || 0}
             </div>
-            <div className="text-sm text-gray-600">미완료 스케쥴</div>
+            <div className="text-sm text-gray-600">목표 실패</div>
           </div>
         </div>
         <div className="mt-4 flex items-center gap-4">

@@ -4,15 +4,16 @@ import {
   useCheckNicknameDuplicate,
   useUpdateUserData,
 } from "../../js/mypage/mypage";
+import { useImageFileUpload, useUpdateGroupId } from "../../js/common/util";
 import { toast } from "react-toastify";
-import { ProfileImageUpload, DuplicateCheckInput, FormInput } from "./common";
+import { DuplicateCheckInput, FormInput } from "./common";
 
 const ProfileEdit = ({ userData }) => {
-  const [profileImg, setProfileImg] = useState("/defaultProfileImg.png");
+  const [profileImg, setProfileImg] = useState(null);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
-  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [emailChecked, setEmailChecked] = useState(false);
   const [emailDuplicate, setEmailDuplicate] = useState(false);
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [nicknameChecked, setNicknameChecked] = useState(false);
   const [nicknameDuplicate, setNicknameDuplicate] = useState(false);
   const [role, setRole] = useState(userData?.role || "");
@@ -29,11 +30,17 @@ const ProfileEdit = ({ userData }) => {
     introduction: userData?.introduction || "",
     GYM: userData?.GYM || "",
   });
+  const [fileId, setFileId] = useState(userData?.fileId || "");
+
+  // 파일 업로드 관련 상태
+  const [file, setFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   // 훅 초기화
   const updateUserData = useUpdateUserData();
   const checkEmailDuplicate = useCheckEmailDuplicate();
   const checkNicknameDuplicate = useCheckNicknameDuplicate();
+  const fileUpload = useImageFileUpload();
 
   useEffect(() => {
     if (userData) {
@@ -50,13 +57,88 @@ const ProfileEdit = ({ userData }) => {
         introduction: userData.introduction || "",
         GYM: userData.GYM || "",
       });
+
+      // 기존 프로필 이미지가 있다면 표시
+      if (userData.fileId) {
+        setProfileImg(
+          `${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${
+            userData.fileId
+          }`
+        );
+        setFileId(userData.fileId);
+      } else {
+        setProfileImg(null);
+        setFileId("");
+      }
     }
   }, [userData]);
 
   useEffect(() => {
     // setRole(userData?.role || "");
-    setRole("USER");
+    setRole("MEMBER");
   }, [userData]);
+
+  // 파일 선택 핸들러
+  const handleFileSelect = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      // 이미지 파일 검증
+      if (!selectedFile.type.startsWith("image/")) {
+        toast.error("이미지 파일만 업로드 가능합니다.");
+        return;
+      }
+
+      // 파일 크기 검증 (5MB 제한)
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        toast.error("파일 크기는 5MB 이하여야 합니다.");
+        return;
+      }
+
+      setFile(selectedFile);
+
+      // 미리보기 표시
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImg(e.target.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  const uploadProfileImage = async () => {
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      const uploadResult = await fileUpload(uploadFormData);
+
+      if (uploadResult.success) {
+        const newFileId = uploadResult.fileIdArr[0];
+        setFileId(newFileId);
+        console.log("uploadResult.fileIdArr[0]", uploadResult.fileIdArr[0]);
+        console.log("newFileId", newFileId);
+        return newFileId;
+      } else {
+        setFileId("1");
+        return "1";
+      }
+    } catch (error) {
+      console.error("프로필 이미지 업로드 오류:", error);
+      toast.error("이미지 업로드 중 오류가 발생했습니다.");
+      return "1";
+    }
+  };
+
+  // 기본 이미지로 변경
+  const handleDeleteProfileImage = () => {
+    setProfileImg(null);
+    setFile(null);
+    setFileId("1");
+    console.log("setFileID");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    toast.success("기본이미지로 변경되었습니다. 저장시 적용됩니다.");
+  };
 
   // 개인정보 입력값 변경
   const handleChange = (e) => {
@@ -146,8 +228,15 @@ const ProfileEdit = ({ userData }) => {
   };
 
   // 저장 버튼 클릭
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
+
+    let currentFileId = fileId;
+
+    // 파일이 선택된 경우에만 업로드 실행
+    if (file) {
+      currentFileId = await uploadProfileImage();
+    }
 
     // 이메일 중복체크 검증
     // if (form.email !== userData?.email && !emailChecked) {
@@ -175,6 +264,7 @@ const ProfileEdit = ({ userData }) => {
         fitGoal: form.fitGoal,
         introduction: form.introduction,
         GYM: form.GYM,
+        fileId: currentFileId,
       };
     } else {
       userDataToUpdate = {
@@ -188,9 +278,10 @@ const ProfileEdit = ({ userData }) => {
         age: form.age,
         fitHistory: form.fitHistory,
         fitGoal: form.fitGoal,
+        fileId: currentFileId,
       };
     }
-
+    console.log("userDataToUpdate", userDataToUpdate);
     updateUserData({
       userId: userData.userId,
       userData: userDataToUpdate,
@@ -216,11 +307,44 @@ const ProfileEdit = ({ userData }) => {
           <h2 className="text-3xl font-bold text-center mb-8">프로필 편집</h2>
 
           {/* 프로필 사진 관리 */}
-          <ProfileImageUpload
-            profileImg={profileImg}
-            onImageChange={setProfileImg}
-            onImageDelete={setProfileImg}
-          />
+          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 mb-12 p-6 rounded-xl">
+            <div className="relative flex items-center justify-center w-40 h-40">
+              <img
+                src={profileImg}
+                alt=""
+                className="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg"
+              />
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <h3 className="text-xl font-semibold text-gray-700 mb-2 text-center">
+                프로필 사진
+              </h3>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  className="px-6 py-3 ok"
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  사진 변경
+                </button>
+                <button
+                  type="button"
+                  className="px-6 py-3 cancel"
+                  onClick={handleDeleteProfileImage}
+                >
+                  기본이미지로 변경
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                />
+              </div>
+            </div>
+          </div>
 
           {/* 개인정보 입력 폼 */}
           <form onSubmit={handleSave} className="space-y-6">
@@ -269,6 +393,7 @@ const ProfileEdit = ({ userData }) => {
                 value={form.height}
                 onChange={handleChange}
                 placeholder="키를 입력하세요"
+                as="number"
               />
 
               <FormInput
@@ -277,6 +402,7 @@ const ProfileEdit = ({ userData }) => {
                 value={form.weight}
                 onChange={handleChange}
                 placeholder="몸무게를 입력하세요"
+                as="number"
               />
 
               <FormInput
@@ -285,6 +411,7 @@ const ProfileEdit = ({ userData }) => {
                 value={form.age}
                 onChange={handleChange}
                 placeholder="나이를 입력하세요"
+                as="number"
               />
 
               {role === "TRAINER" ? (
@@ -294,7 +421,8 @@ const ProfileEdit = ({ userData }) => {
                     name="fitHistory"
                     value={form.fitHistory}
                     onChange={handleChange}
-                    placeholder="운동 경력을 입력하세요"
+                    placeholder="운동 년수를 입력하세요"
+                    as="number"
                   />
 
                   <FormInput
@@ -312,7 +440,7 @@ const ProfileEdit = ({ userData }) => {
                     value={form.GYM}
                     onChange={handleChange}
                     placeholder="추후 주소API 사용 예정"
-                    as="textarea"
+                    as="number"
                   />
 
                   <FormInput

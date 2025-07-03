@@ -40,6 +40,18 @@ const FormInput = ({
             ))}
           </select>
         );
+      case "number":
+        return (
+          <input
+            name={name}
+            type={as}
+            value={value}
+            onChange={onChange}
+            className={inputClasses}
+            placeholder={placeholder}
+            min={0}
+          />
+        );
       default:
         return (
           <input
