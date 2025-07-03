@@ -1,17 +1,14 @@
 import React, { useRef, useState } from 'react'
 import defaultProfileImg from '../defaultProfileImg.png';
+import InputWithLabel from '../../cmmn/InputWithLabel';
 
 const SignProfilePage = ({userInfo, setUserInfo, handleChangeValue}) => {
   const [imgSource, setImgSource] = useState("");
-  const [hasSpecialChar, setHasSpecialChar] = useState(false);
   const profile_img_ref = useRef();
   const specialCharRegex = /[^가-힣a-zA-Z0-9]/;
 
-  const handleChange = (e) => {
-    const inputValue = e.target.value;
-    setHasSpecialChar(specialCharRegex.test(inputValue));
-    handleChangeValue(e);
-  };
+
+  const hasSpecial = (str) => specialCharRegex.test(str);
 
   const handleProfileImage = ()=>{
     profile_img_ref.current.click();
@@ -39,12 +36,17 @@ const SignProfilePage = ({userInfo, setUserInfo, handleChangeValue}) => {
       <img src={imgSource?imgSource:defaultProfileImg} alt="" />
     </div>
     <input name="profile_image" onChange={handleChangeImage} className='hidden' type="file" accept=".png, .jpeg, .jpg"  id="photo" ref={profile_img_ref}/>
-    <input name='nick_name' className={'text-center border mt-5 py-2 ' + `${hasSpecialChar?'border-red-500':''}`} type="text" placeholder='프로필 네임' onChange={handleChange}/>
-    {
-      hasSpecialChar?(
-        <p className='text-sm text-red-500'>특수문자는 입력할수 없습니다.</p>
-      ):''
-    }
+
+    <InputWithLabel 
+      name={"nick_name"}
+      className="pt-5"
+      value={userInfo.nick_name} 
+      onChange={handleChangeValue} 
+      placeholder="프로필 네임"
+      waringText="특수 문자는 입력할 수 없습니다." 
+      isWaring={hasSpecial(userInfo.nick_name)}
+      />
+
   </div>
   )
 }
