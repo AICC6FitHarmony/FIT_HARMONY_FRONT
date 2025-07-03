@@ -28,11 +28,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setScheduleList } from '../../js/redux/slice/sliceSchedule';
 import DietScheduleTable from './common/DietScheduleTable';
 import DietCalCharts from './common/DietCalCharts';
+import Img from '../common/Img';
 
 
 
 const Schedule = () => {
-    const isMobile = window.innerWidth < 768; // 모바일 화면인지 체크
+    const isMobile = useSelector(state => state.loading.isMobile); // 모바일 화면인지 체크
     const dispath = useDispatch();
 
     // 캘린더 드래그 이벤트
@@ -140,29 +141,32 @@ const Schedule = () => {
 
     // 일자 셀 클릭 이벤트
     const dateCellModalOpen = async (info) => {
-        const result = await getScheduleList({
-            startTime:format(info.dateStr, 'yyyy-MM-dd'), 
-            endTime:format(info.dateStr, 'yyyy-MM-dd'), 
-            callback:(data) => {
-
-              setScheduleModal({
-                  title:`${format(info.dateStr, 'yyyy-MM-dd')} 스케쥴`, 
-                  size : {width:"80vw"},
-                  closeEvent: () => {
-                    setIsShowScheduleDetailModal(false);
-                  },
-                  okEvent:() => {
-                    setIsShowScheduleDetailModal(false);
-                  },
-                  data:data
-              });
-
-              setIsShowScheduleDetailModal(true);
-            }
-        });
+        await setDateCellModal(info.dateStr);
     }
 
+    const setDateCellModal = async (date) => {
+        const result = await getScheduleList({
+          startTime:format(date, 'yyyy-MM-dd'), 
+          endTime:format(date, 'yyyy-MM-dd'), 
+          callback:(data) => {
 
+            setScheduleModal({
+                title:`${format(date, 'yyyy-MM-dd')} 스케쥴`, 
+                size : {width:"80vw", height:"90%"},
+                selectDate:format(date, 'yyyy-MM-dd'),
+                closeEvent: () => {
+                  setIsShowScheduleDetailModal(false);
+                },
+                okEvent:() => {
+                  setIsShowScheduleDetailModal(false);
+                },
+                data:data
+            });
+
+            setIsShowScheduleDetailModal(true);
+          }
+      });
+    }
 
     // ============================================== 스케쥴 상세 모달 관련 END =================================================================
 
@@ -252,7 +256,7 @@ const Schedule = () => {
     // 스케쥴 상태 변경 모달 노출여부 useState
     const [isShowUpdateSchedulStatusModal, setShowUpdateSchedulStatusModal] = useState(false); 
     // 스케쥴 상태 변경 모달 전달 데이터
-    const [updateSchedulStatusModalData, setUpdateSchedulStatusModalData] = useState({});
+    const [modalData, setModalData] = useState({});
 
     // 스케쥴 상태 값 설정 Radio 버튼 조정 이벤트 관련
     const [updateStatusRadio, setUpdateStatusRadio] = useState();
@@ -271,15 +275,20 @@ const Schedule = () => {
         const formatStart = format(start, "yyyy-MM-dd");
 
         setUpdateStatusRadio(extendedProps.status); // 현재 상태 값 조정
-
+        
         let modalData = {
-            title:`스케쥴 : ${title}`,
+            title:`${extendedProps.status == 'D' ? `식사메뉴` : '스케쥴'} : ${title}${extendedProps.status == 'D' ? `(총 칼로리 : ${extendedProps.totalCalorie} cal)` : ''}`,
             size:{
-              width:"50vh",
+              width:`${extendedProps.status == 'D' ? `70vh` : '50vh'}`,
               height:"20vh"
             }, 
             data : extendedProps,
-            scheduleText : `${format(start, "MM-dd HH:mm")} ~ ${format(end, "MM-dd HH:mm")}`
+            date : format(start, "yyyy-MM-dd HH:mm"),
+            scheduleText : `${format(start, "MM-dd HH:mm")} ~ ${format(end, "MM-dd HH:mm")}`,
+            closeEvent: () => {
+              updateSchedulStatusForm.current = "";
+              setShowUpdateSchedulStatusModal(false);
+            }
         };
 
         if(extendedProps.status == 'D'){ // 식단 데이터 클릭 시
@@ -305,13 +314,13 @@ const Schedule = () => {
                       updateSchedulStatusForm.current.requestSubmit();
                   }
                 },
-                closeEvent: () => {
-                  updateSchedulStatusForm.current = "";
-                  setShowUpdateSchedulStatusModal(false);
+                cancelEvent:() => {
+                    updateSchedulStatusForm.current = "";
+                    setShowUpdateSchedulStatusModal(false);
                 }
             }
         }
-        setUpdateSchedulStatusModalData(modalData);
+        setModalData(modalData);
         setShowUpdateSchedulStatusModal(true);
     }
 
@@ -334,7 +343,7 @@ const Schedule = () => {
     }
 
     
-  // ============================================== 스케쥴 상태 변경 모달 관련  END  ========================================================
+    // ============================================== 스케쥴 상태 변경 모달 관련  END  ========================================================
 
     return (
       <div className='pt-10 pb-10 pl-5 pr-5'>
@@ -350,10 +359,29 @@ const Schedule = () => {
                         {/* 일자 스케쥴 테이블 */}
                         <DayScheduleTable data={scheduleModal.data} labels={labels} calendarTerm={calendarTerm}/>
                         <div className={`schedule-diet-chart-wrapper w-full mt-5 ${isMobile ? '' : 'flex gap-2.5'}`}>
-                            <div className={`${isMobile ? 'w-full' : 'w-1/2'} max-h-52`}>
-                                <DietScheduleTable data={scheduleModal.data}/>
+                            <div className={`${isMobile ? 'w-full' : 'w-1/2'}`}>
+                                <DietScheduleTable 
+                                  data={scheduleModal.data} 
+                                  selectDate={scheduleModal.selectDate} 
+                                  dietRegCallback={async () => {
+                                      setDateCellModal(scheduleModal.selectDate);
+                                      // 캘린더 스케쥴 재 조회
+                                      let params = {
+                                          ...calendarTerm,
+                                          callback : (data) => {
+                                              dispath(setScheduleList(data)); // 스케쥴리스트 리덕스 스토어 값 변경
+                                          }
+                                      }
+                                      if(!(labels == undefined || labels.length == 0)){
+                                          const checkedStatus = labels.filter(label => label.checked).map(label => label.codeId).join();
+                                          if(checkedStatus.length > 0){
+                                            params.checkedStatus = checkedStatus;
+                                          }
+                                      }
+                                      const result = await getScheduleList(params);
+                                  }}/>
                             </div>
-                            <div className={`${isMobile ? 'w-full' : 'w-1/2'} max-h-52`}>
+                            <div className={`${isMobile ? 'w-full' : 'w-1/2'}`}>
                                 <DietCalCharts data={scheduleModal.data}/>
                             </div>
                         </div>
@@ -386,30 +414,57 @@ const Schedule = () => {
               // 스케쥴 상태 변환 모달
               isShowUpdateSchedulStatusModal && (
                 <StandardModal 
-                  title={updateSchedulStatusModalData.title} 
-                  okEvent={updateSchedulStatusModalData.okEvent} 
-                  size={updateSchedulStatusModalData.size} 
-                  closeEvent={updateSchedulStatusModalData.closeEvent}
-                  cancelEvent={updateSchedulStatusModalData.closeEvent}>
-                    <form ref={updateSchedulStatusForm} onSubmit={sendRequestUpdateSchedulStatus}>
-                        <input type="hidden" name="scheduleId" value={updateSchedulStatusModalData.data.scheduleId} />
-                        <h2 className='text-center font-bold text-2xl'>{updateSchedulStatusModalData.scheduleText}</h2>
-                        {
-                          (updateSchedulStatusModalData.alertText && (<div className='text-sm text-center text-red-500'>{updateSchedulStatusModalData.alertText}</div>))
-                        }
-                        {
-                          (!updateSchedulStatusModalData.alertText && (
-                              <div className='flex justify-between mt-5 ml-10 mr-10'>
-                                  <RadioLabels 
-                                      labels={labels} 
-                                      labelId="label-status"
-                                      labelName="status"
-                                      radioUseState={updateStatusRadio} 
-                                      radioUseStateHandleChange={updateStatusRadioHandleChange}/>
-                              </div>
-                            ))
-                        }
-                    </form>
+                  title={modalData.data.status == 'D' ? `식단 ${modalData.date}` : modalData.title} 
+                  okEvent={modalData.okEvent} 
+                  size={modalData.size} 
+                  closeEvent={modalData.closeEvent}
+                  cancelEvent={modalData.cancelEvent}>
+
+                    {(modalData.data.status == 'D' ? 
+                        <div>
+                            <h2 className='text-center font-bold text-2xl'>
+                                <p>{modalData.title}</p>
+                            </h2> 
+                            <div className='flex mt-5'>
+                                <div className='flex flex-col justify-center items-center w-1/2 overflow-hidden rounded-2xl'>
+                                    <Img src={`/common/file/${modalData.data.fileId}`} alt={`${modalData.title} 사진`} className="min-h-60 min-w-60"/>
+                                </div>
+                                <div className='w-1/2'>
+                                    <ul className='pb-1 pl-4 pr-4 text-xl'>
+                                    {
+                                        modalData.data.menus?.split("|").map((menu, idx) => (
+                                            <li key={idx} className='mt-1.5'>{menu}</li>
+                                        ))
+
+                                    }
+                                    </ul>
+                                </div>
+                            </div>
+
+
+                        </div> : 
+                        <form ref={updateSchedulStatusForm} onSubmit={sendRequestUpdateSchedulStatus}>
+                          <input type="hidden" name="scheduleId" value={modalData.data.scheduleId} />
+                          <h2 className='text-center font-bold text-2xl'>{modalData.scheduleText}</h2>
+                          {
+                            (modalData.alertText && (<div className='text-sm text-center text-red-500'>{modalData.alertText}</div>))
+                          }
+                          {
+                            (!modalData.alertText && (
+                                <div className='flex justify-between mt-5 ml-10 mr-10'>
+                                    <RadioLabels 
+                                        labels={labels} 
+                                        labelId="label-status"
+                                        labelName="status"
+                                        radioUseState={updateStatusRadio} 
+                                        radioUseStateHandleChange={updateStatusRadioHandleChange}/>
+                                </div>
+                              ))
+                          }
+                      </form>
+                    )}
+
+                    
                 </StandardModal>
               )
           }
@@ -526,7 +581,9 @@ const contentFormat = (eventInfo) => {
               <div style={{ fontWeight: 'bold' }}>
                 {formatTime(start)} ~ {formatTime(end)}
               </div>
-              <div>{eventInfo.event.title} {extendedProps.excersizeCnt}{extendedProps.unit}</div>
+              <div>
+                  {`${(extendedProps.status == 'D' ? '식단 : ' : '')} ${eventInfo.event.title}`} {(extendedProps.status == 'D' ? '' : extendedProps.excersizeCnt)}{extendedProps.unit}
+              </div>
           </div>
       </div>
     );
