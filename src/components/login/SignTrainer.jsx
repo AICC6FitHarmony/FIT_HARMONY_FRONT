@@ -109,6 +109,7 @@ const SignTrainer = () => {
     <div className="sign-box bg-white shadow-xl relative w-1/3">
       <form action="">
         <div className="pb-20">
+          
           <SignInputTab idx={tabIdx} thisIdx={0}>
             <SignProfilePage
               userInfo={userInfo}
@@ -116,6 +117,8 @@ const SignTrainer = () => {
               handleChangeValue={handleChangeValue}
             />
           </SignInputTab>
+
+
           <SignBodyPage
             userInfo={userInfo}
             setUserInfo={setUserInfo}
@@ -123,7 +126,7 @@ const SignTrainer = () => {
             handleInputNumber={handleInputNumber}
             tabIdx={tabIdx}
             thisIdx={1}
-          />
+            />
           <SignInputTab idx={tabIdx} thisIdx={2}>
             <div className="text-2xl text-center pb-5">운동 경력</div>
 

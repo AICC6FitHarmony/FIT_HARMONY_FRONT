@@ -117,15 +117,6 @@ const TrainerReadMore = () => {
                     </div>
                   </div>
                 </div>
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-lg border border-lime-200/50">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">💪</span>
-                    <div>
-                      <div className="text-2xl font-bold text-lime-700">89</div>
-                      <div className="text-sm text-gray-600">완료 수업</div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -361,114 +352,36 @@ const TrainerReadMore = () => {
           <div className="bg-gradient-to-br from-lime-100/90 to-green-100/90 backdrop-blur-xl rounded-[2rem] p-8 shadow-2xl border border-lime-200/50 h-fit relative overflow-hidden">
             <div className="absolute top-0 left-0 w-28 h-28 bg-yellow-200/20 rounded-full -translate-x-14 -translate-y-14"></div>
 
-            {/* 연락처 정보 */}
-            <h3 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3 relative z-10">
-              <span className="text-3xl">📞</span>
-              연락처 정보
-            </h3>
-            <div className="space-y-4 mb-8 relative z-10">
-              <div
-                onClick={() => handleContactClick('phone', '010-1234-5678')}
-                className="group flex items-center gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl cursor-pointer hover:bg-white hover:shadow-lg hover:translate-x-2 transition-all duration-300 border border-lime-200/50"
-              >
-                <div className="w-12 h-12 bg-gradient-to-br from-lime-400 to-lime-500 rounded-full flex items-center justify-center text-white text-lg shadow-lg">
-                  📱
-                </div>
-                <span className="text-gray-700 font-medium text-lg">
-                  010-1234-5678
-                </span>
+            <div
+              onClick={() =>
+                handleContactClick(
+                  'location',
+                  trainerDetail.gym?.gymName || '서울시 강남구'
+                )
+              }
+              className="group flex items-center gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl cursor-pointer hover:bg-white hover:shadow-lg hover:translate-x-2 transition-all duration-300 border border-lime-200/50"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-lime-400 to-lime-500 rounded-full flex items-center justify-center text-white text-lg shadow-lg">
+                🏠
               </div>
-              <div
-                onClick={() =>
-                  handleContactClick('email', 'trainer@example.com')
-                }
-                className="group flex items-center gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl cursor-pointer hover:bg-white hover:shadow-lg hover:translate-x-2 transition-all duration-300 border border-lime-200/50"
-              >
-                <div className="w-12 h-12 bg-gradient-to-br from-lime-400 to-lime-500 rounded-full flex items-center justify-center text-white text-lg shadow-lg">
-                  ✉️
-                </div>
-                <span className="text-gray-700 font-medium text-lg">
-                  trainer@example.com
-                </span>
-              </div>
-              <div
-                onClick={() =>
-                  handleContactClick(
-                    'location',
-                    trainerDetail.gym?.gymName || '서울시 강남구'
-                  )
-                }
-                className="group flex items-center gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl cursor-pointer hover:bg-white hover:shadow-lg hover:translate-x-2 transition-all duration-300 border border-lime-200/50"
-              >
-                <div className="w-12 h-12 bg-gradient-to-br from-lime-400 to-lime-500 rounded-full flex items-center justify-center text-white text-lg shadow-lg">
-                  🏠
-                </div>
-                <span className="text-gray-700 font-medium text-lg">
-                  {trainerDetail.gym?.gymName || '서울시 강남구'}
-                </span>
-              </div>
+              <span className="text-gray-700 font-medium text-lg">
+                {trainerDetail.gym?.gymName || '서울시 강남구'}
+              </span>
             </div>
+          </div>
 
-            {/* 위치 정보 */}
-            <h3 className="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3 relative z-10">
-              <span className="text-3xl">📍</span>
-              위치 정보
-            </h3>
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center mb-8 shadow-lg border border-lime-200/50 relative z-10">
-              <p className="text-4xl mb-4">🗺️</p>
-              <p className="text-gray-700 font-medium text-lg">
-                {trainerDetail.gym?.gymName || '헬스장 정보'}
-                <br />
-                <span className="text-lime-600">지하철역 도보 5분 거리</span>
-              </p>
-            </div>
-
-            {/* 운영 시간 */}
-            <h3 className="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3 relative z-10">
-              <span className="text-3xl">⏰</span>
-              운영 시간
-            </h3>
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-lg border border-lime-200/50 relative z-10">
-              <div className="space-y-3 text-lg">
-                <p className="flex justify-between">
-                  <strong>평일:</strong>{' '}
-                  <span className="text-lime-600">06:00 - 22:00</span>
-                </p>
-                <p className="flex justify-between">
-                  <strong>주말:</strong>{' '}
-                  <span className="text-lime-600">08:00 - 20:00</span>
-                </p>
-                <p className="flex justify-between text-orange-600 font-semibold">
-                  <strong>휴무:</strong> <span>매주 일요일</span>
-                </p>
-              </div>
-            </div>
-
-            {/* 자격증 */}
-            <h3 className="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3 relative z-10">
-              <span className="text-3xl">🏆</span>
-              자격증
-            </h3>
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-lime-200/50 relative z-10">
-              <div className="space-y-3 text-gray-700">
-                <div className="flex items-center gap-3">
-                  <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
-                  <p className="font-medium">NSCA-CPT 자격증</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
-                  <p className="font-medium">생활스포츠지도사 2급</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
-                  <p className="font-medium">응급처치법 자격증</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
-                  <p className="font-medium">체육학과 학사 졸업</p>
-                </div>
-              </div>
-            </div>
+          {/* 위치 정보 */}
+          <h3 className="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3 relative z-10">
+            <span className="text-3xl">📍</span>
+            위치 정보
+          </h3>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center mb-8 shadow-lg border border-lime-200/50 relative z-10">
+            <p className="text-4xl mb-4">🗺️</p>
+            <p className="text-gray-700 font-medium text-lg">
+              {trainerDetail.gym?.gymName || '헬스장 정보'}
+              <br />
+              <span className="text-lime-600">지하철역 도보 5분 거리</span>
+            </p>
           </div>
         </div>
       </div>

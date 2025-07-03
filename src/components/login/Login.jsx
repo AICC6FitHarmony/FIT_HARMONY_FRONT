@@ -9,25 +9,24 @@ import { useAuth } from '../../js/login/AuthContext';
 import SignTrainer from './SignTrainer';
 
 const Login = () => {
-    const {user} = useAuth();
-    console.log(user)
-    
-    if(user){
-        // location.href = "/";
-    }
+  const { user } = useAuth();
+  console.log(user);
 
-    return (
-        <div className='py-10 mx-auto w-full flex justify-center'>
-            <Routes>
-                <Route path='/' element={<LoginPage loginFail={false}/>} />
-                <Route path='/fail' element={<LoginPage loginFail={true}/>} />
-                <Route path='/signup' element={<SignUpSelect/>} />
-                <Route path='/signup/person' element={<SignPerson/>} />
-                <Route path='/signup/trainer' element={<SignTrainer/>} />
-            </Routes>
-            
-        </div>
-    )
-}
+  if (user) {
+    // location.href = "/";
+  }
 
-export default Login
+  return (
+    <div className="py-10 mx-auto w-full flex justify-center">
+      <Routes>
+        <Route path="/" element={<LoginPage loginFail={false} />} />
+        <Route path="/fail" element={<LoginPage loginFail={true} />} />
+        <Route path="/signup" element={<SignUpSelect />} />
+        <Route path="/signup/person" element={<SignPerson />} />
+        {/* <Route path='/signup/trainer' element={<SignTrainer/>} /> */}
+      </Routes>
+    </div>
+  );
+};
+
+export default Login;
