@@ -48,7 +48,7 @@ const DayScheduleTable = ({data, labels, calendarTerm}) => {
           }));
       });
     }
-
+    
     return (
         <div className='overflow-auto max-h-150'>
             <h2 className='text-2xl font-bold mb-3'>운동 스케쥴</h2>
