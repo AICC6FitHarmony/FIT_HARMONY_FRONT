@@ -121,22 +121,6 @@ table, th, td {
 }
 
 
-/* 체크 박스 관련 */
-input[type='checkbox'], input[type='radio'] {
-  /* 스타일 정해지면 주석 해제 */
-  display: none;
-}
-input[type='checkbox'] + label, input[type='radio'] + label {
-  cursor: pointer;
-}
-
-
-input[type='checkbox'] + label.checkbox {
-
-}
-input[type='checkbox']:checked + label.checkbox {
-
-}
 
 /* 라디오 버튼 관련 */
 input[type='radio'] {
