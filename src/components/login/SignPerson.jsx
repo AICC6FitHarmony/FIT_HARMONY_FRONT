@@ -11,7 +11,6 @@ import SignButton from "./common/SignButton";
 
 const SignPerson = () => {
   const [tabIdx, setTabIdx] = useState(0);
-  const [file, setFile] = useState();
   const [userInfo, setUserInfo] = useState({
     profile_image: undefined,
     nick_name: undefined,
@@ -25,7 +24,6 @@ const SignPerson = () => {
   });
 
   const idxMax = 3;
-  const profile_img_ref = useRef();
 
   const handleSign = async () => {
     // const formData = { nickname:"TestNick" };
