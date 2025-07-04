@@ -132,11 +132,11 @@ const SignTrainer = () => {
           <SignInputTab idx={tabIdx} thisIdx={2}>
             <div className="text-2xl text-center pb-5">운동 경력</div>
 
-            <InputWithLabel name="experience" onChange={handleChangeValue} 
+            <InputWithLabel name="history" onChange={handleChangeValue} 
             value={userInfo.experience} 
             isNumber={true} 
             waringText={"0~100 범위의 값을 입력해주세요"} 
-            isWaring={userInfo.experience < 0 || userInfo.experience >100}/>
+            isWaring={userInfo.history < 0 || userInfo.history >100}/>
           </SignInputTab>
           <SignInputTab idx={tabIdx} thisIdx={3}>
             <SignSelectText
