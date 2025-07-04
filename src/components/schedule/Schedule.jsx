@@ -357,28 +357,45 @@ const Schedule = () => {
                   closeEvent={scheduleModal.closeEvent}>
                     <div className=''>
                         {/* 일자 스케쥴 테이블 */}
-                        <DayScheduleTable data={scheduleModal.data} labels={labels} calendarTerm={calendarTerm}/>
+                        <DayScheduleTable data={scheduleModal.data} labels={labels} radioChangeCallback={ async () => {
+                            let params = {
+                                ...calendarTerm,
+                                callback : (data) => {
+                                    console.log("????????????????????")
+                                    dispath(setScheduleList(data)); // 스케쥴리스트 리덕스 스토어 값 변경
+                                    setDateCellModal(scheduleModal.selectDate);
+                                }
+                            }
+                            if(!(labels == undefined || labels.length == 0)){
+                                const checkedStatus = labels.filter(label => label.checked).map(label => label.codeId).join();
+                                if(checkedStatus.length > 0){
+                                  params.checkedStatus = checkedStatus;
+                                }
+                            }
+                            const result = await getScheduleList(params);
+
+                        } }/>
                         <div className={`schedule-diet-chart-wrapper w-full mt-5 ${isMobile ? '' : 'flex gap-2.5'}`}>
                             <div className={`${isMobile ? 'w-full' : 'w-1/2'}`}>
                                 <DietScheduleTable 
                                   data={scheduleModal.data} 
                                   selectDate={scheduleModal.selectDate} 
                                   dietRegCallback={async () => {
-                                      setDateCellModal(scheduleModal.selectDate);
-                                      // 캘린더 스케쥴 재 조회
-                                      let params = {
-                                          ...calendarTerm,
-                                          callback : (data) => {
-                                              dispath(setScheduleList(data)); // 스케쥴리스트 리덕스 스토어 값 변경
-                                          }
+                                    // 캘린더 스케쥴 재 조회
+                                    let params = {
+                                      ...calendarTerm,
+                                      callback : (data) => {
+                                        dispath(setScheduleList(data)); // 스케쥴리스트 리덕스 스토어 값 변경
                                       }
-                                      if(!(labels == undefined || labels.length == 0)){
-                                          const checkedStatus = labels.filter(label => label.checked).map(label => label.codeId).join();
-                                          if(checkedStatus.length > 0){
-                                            params.checkedStatus = checkedStatus;
-                                          }
+                                    }
+                                    if(!(labels == undefined || labels.length == 0)){
+                                      const checkedStatus = labels.filter(label => label.checked).map(label => label.codeId).join();
+                                      if(checkedStatus.length > 0){
+                                        params.checkedStatus = checkedStatus;
                                       }
-                                      const result = await getScheduleList(params);
+                                    }
+                                    const result = await getScheduleList(params);
+                                    setDateCellModal(scheduleModal.selectDate);
                                   }}/>
                             </div>
                             <div className={`${isMobile ? 'w-full' : 'w-1/2'}`}>
@@ -484,7 +501,7 @@ const Schedule = () => {
                             </div>
                         </label>
                         <div>{label.codeName}</div>
-                        <input type="checkbox" name="status" id={`label-${label.codeId}`} value={label.codeId} onClick={toggleCheckedLabel}/>
+                        <input type="checkbox" className="hidden" name="status" id={`label-${label.codeId}`} value={label.codeId} onClick={toggleCheckedLabel}/>
                     </div>
                 ))
               }

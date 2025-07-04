@@ -5,7 +5,7 @@ import { useGetScheduleList, useUpdateScheduleStatus } from '../../../js/schedul
 import { useDispatch } from 'react-redux';
 import { setScheduleList } from '../../../js/redux/slice/sliceSchedule';
 
-const DayScheduleTable = ({data, labels, calendarTerm}) => {
+const DayScheduleTable = ({data, labels, radioChangeCallback}) => {
     const isMobile = window.innerWidth < 768; // 모바일 화면인지 체크
     const [raidoCheck, setRadioCheck] = useState();
 
@@ -20,7 +20,7 @@ const DayScheduleTable = ({data, labels, calendarTerm}) => {
       if(!(data == undefined || data.length == 0)){
         setRadioCheck(data.map(item => (item.status)));
       }
-    }, []); // radio 버튼 정보 최초 한번만 입력
+    }, [data]); // radio 버튼 정보 최초 한번만 입력
 
 
     const radioUseStateHandleChange = async (event, idx) => {
@@ -28,20 +28,26 @@ const DayScheduleTable = ({data, labels, calendarTerm}) => {
       // formData 처리
       const formData = new FormData(document.getElementById(`scheduleDetail-${idx}`));
       const result = await updateScheduleStatus(formData, async () => {
+
+            radioChangeCallback();
+
           // 변경된 데이터 조회
-          let params = {
-              ...calendarTerm,
-              callback : (data) => {
-                  dispath(setScheduleList(data)); // 스케쥴리스트 리덕스 스토어 값 변경
-              }
-          }
-          if(!(labels == undefined || labels.length == 0)){
-              const checkedStatus = labels.filter(label => label.checked).map(label => label.codeId).join();
-              if(checkedStatus.length > 0){
-                params.checkedStatus = checkedStatus;
-              }
-          }
-          const result = await getScheduleList(params);
+        //   let params = {
+        //       ...calendarTerm,
+        //       callback : (data) => {
+        //           dispath(setScheduleList(data)); // 스케쥴리스트 리덕스 스토어 값 변경
+        //       }
+        //   }
+        //   if(!(labels == undefined || labels.length == 0)){
+        //       const checkedStatus = labels.filter(label => label.checked).map(label => label.codeId).join();
+        //       if(checkedStatus.length > 0){
+        //         params.checkedStatus = checkedStatus;
+        //       }
+        //   }
+        //   const result = await getScheduleList(params);
+
+
+
 
           setRadioCheck(raidoCheck.map((item, index) => {
               return (idx == index ? value : item)
