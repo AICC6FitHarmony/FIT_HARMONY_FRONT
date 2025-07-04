@@ -69,13 +69,13 @@ const TrainerMain = () => {
           gym: trainer.gym,
           gymAddress: trainer.gymAddress,
         },
-        minPrice: trainer.min, // 백엔드에서 min 컬럼으로 최소가격 제공
+        minPrice: trainer.minPrice, // 백엔드에서 min 컬럼으로 최소가격 제공
         rating: trainer.rating || 0,
         reviewCount: trainer.reviewCount || 0,
         categories: categories[0] || 'PT',
         allCategories: categories,
-        priceRange: trainer.min
-          ? `${trainer.min.toLocaleString()}원부터`
+        priceRange: trainer.minPrice
+          ? `${trainer.minPrice.toLocaleString()}원부터`
           : '가격 정보 없음',
         introduction: '전문 트레이너입니다.', // 기본 소개글, 추후 백엔드에서 제공되면 수정
       };

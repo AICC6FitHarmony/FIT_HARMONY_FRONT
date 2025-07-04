@@ -1,43 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { fetchTrainerDetail } from '../../js/redux/slice/sliceTrainer';
+import {
+  Heart,
+  Share2,
+  Phone,
+  Mail,
+  MapPin,
+  Star,
+  ChevronRight,
+} from 'lucide-react';
 
-const TrainerReadMore = () => {
-  const [trainerDetail, setTrainerDetail] = useState({
-    userName: '김헬스',
-    gym: { gymName: '프리미엄 피트니스 센터' },
-  });
-  const [isFavorited, setIsFavorited] = useState(false);
+const TrainerProfile = () => {
+  const { userId } = useParams();
+  console.log(userId);
+  const dispatch = useDispatch();
 
-  // 상담 요청 핸들러
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchTrainerDetail(userId));
+    }
+  }, [userId, dispatch]);
+
+  const detail = useSelector((state) => state.trainer.trainers.detail);
+  const status = useSelector((state) => state.trainer.status);
+  const error = useSelector((state) => state.trainer.error);
+
+  // 디버깅용 useEffect
+  useEffect(() => {
+    console.log('Detail data:', detail);
+    console.log('Status:', status);
+    console.log('Error:', error);
+  }, [detail, status, error]);
+
   const handleConsultationRequest = () => {
     alert('상담 요청이 접수되었습니다! 곧 연락드리겠습니다.');
   };
 
-  // 찜하기 핸들러
-  const handleFavorite = () => {
-    setIsFavorited(!isFavorited);
-  };
-
-  // 공유하기 핸들러
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: `${trainerDetail?.userName} 트레이너`,
-        text: `${trainerDetail?.userName} 트레이너의 프로필을 확인해보세요!`,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('링크가 클립보드에 복사되었습니다!');
-    }
-  };
-
-  // 서비스 카드 클릭 핸들러
   const handleServiceClick = (serviceName) => {
     alert(`${serviceName} 상세 정보를 확인하시겠습니까?`);
   };
 
-  // 연락처 클릭 핸들러
-  const handleContactClick = (type, value) => {
+  const handleContactClick = (type) => {
     switch (type) {
       case 'phone':
         alert('전화 연결 중...');
@@ -53,335 +59,348 @@ const TrainerReadMore = () => {
     }
   };
 
+  // 로딩 상태 처리
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-lime-50 to-green-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+          <p>트레이너 정보를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 에러 상태 처리
+  if (status === 'failed') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-lime-50 to-green-100 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500">데이터를 불러오는데 실패했습니다.</p>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // detail이 없거나 빈 객체인 경우 처리
+  if (!detail || Object.keys(detail).length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-lime-50 to-green-100 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">트레이너 정보를 찾을 수 없습니다.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-lime-50 to-green-100 relative overflow-hidden">
-      {/* 배경 장식 요소들 */}
-      <div className="absolute top-10 left-10 w-20 h-20 bg-lime-200/30 rounded-full blur-xl"></div>
-      <div className="absolute top-32 right-20 w-32 h-32 bg-yellow-200/40 rounded-full blur-2xl"></div>
-      <div className="absolute bottom-40 left-1/4 w-24 h-24 bg-green-200/30 rounded-full blur-xl"></div>
-      <div className="absolute bottom-20 right-1/3 w-40 h-40 bg-lime-300/20 rounded-full blur-3xl"></div>
-
-      <div className="max-w-7xl mx-auto p-6 pt-20 relative z-10">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-yellow-100/90 to-lime-100/90 backdrop-blur-xl rounded-[2.5rem] p-10 mb-8 shadow-2xl border border-lime-200/50 relative overflow-hidden">
-          {/* 내부 장식 요소 */}
-          <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-lime-200/30 to-transparent rounded-full translate-x-20 -translate-y-20"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-yellow-200/40 to-transparent rounded-full -translate-x-16 translate-y-16"></div>
-
-          <div className="flex items-center gap-10 mb-10 max-lg:flex-col max-lg:text-center relative z-10">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-lime-50 to-green-100">
+      {/* 헤더 */}
+      <div className="bg-white shadow-sm">
+        <div className="max-w-4xl mx-auto px-6 py-8">
+          <div className="flex items-center gap-8">
             {/* 프로필 이미지 */}
             <div className="relative">
-              <div className="w-40 h-40 rounded-full bg-gradient-to-br from-lime-400 via-lime-500 to-green-500 flex items-center justify-center text-7xl shadow-2xl relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-                <span className="relative z-10">🏋️</span>
+              <div className="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-medium">
+                  프로필 이미지
+                </span>
               </div>
-              <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-xl">✨</span>
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+                <span className="text-sm">✨</span>
               </div>
             </div>
 
+            {/* 기본 정보 */}
             <div className="flex-1">
-              <div className="inline-block bg-gradient-to-r from-lime-600 to-green-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg">
-                🌟 프리미엄 트레이너
+              <div className="inline-block bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium mb-3">
+                TRAINER
               </div>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-lime-700 via-green-600 to-lime-600 bg-clip-text text-transparent mb-4 leading-tight">
-                {trainerDetail.userName} 트레이너
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {detail?.userName || detail?.name || '트레이너'}
               </h1>
-              <p className="text-2xl text-gray-700 mb-6 font-medium">
+              <p className="text-gray-600 mb-4">
                 건강한 변화의 시작, 함께 만들어가요
               </p>
 
-              {/* 통계 카드들 */}
-              <div className="flex items-center gap-8 max-lg:justify-center flex-wrap">
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-lg border border-lime-200/50">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">⭐</span>
-                    <div>
-                      <div className="text-2xl font-bold text-lime-700">
-                        4.9
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        평점 (124개 리뷰)
-                      </div>
-                    </div>
+              {/* 통계 */}
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                    <span className="font-semibold">
+                      {detail?.rating || '4.9'}
+                    </span>
                   </div>
+                  <div className="text-sm text-gray-500">평점</div>
                 </div>
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-lg border border-lime-200/50">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🏆</span>
-                    <div>
-                      <div className="text-2xl font-bold text-lime-700">
-                        3년
-                      </div>
-                      <div className="text-sm text-gray-600">경력</div>
-                    </div>
+                <div className="text-center">
+                  <div className="font-semibold">
+                    {detail?.experience || '3년'}
                   </div>
+                  <div className="text-sm text-gray-500">경력</div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 액션 버튼들 */}
-          <div className="flex gap-4 max-md:flex-col max-md:items-center relative z-10">
+          {/* 액션 버튼 */}
+          <div className="flex gap-4 mt-8">
             <button
               onClick={handleConsultationRequest}
-              className="group px-10 py-4 bg-gradient-to-r from-lime-500 to-green-500 text-white rounded-full font-bold shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-lg relative overflow-hidden"
+              className="flex-1 bg-green-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-600 transition-colors"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-lime-400 to-green-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <span className="relative z-10 flex items-center gap-2">
-                🗣️ 상담 요청하기
-              </span>
-            </button>
-            <button
-              onClick={handleFavorite}
-              className={`group px-10 py-4 rounded-full font-bold border-2 transition-all duration-300 hover:-translate-y-2 text-lg ${
-                isFavorited
-                  ? 'bg-gradient-to-r from-pink-400 to-red-400 text-white border-pink-400 shadow-xl'
-                  : 'bg-white/90 text-lime-700 border-lime-500 hover:bg-lime-500 hover:text-white shadow-lg hover:shadow-xl'
-              }`}
-            >
-              <span className="flex items-center gap-2">
-                {isFavorited ? '❤️ 찜 완료' : '🤍 찜하기'}
-              </span>
-            </button>
-            <button
-              onClick={handleShare}
-              className="group px-10 py-4 bg-white/90 text-lime-700 border-2 border-lime-500 rounded-full font-bold hover:bg-lime-500 hover:text-white hover:-translate-y-2 transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
-            >
-              <span className="flex items-center gap-2">📤 공유하기</span>
+              상담 요청하기
             </button>
           </div>
         </div>
+      </div>
 
-        {/* 메인 콘텐츠 */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* 왼쪽 메인 콘텐츠 */}
-          <div className="xl:col-span-2 space-y-8">
-            {/* 서비스 섹션 */}
-            <div className="bg-gradient-to-br from-yellow-100/90 to-lime-100/90 backdrop-blur-xl rounded-[2rem] p-8 shadow-2xl border border-lime-200/50 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-lime-200/20 rounded-full translate-x-16 -translate-y-16"></div>
-
-              <h2 className="text-3xl font-bold mb-8 text-gray-800 flex items-center gap-3 relative z-10">
-                <span className="text-4xl">🎯</span>
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* 메인 콘텐츠 */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* 제공 서비스 */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">
                 제공 서비스
               </h2>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
+              <div className="space-y-4">
                 <div
                   onClick={() => handleServiceClick('기초 PT 클래스')}
-                  className="group bg-gradient-to-br from-white via-yellow-50 to-lime-50 rounded-2xl p-6 border-2 border-lime-200/50 cursor-pointer hover:-translate-y-3 hover:shadow-2xl transition-all duration-300 relative overflow-hidden"
+                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
                 >
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-lime-200/20 rounded-full translate-x-10 -translate-y-10"></div>
-                  <div className="text-3xl mb-3">🌱</div>
-                  <h3 className="text-xl font-bold text-lime-700 mb-2">
-                    기초 PT 클래스
-                  </h3>
-                  <div className="text-3xl font-bold text-gray-800 mb-4 bg-gradient-to-r from-lime-600 to-green-600 bg-clip-text text-transparent">
-                    80,000원
-                  </div>
-                  <p className="text-gray-600 leading-relaxed">
-                    운동 초보자를 위한 기본 자세부터 운동 루틴까지 배우는
-                    클래스입니다. 개인 맞춤형 트레이닝으로 진행됩니다.
-                  </p>
-                  <div className="mt-4 text-sm text-lime-600 font-semibold group-hover:text-lime-700 transition-colors">
-                    자세히 보기 →
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-1">
+                        기초 PT 클래스
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        운동 초보자를 위한 기본 자세부터 운동 루틴까지
+                      </p>
+                      <div className="text-lg font-semibold text-green-600">
+                        80,000원
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-400" />
                   </div>
                 </div>
 
                 <div
                   onClick={() => handleServiceClick('웨이트 트레이닝')}
-                  className="group bg-gradient-to-br from-white via-yellow-50 to-lime-50 rounded-2xl p-6 border-2 border-lime-200/50 cursor-pointer hover:-translate-y-3 hover:shadow-2xl transition-all duration-300 relative overflow-hidden"
+                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
                 >
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-200/20 rounded-full translate-x-10 -translate-y-10"></div>
-                  <div className="text-3xl mb-3">💪</div>
-                  <h3 className="text-xl font-bold text-lime-700 mb-2">
-                    웨이트 트레이닝
-                  </h3>
-                  <div className="text-3xl font-bold text-gray-800 mb-4 bg-gradient-to-r from-lime-600 to-green-600 bg-clip-text text-transparent">
-                    100,000원
-                  </div>
-                  <p className="text-gray-600 leading-relaxed">
-                    근력 증진과 체형 개선을 위한 웨이트 트레이닝 클래스입니다.
-                    안전한 운동법과 효과적인 루틴을 제공합니다.
-                  </p>
-                  <div className="mt-4 text-sm text-lime-600 font-semibold group-hover:text-lime-700 transition-colors">
-                    자세히 보기 →
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-1">
+                        웨이트 트레이닝
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        근력 증진과 체형 개선을 위한 웨이트 트레이닝
+                      </p>
+                      <div className="text-lg font-semibold text-green-600">
+                        100,000원
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-400" />
                   </div>
                 </div>
 
                 <div
                   onClick={() => handleServiceClick('프리미엄 코스')}
-                  className="group bg-gradient-to-br from-white via-yellow-50 to-lime-50 rounded-2xl p-6 border-2 border-lime-200/50 cursor-pointer hover:-translate-y-3 hover:shadow-2xl transition-all duration-300 lg:col-span-2 relative overflow-hidden"
+                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
                 >
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-green-200/20 rounded-full translate-x-12 -translate-y-12"></div>
-                  <div className="text-3xl mb-3">🏆</div>
-                  <h3 className="text-xl font-bold text-lime-700 mb-2">
-                    프리미엄 코스
-                  </h3>
-                  <div className="text-3xl font-bold text-gray-800 mb-4 bg-gradient-to-r from-lime-600 to-green-600 bg-clip-text text-transparent">
-                    300,000원
-                  </div>
-                  <p className="text-gray-600 leading-relaxed">
-                    4주 연속 수업으로 구성된 종합 피트니스 코스입니다. 유산소,
-                    근력, 체형 교정을 모두 포함합니다.
-                  </p>
-                  <div className="mt-4 text-sm text-lime-600 font-semibold group-hover:text-lime-700 transition-colors">
-                    자세히 보기 →
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-1">
+                        프리미엄 코스
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        4주 연속 종합 피트니스 코스 (유산소, 근력, 체형 교정)
+                      </p>
+                      <div className="text-lg font-semibold text-green-600">
+                        300,000원
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-400" />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* 자기소개 섹션 */}
-            <div className="bg-gradient-to-br from-lime-100/90 to-green-100/90 backdrop-blur-xl rounded-[2rem] p-8 shadow-2xl border border-lime-200/50 relative overflow-hidden">
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-yellow-200/20 rounded-full -translate-x-20 translate-y-20"></div>
-
-              <h2 className="text-3xl font-bold mb-8 text-gray-800 flex items-center gap-3 relative z-10">
-                <span className="text-4xl">👋</span>
+            {/* 자기소개 */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">
                 자기소개
               </h2>
-
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-lime-200/30 relative z-10">
-                <p className="leading-8 text-gray-700 text-lg">
+              <div className="prose text-gray-700 leading-relaxed">
+                <p className="mb-4">
                   안녕하세요! 건강한 삶을 추구하는{' '}
-                  <strong className="text-lime-700">
-                    {trainerDetail.userName}
+                  <strong>
+                    {detail?.userName || detail?.name || '트레이너'}
                   </strong>{' '}
-                  트레이너입니다. 🌟
-                  <br />
-                  <br />
-                  저는 체육학과를 졸업하고 NSCA-CPT 자격증을 보유하고 있으며,
-                  3년간 다양한 연령대의 회원들과 함께 건강한 라이프스타일을
-                  만들어가고 있습니다.
-                  <br />
-                  <br />
-                  <strong className="text-lime-700 text-xl">
-                    🎯 트레이닝 특징:
-                  </strong>
-                  <br />
-                  <div className="mt-4 space-y-2 ml-4">
-                    <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
-                      <span>1:1 또는 소그룹 맞춤형 트레이닝</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
-                      <span>개인별 체력 수준에 맞는 운동 프로그램</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
-                      <span>안전하고 효과적인 운동법 지도</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
-                      <span>즐겁고 동기부여가 되는 수업 분위기</span>
-                    </div>
-                  </div>
-                  <br />
+                  트레이너입니다.
+                </p>
+                <p className="mb-4">
+                  {detail?.introduction ||
+                    '저는 체육학과를 졸업하고 NSCA-CPT 자격증을 보유하고 있으며, 3년간 다양한 연령대의 회원들과 함께 건강한 라이프스타일을 만들어가고 있습니다.'}
+                </p>
+                <div className="mb-4">
+                  <strong className="text-green-600">트레이닝 특징:</strong>
+                  <ul className="mt-2 space-y-1 text-sm">
+                    <li>• 1:1 또는 소그룹 맞춤형 트레이닝</li>
+                    <li>• 개인별 체력 수준에 맞는 운동 프로그램</li>
+                    <li>• 안전하고 효과적인 운동법 지도</li>
+                    <li>• 즐겁고 동기부여가 되는 수업 분위기</li>
+                  </ul>
+                </div>
+                <p>
                   운동이 처음이신 분부터 실력을 더 키우고 싶은 분까지, 모든
-                  레벨의 회원들을 환영합니다! 함께 건강한 몸을 만들어보아요! 💪
+                  레벨의 회원들을 환영합니다! 함께 건강한 몸을 만들어보아요!
                 </p>
               </div>
             </div>
 
-            {/* 리뷰 섹션 */}
-            <div className="bg-gradient-to-br from-yellow-100/90 to-lime-100/90 backdrop-blur-xl rounded-[2rem] p-8 shadow-2xl border border-lime-200/50 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-36 h-36 bg-lime-200/20 rounded-full translate-x-18 -translate-y-18"></div>
-
-              <h2 className="text-3xl font-bold mb-8 text-gray-800 flex items-center gap-3 relative z-10">
-                <span className="text-4xl">💬</span>
-                리뷰 (124개)
+            {/* 리뷰 */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">
+                리뷰 ({detail?.reviewCount || '124'}개)
               </h2>
-
-              <div className="space-y-6 relative z-10">
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-l-4 border-lime-500 hover:shadow-xl transition-shadow duration-300">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="font-bold text-gray-800 text-lg">
-                      박***
-                    </span>
-                    <div className="flex items-center gap-1">
-                      <span className="text-yellow-400 text-xl">
-                        ⭐⭐⭐⭐⭐
-                      </span>
+              <div className="space-y-4">
+                {detail?.reviews?.length > 0 ? (
+                  detail.reviews.map((review, index) => (
+                    <div key={index} className="border-b border-gray-100 pb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-medium text-gray-900">
+                          {review.userName || '익명'}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          {[...Array(review.rating || 5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className="w-4 h-4 text-yellow-400 fill-current"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-gray-700">{review.content}</p>
                     </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed text-lg">
-                    처음 운동을 시작하는데 정말 친절하게 잘 가르쳐주셨어요!
-                    덕분에 이제 혼자서도 운동할 수 있게 되었습니다. 추천합니다!
-                  </p>
-                </div>
-
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-l-4 border-lime-500 hover:shadow-xl transition-shadow duration-300">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="font-bold text-gray-800 text-lg">
-                      김***
-                    </span>
-                    <div className="flex items-center gap-1">
-                      <span className="text-yellow-400 text-xl">
-                        ⭐⭐⭐⭐⭐
-                      </span>
+                  ))
+                ) : (
+                  // 기본 리뷰 데이터
+                  <>
+                    <div className="border-b border-gray-100 pb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-medium text-gray-900">박***</span>
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className="w-4 h-4 text-yellow-400 fill-current"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-gray-700">
+                        처음 운동을 시작하는데 정말 친절하게 잘 가르쳐주셨어요!
+                        덕분에 이제 혼자서도 운동할 수 있게 되었습니다.
+                      </p>
                     </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed text-lg">
-                    웨이트 트레이닝 정말 만족스러웠어요. 자세 교정과 운동법을
-                    정확히 알려주셔서 효과를 바로 느꼈습니다!
-                  </p>
-                </div>
 
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-l-4 border-lime-500 hover:shadow-xl transition-shadow duration-300">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="font-bold text-gray-800 text-lg">
-                      이***
-                    </span>
-                    <div className="flex items-center gap-1">
-                      <span className="text-yellow-400 text-xl">
-                        ⭐⭐⭐⭐⭐
-                      </span>
+                    <div className="border-b border-gray-100 pb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-medium text-gray-900">김***</span>
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className="w-4 h-4 text-yellow-400 fill-current"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-gray-700">
+                        웨이트 트레이닝 정말 만족스러웠어요. 자세 교정과
+                        운동법을 정확히 알려주셔서 효과를 바로 느꼈습니다!
+                      </p>
                     </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed text-lg">
-                    프리미엄 코스 완주했습니다! 4주 동안 정말 많이 배웠고, 이제
-                    건강한 운동 습관을 가지게 되었어요.
-                  </p>
-                </div>
+
+                    <div className="pb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-medium text-gray-900">이***</span>
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className="w-4 h-4 text-yellow-400 fill-current"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-gray-700">
+                        프리미엄 코스 완주했습니다! 4주 동안 정말 많이 배웠고,
+                        이제 건강한 운동 습관을 가지게 되었어요.
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
 
-          {/* 오른쪽 사이드바 */}
-          <div className="bg-gradient-to-br from-lime-100/90 to-green-100/90 backdrop-blur-xl rounded-[2rem] p-8 shadow-2xl border border-lime-200/50 h-fit relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-28 h-28 bg-yellow-200/20 rounded-full -translate-x-14 -translate-y-14"></div>
-
-            <div
-              onClick={() =>
-                handleContactClick(
-                  'location',
-                  trainerDetail.gym?.gymName || '서울시 강남구'
-                )
-              }
-              className="group flex items-center gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl cursor-pointer hover:bg-white hover:shadow-lg hover:translate-x-2 transition-all duration-300 border border-lime-200/50"
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-lime-400 to-lime-500 rounded-full flex items-center justify-center text-white text-lg shadow-lg">
-                🏠
+          {/* 사이드바 */}
+          <div className="space-y-8">
+            {/* 연락처 */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                연락처
+              </h3>
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleContactClick('phone')}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
+                  <Phone className="w-5 h-5 text-green-600" />
+                  <span className="text-gray-700">전화 연결</span>
+                </button>
+                <button
+                  onClick={() => handleContactClick('email')}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
+                  <Mail className="w-5 h-5 text-green-600" />
+                  <span className="text-gray-700">이메일 보내기</span>
+                </button>
               </div>
-              <span className="text-gray-700 font-medium text-lg">
-                {trainerDetail.gym?.gymName || '서울시 강남구'}
-              </span>
             </div>
-          </div>
 
-          {/* 위치 정보 */}
-          <h3 className="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3 relative z-10">
-            <span className="text-3xl">📍</span>
-            위치 정보
-          </h3>
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center mb-8 shadow-lg border border-lime-200/50 relative z-10">
-            <p className="text-4xl mb-4">🗺️</p>
-            <p className="text-gray-700 font-medium text-lg">
-              {trainerDetail.gym?.gymName || '헬스장 정보'}
-              <br />
-              <span className="text-lime-600">지하철역 도보 5분 거리</span>
-            </p>
+            {/* 위치 정보 */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                위치 정보
+              </h3>
+              <div className="text-center">
+                <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                  <MapPin className="w-8 h-8 text-gray-400" />
+                </div>
+                <p className="font-medium text-gray-900">
+                  {detail?.gym?.gymName ||
+                    detail?.gymName ||
+                    '프리미엄 피트니스 센터'}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {detail?.gym?.address ||
+                    detail?.address ||
+                    '지하철역 도보 5분 거리'}
+                </p>
+                <button
+                  onClick={() => handleContactClick('location')}
+                  className="mt-3 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  위치 확인
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -389,4 +408,4 @@ const TrainerReadMore = () => {
   );
 };
 
-export default TrainerReadMore;
+export default TrainerProfile;
