@@ -8,6 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import SignNav from "./common/SignNav";
 import SignGym from "./common/SignGym";
 import InputWithLabel from "../cmmn/InputWithLabel";
+import { googleRegister } from "../../js/login/loginUtils";
 
 const SignTrainer = () => {
   const idxMax = 4;
@@ -24,6 +25,7 @@ const SignTrainer = () => {
     history: undefined,
     goal: undefined,
     role: "TRAINER",
+    gymId: undefined,
   });
 
   const handleSign = async () => {
@@ -156,10 +158,7 @@ const SignTrainer = () => {
           </SignInputTab>
           <SignInputTab idx={tabIdx} thisIdx={4}>
             <SignGym
-              userInfo={userInfo}
-              setUserInfo={setUserInfo}
-              handleChangeValue={handleChangeValue}
-              handleInputNumber={handleInputNumber}
+              onChange={handleChangeValue}
             />
           </SignInputTab>
 
