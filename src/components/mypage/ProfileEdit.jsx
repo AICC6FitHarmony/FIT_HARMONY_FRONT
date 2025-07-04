@@ -1,26 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  useCheckEmailDuplicate,
   useCheckNicknameDuplicate,
   useUpdateUserData,
 } from "../../js/mypage/mypage";
-import { useImageFileUpload, useUpdateGroupId } from "../../js/common/util";
+import { useImageFileUpload } from "../../js/common/util";
 import { toast } from "react-toastify";
-import { DuplicateCheckInput, FormInput } from "./common";
+import { FormInput } from "./common";
 import defaultProfile from "../../images/profile.png";
 
 const ProfileEdit = ({ userData }) => {
   const [profileImg, setProfileImg] = useState(null);
-  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
-  const [emailChecked, setEmailChecked] = useState(false);
-  const [emailDuplicate, setEmailDuplicate] = useState(false);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [nicknameChecked, setNicknameChecked] = useState(false);
   const [nicknameDuplicate, setNicknameDuplicate] = useState(false);
   const [role, setRole] = useState(userData?.role || "");
   const [form, setForm] = useState({
     name: userData?.userName || "",
-    email: userData?.email || "",
     nickname: userData?.nickName || "",
     phone: userData?.phoneNumber || "",
     height: userData?.height || "",
@@ -39,7 +34,6 @@ const ProfileEdit = ({ userData }) => {
 
   // 훅 초기화
   const updateUserData = useUpdateUserData();
-  const checkEmailDuplicate = useCheckEmailDuplicate();
   const checkNicknameDuplicate = useCheckNicknameDuplicate();
   const fileUpload = useImageFileUpload();
 
@@ -47,7 +41,6 @@ const ProfileEdit = ({ userData }) => {
     if (userData) {
       setForm({
         name: userData.userName || "",
-        email: userData.email || "",
         nickname: userData.nickName || "",
         phone: userData.phoneNumber || "",
         height: userData.height || "",
@@ -146,12 +139,6 @@ const ProfileEdit = ({ userData }) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
 
-    // 이메일이 변경되면 체크 상태 초기화
-    // if (name === "email") {
-    //   setEmailChecked(false);
-    //   setEmailDuplicate(false);
-    // }
-
     // if (name === "nickname") {
     //   setNicknameChecked(false);
     //   setNicknameDuplicate(false);
@@ -191,43 +178,6 @@ const ProfileEdit = ({ userData }) => {
     }
   };
 
-  // 이메일 중복체크
-  const handleEmailCheck = async () => {
-    if (!form.email) {
-      toast.error("이메일을 입력해주세요.");
-      return;
-    }
-
-    // 이메일 형식 검증
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email)) {
-      toast.error("올바른 이메일 형식을 입력해주세요.");
-      return;
-    }
-
-    setIsCheckingEmail(true);
-    try {
-      const result = await checkEmailDuplicate(form.email);
-
-      if (result.success) {
-        setEmailChecked(true);
-        setEmailDuplicate(result.isDuplicate);
-
-        if (result.isDuplicate) {
-          toast.error(result.message);
-        } else {
-          toast.success(result.message);
-        }
-      } else {
-        toast.error(result.message);
-      }
-    } catch (error) {
-      toast.error("중복체크 중 오류가 발생했습니다.");
-    } finally {
-      setIsCheckingEmail(false);
-    }
-  };
-
   // 저장 버튼 클릭
   const handleSave = async (e) => {
     e.preventDefault();
@@ -239,23 +189,11 @@ const ProfileEdit = ({ userData }) => {
       currentFileId = await uploadProfileImage();
     }
 
-    // 이메일 중복체크 검증
-    // if (form.email !== userData?.email && !emailChecked) {
-    //   toast.error("이메일 중복확인을 해주세요.");
-    //   return;
-    // }
-
-    // if (form.email !== userData?.email && emailDuplicate) {
-    //   toast.error("이미 사용 중인 이메일입니다.");
-    //   return;
-    // }
-
     let userDataToUpdate;
     if (role === "TRAINER") {
       userDataToUpdate = {
         userId: userData.userId,
         userName: form.name,
-        email: form.email,
         nickName: form.nickname,
         phoneNumber: form.phone,
         height: form.height,
@@ -271,7 +209,6 @@ const ProfileEdit = ({ userData }) => {
       userDataToUpdate = {
         userId: userData.userId,
         userName: form.name,
-        email: form.email,
         nickName: form.nickname,
         phoneNumber: form.phone,
         height: form.height,
@@ -283,11 +220,13 @@ const ProfileEdit = ({ userData }) => {
       };
     }
     console.log("userDataToUpdate", userDataToUpdate);
+
     updateUserData({
       userId: userData.userId,
       userData: userDataToUpdate,
       callback: () => {
         toast.success("저장되었습니다.");
+        window.location.reload();
       },
     });
   };
@@ -359,20 +298,6 @@ const ProfileEdit = ({ userData }) => {
                 value={form.name}
                 onChange={handleChange}
                 placeholder="이름을 입력하세요"
-              />
-
-              <DuplicateCheckInput
-                label="이메일"
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="이메일을 입력하세요"
-                isChecking={isCheckingEmail}
-                isChecked={emailChecked}
-                isDuplicate={emailDuplicate}
-                onCheck={handleEmailCheck}
-                originalValue={userData?.email}
               />
 
               <FormInput

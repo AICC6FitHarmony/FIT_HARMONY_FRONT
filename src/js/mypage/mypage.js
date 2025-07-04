@@ -62,10 +62,6 @@ const useUpdateUserData = () => {
                     toast.error("로그인 후 이용 가능한 서비스 입니다.", {
                         position: "bottom-center"
                     });
-                } else if (message === "duplicateEmail") {
-                    toast.error("이미 사용 중인 이메일입니다.", {
-                        position: "bottom-center"
-                    });
                 } else if (message === "duplicateNickname") {
                     toast.error("이미 사용 중인 닉네임입니다.", {
                         position: "bottom-center"
@@ -137,54 +133,6 @@ const useCheckNicknameDuplicate = () => {
     }
 };
 
-// 이메일 중복체크 훅
-const useCheckEmailDuplicate = () => {
-    const request = useRequest();
-
-    return async function checkEmailDuplicate(email) {
-        try {
-            const option = {
-                method: "POST",
-                body: { email }
-            };
-            const result = await request("/mypage/check-email", option);
-            
-            if (result.success) {
-                return result;
-            } else {
-                if (result.message === "invalidEmail") {
-                    toast.error("올바른 이메일 형식을 입력해주세요.", {
-                        position: "bottom-center"
-                    });
-                } else if (result.message === "noParam") {
-                    toast.error("이메일을 입력해주세요.", {
-                        position: "bottom-center"
-                    });
-                } else {
-                    toast.error(result.message || "중복체크 중 오류가 발생했습니다.", {
-                        position: "bottom-center"
-                    });
-                }
-                return {
-                    success: false,
-                    message: result.message || "중복체크 중 오류가 발생했습니다.",
-                    isDuplicate: false
-                };
-            }
-        } catch (error) {
-            console.error('이메일 중복체크 오류:', error);
-            toast.error("서버 연결 오류가 발생했습니다.", {
-                position: "bottom-center"
-            });
-            return {
-                success: false,
-                message: "서버 연결 오류가 발생했습니다.",
-                isDuplicate: false
-            };
-        }
-    }
-};
-
 // 사용자 활동 내역 조회 훅
 const useGetUserActivity = () => {
     const request = useRequest();
@@ -220,10 +168,49 @@ const useGetUserActivity = () => {
     }
 };
 
-export {
+// 사용자 계정 비활성화 훅
+const useUpdateUserActive = () => {
+    const request = useRequest();
+
+    return async function updateUserActive({ userId, bodyData, callback }) {
+        try {
+            const option = {
+                method: "put",
+                body: bodyData
+            };
+            const result = await request(`/mypage/active/${userId}`, option);
+            const { success, message } = result;
+
+            if (success) {
+                if (callback) {
+                    callback();
+                } else {
+                    return result;
+                }
+            } else {
+                if (message === "noAuth") {
+                    toast.error("로그인 후 이용 가능한 서비스 입니다.", {
+                        position: "bottom-center"
+                    });
+                } else {
+                    toast.error("계정 비활성화 중 오류가 발생했습니다.", {
+                        position: "bottom-center"
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('사용자 계정 비활성화 오류:', error);
+            toast.error("서버 연결 오류가 발생했습니다.", {
+                position: "bottom-center"
+            });
+        }
+    }
+};
+
+    export {
     useGetUserData,
     useUpdateUserData,
     useCheckNicknameDuplicate,
-    useCheckEmailDuplicate,
-    useGetUserActivity
+    useGetUserActivity,
+    useUpdateUserActive
 }
