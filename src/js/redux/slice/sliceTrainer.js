@@ -18,6 +18,7 @@ export const fetchTrainers = createAsyncThunk(
 export const fetchTrainerDetail = createAsyncThunk(
   'trainer/fetchTrainerDetail', // > 액션타입 이름으로 사용됨 (redux toolkit 에서 type으로 정해줌)
   async (userId) => {
+    console.log('[🔍] 요청 시작: trainerId =', userId);
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_DOMAIN}/trainer/${userId}`,
       {

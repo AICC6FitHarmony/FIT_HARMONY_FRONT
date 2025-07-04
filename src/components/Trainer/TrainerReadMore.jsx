@@ -13,9 +13,9 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-const TrainerProfile = () => {
+const TrainerReadMore = () => {
   const { userId } = useParams();
-  console.log(userId);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -130,14 +130,14 @@ const TrainerProfile = () => {
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-current" />
                     <span className="font-semibold">
-                      {detail?.rating || '4.9'}
+                      {detail?.rating || '없음'}
                     </span>
                   </div>
                   <div className="text-sm text-gray-500">평점</div>
                 </div>
                 <div className="text-center">
                   <div className="font-semibold">
-                    {detail?.experience || '3년'}
+                    {detail?.fitHistory || '없음'}
                   </div>
                   <div className="text-sm text-gray-500">경력</div>
                 </div>
@@ -242,30 +242,14 @@ const TrainerProfile = () => {
                   </strong>{' '}
                   트레이너입니다.
                 </p>
-                <p className="mb-4">
-                  {detail?.introduction ||
-                    '저는 체육학과를 졸업하고 NSCA-CPT 자격증을 보유하고 있으며, 3년간 다양한 연령대의 회원들과 함께 건강한 라이프스타일을 만들어가고 있습니다.'}
-                </p>
-                <div className="mb-4">
-                  <strong className="text-green-600">트레이닝 특징:</strong>
-                  <ul className="mt-2 space-y-1 text-sm">
-                    <li>• 1:1 또는 소그룹 맞춤형 트레이닝</li>
-                    <li>• 개인별 체력 수준에 맞는 운동 프로그램</li>
-                    <li>• 안전하고 효과적인 운동법 지도</li>
-                    <li>• 즐겁고 동기부여가 되는 수업 분위기</li>
-                  </ul>
-                </div>
-                <p>
-                  운동이 처음이신 분부터 실력을 더 키우고 싶은 분까지, 모든
-                  레벨의 회원들을 환영합니다! 함께 건강한 몸을 만들어보아요!
-                </p>
+                <p className="mb-4">{detail?.introduction || '비어있음'}</p>
               </div>
             </div>
 
             {/* 리뷰 */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                리뷰 ({detail?.reviewCount || '124'}개)
+                리뷰 ({detail?.reviewCount || '0'}개)
               </h2>
               <div className="space-y-4">
                 {detail?.reviews?.length > 0 ? (
@@ -352,27 +336,7 @@ const TrainerProfile = () => {
           {/* 사이드바 */}
           <div className="space-y-8">
             {/* 연락처 */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                연락처
-              </h3>
-              <div className="space-y-3">
-                <button
-                  onClick={() => handleContactClick('phone')}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-                >
-                  <Phone className="w-5 h-5 text-green-600" />
-                  <span className="text-gray-700">전화 연결</span>
-                </button>
-                <button
-                  onClick={() => handleContactClick('email')}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-                >
-                  <Mail className="w-5 h-5 text-green-600" />
-                  <span className="text-gray-700">이메일 보내기</span>
-                </button>
-              </div>
-            </div>
+            <div className="bg-white rounded-lg p-6 shadow-sm"></div>
 
             {/* 위치 정보 */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
@@ -384,9 +348,7 @@ const TrainerProfile = () => {
                   <MapPin className="w-8 h-8 text-gray-400" />
                 </div>
                 <p className="font-medium text-gray-900">
-                  {detail?.gym?.gymName ||
-                    detail?.gymName ||
-                    '프리미엄 피트니스 센터'}
+                  {detail?.gym || detail?.gymAddress || '정보없음'}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
                   {detail?.gym?.address ||
@@ -408,4 +370,4 @@ const TrainerProfile = () => {
   );
 };
 
-export default TrainerProfile;
+export default TrainerReadMore;
