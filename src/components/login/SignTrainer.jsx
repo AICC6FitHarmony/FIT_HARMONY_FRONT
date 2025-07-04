@@ -99,7 +99,7 @@ const SignTrainer = () => {
       return;
     if (
       await valueCheck(
-        !userInfo.experience,
+        !userInfo.history,
         "경력을 입력해 주세요",
         MoveIndex(1)
       )
@@ -133,7 +133,7 @@ const SignTrainer = () => {
             <div className="text-2xl text-center pb-5">운동 경력</div>
 
             <InputWithLabel name="history" onChange={handleChangeValue} 
-            value={userInfo.experience} 
+            value={userInfo.history} 
             isNumber={true} 
             waringText={"0~100 범위의 값을 입력해주세요"} 
             isWaring={userInfo.history < 0 || userInfo.history >100}/>
