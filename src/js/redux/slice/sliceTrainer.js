@@ -5,7 +5,7 @@ export const fetchTrainers = createAsyncThunk(
   'trainer/fetchTrainers',
   async ({ limit, offset }) => {
     const response = await fetch(
-      `http://localhost:8000/trainer?limit=${limit}&offset=${offset}`,
+      `${import.meta.env.VITE_BACKEND_DOMAIN}/trainer?limit=${limit}&offset=${offset}`,
       { credentials: 'include' }
     );
     return response.json();
