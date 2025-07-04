@@ -7,6 +7,7 @@ import {
 import { useImageFileUpload, useUpdateGroupId } from "../../js/common/util";
 import { toast } from "react-toastify";
 import { DuplicateCheckInput, FormInput } from "./common";
+import defaultProfile from "../../images/profile.png";
 
 const ProfileEdit = ({ userData }) => {
   const [profileImg, setProfileImg] = useState(null);
@@ -312,6 +313,9 @@ const ProfileEdit = ({ userData }) => {
               <img
                 src={profileImg}
                 alt=""
+                onError={(e) => {
+                  e.target.src = defaultProfile;
+                }}
                 className="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg"
               />
             </div>
