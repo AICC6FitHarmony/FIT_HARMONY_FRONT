@@ -8,6 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import SignNav from "./common/SignNav";
 import SignGym from "./common/SignGym";
 import InputWithLabel from "../cmmn/InputWithLabel";
+import { googleRegister } from "../../js/login/loginUtils";
 
 const SignTrainer = () => {
   const idxMax = 4;
@@ -24,6 +25,7 @@ const SignTrainer = () => {
     history: undefined,
     goal: undefined,
     role: "TRAINER",
+    gymId: undefined,
   });
 
   const handleSign = async () => {
@@ -97,7 +99,7 @@ const SignTrainer = () => {
       return;
     if (
       await valueCheck(
-        !userInfo.experience,
+        !userInfo.history,
         "경력을 입력해 주세요",
         MoveIndex(1)
       )
@@ -130,11 +132,11 @@ const SignTrainer = () => {
           <SignInputTab idx={tabIdx} thisIdx={2}>
             <div className="text-2xl text-center pb-5">운동 경력</div>
 
-            <InputWithLabel name="experience" onChange={handleChangeValue} 
-            value={userInfo.experience} 
+            <InputWithLabel name="history" onChange={handleChangeValue} 
+            value={userInfo.history} 
             isNumber={true} 
             waringText={"0~100 범위의 값을 입력해주세요"} 
-            isWaring={userInfo.experience < 0 || userInfo.experience >100}/>
+            isWaring={userInfo.history < 0 || userInfo.history >100}/>
           </SignInputTab>
           <SignInputTab idx={tabIdx} thisIdx={3}>
             <SignSelectText
@@ -156,10 +158,7 @@ const SignTrainer = () => {
           </SignInputTab>
           <SignInputTab idx={tabIdx} thisIdx={4}>
             <SignGym
-              userInfo={userInfo}
-              setUserInfo={setUserInfo}
-              handleChangeValue={handleChangeValue}
-              handleInputNumber={handleInputNumber}
+              onChange={handleChangeValue}
             />
           </SignInputTab>
 
