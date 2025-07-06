@@ -6,16 +6,17 @@ import { toast } from "react-toastify";
 const useGetIntroData = () => {
     const request = useRequest();
 
-    return async function getIntroData({callback }) {
+    return async function getIntroData({callback}) {
         try {
             const result = await request(`/`, { method: "get" });
+            console.log("result" , result)
             const { success, message, data } = result;
             
             if (success) {
                 if (callback) {
-                    callback(data);
+                    callback(result);
                 } else {
-                    return data;
+                    return result;
                 }
             } else {
                 toast.error("서버 연결 오류가 발생했습니다.", {

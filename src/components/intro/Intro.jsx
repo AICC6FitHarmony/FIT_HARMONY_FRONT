@@ -9,15 +9,17 @@ import IntroTrainer from "./IntroTrainer";
 
 const Intro = () => {
   const { user, loading } = useAuth();
+  const [introData, setIntroData] = useState([]);
   const getIntroData = useGetIntroData();
 
-  // useEffect(() => {
-  //   getIntroData({
-  //     callback: (result) => {
-  //       console.log(result);
-  //     },
-  //   });
-  // }, []);
+  useEffect(() => {
+    getIntroData({
+      callback: (result) => {
+        setIntroData(result);
+    }
+    });
+  },[]);
+
 
   return (
     <div className="min-h-screen bg-white text-black p-6 font-sans px-10">
@@ -35,9 +37,9 @@ const Intro = () => {
         )}
       </div>
 
-      <IntroDiet />
-      <IntroCommunity />
-      <IntroTrainer />
+      <IntroDiet data={introData?.data?.diet} />
+      <IntroCommunity getHotData={introData?.data?.communityHot} getLatestData={introData?.data?.communityLatest} />
+      <IntroTrainer data={introData?.data?.trainer} />
     </div>
   );
 };
