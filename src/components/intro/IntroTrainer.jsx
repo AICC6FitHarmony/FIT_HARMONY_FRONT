@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -6,14 +6,9 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-const trainers = Array.from({ length: 5 }, (_, i) => ({
-  id: i + 1,
-  name: "홍길동",
-  desc: "헬스 PT ATV 출연\n소개글",
-  img: "https://randomuser.me/api/portraits/men/1.jpg", // 예시 이미지
-}));
 
-const TrainerCarousel = () => {
+const TrainerCarousel = ({data}) => {
+ 
   return (
     <Swiper
       modules={[Navigation, Pagination]}
@@ -47,16 +42,14 @@ const TrainerCarousel = () => {
       }}
       className="trainer-swiper"
     >
-      {trainers.map((trainer) => (
-        <SwiperSlide key={trainer.id}>
+       {data && data.map((item, idx) => (
+        <SwiperSlide key={idx}>
           <div className="text-center">
-            <img
-              src={trainer.img}
-              alt={trainer.name}
-              className="w-20 h-24 object-cover mx-auto rounded"
-            />
+          <span>파일 권한 제거해야함</span>
+            {/* <img src={`${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${item.fileId}`} alt="" /> */}
             <div className="text-xs mt-1 whitespace-pre-line">
-              {trainer.desc}
+              {item.nickName}
+              {item.fitGoal}
             </div>
           </div>
         </SwiperSlide>
@@ -72,11 +65,16 @@ const TrainerCarousel = () => {
   );
 };
 
-const IntroTrainer = () => {
+const IntroTrainer = ({getTrainerData}) => {
+  const [data , setData] = useState([]);
+  useEffect(() =>{
+    setData(getTrainerData)
+  },[getTrainerData])
+
   return (
     <div className="mt-10">
-      <h2 className="text-lg font-semibold mb-4">강사 PR (사진 or 영상)</h2>
-      <TrainerCarousel />
+      <h2 className="text-lg font-semibold mb-4">인기 강사</h2>
+      <TrainerCarousel data={data} />
     </div>
   );
 };
