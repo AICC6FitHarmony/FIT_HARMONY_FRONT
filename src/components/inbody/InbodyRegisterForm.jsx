@@ -7,6 +7,9 @@ import {
 } from "../../js/redux/slice/sliceInbody";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
+import { useImageFileUpload } from "../../js/common/util";
+import { useRequest } from "../../js/config/requests";
+import examGood from "../../images/exam_good.png";
 
 const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
   const dispatch = useDispatch();
@@ -14,6 +17,12 @@ const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
     (state) => state.inbody
   );
   const [inputMode, setInputMode] = useState(null); // 'photo' 또는 'manual'
+  // const [file, setFile] = useState(null);
+  const [file, setFile] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const fileUpload = useImageFileUpload();
+  const request = useRequest();
+
   const [formData, setFormData] = useState({
     name: userName,
     date: format(new Date(), "yyyy-MM-dd"),
@@ -83,6 +92,78 @@ const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
   const handlePhotoInput = () => {
     setInputMode("photo");
     console.log("사진으로 입력 선택");
+  };
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleOcrAnalysis = async () => {
+    // if (!file) {
+    //   toast.error("파일을 선택해주세요.");
+    //   return;
+    // }
+
+    setIsProcessing(true);
+    try {
+      // // 1. 파일 업로드
+      // const uploadFormData = new FormData();
+      // uploadFormData.append("file", file);
+      // const upload = await fileUpload(uploadFormData);
+
+      // 2. OCR 분석 요청
+      const option = {
+        method: "POST",
+        body: {
+          // fileId: upload.fileIdArr[0],
+          fileId: 299,
+        },
+      };
+
+      const ocrResult = await request("/inbody/requestOcr", option);
+      console.log("ocrResult 121 line inbodyRegisterForm.jsx : ", ocrResult);
+      if (ocrResult.success) {
+        // 3. OCR 결과를 폼에 자동 입력
+        const ocrData = ocrResult.data;
+        setFormData((prev) => ({
+          ...prev,
+          weight: ocrData.weight?.toString() || "",
+          bodyWater: ocrData.bodyWater?.toString() || "",
+          inbodyScore: ocrData.inbodyScore?.toString() || "",
+          protein: ocrData.protein?.toString() || "",
+          bodyMineral: ocrData.bodyMineral?.toString() || "",
+          bodyFat: ocrData.bodyFat?.toString() || "",
+          bodyFatPercent: ocrData.bodyFatPercent?.toString() || "",
+          bmi: ocrData.bmi?.toString() || "",
+          skeletalMuscle: ocrData.skeletalMuscle?.toString() || "",
+          trunkMuscle: ocrData.trunkMuscle?.toString() || "",
+          leftArmMuscle: ocrData.leftArmMuscle?.toString() || "",
+          rightArmMuscle: ocrData.rightArmMuscle?.toString() || "",
+          leftLegMuscle: ocrData.leftLegMuscle?.toString() || "",
+          rightLegMuscle: ocrData.rightLegMuscle?.toString() || "",
+          trunkFat: ocrData.trunkFat?.toString() || "",
+          leftArmFat: ocrData.leftArmFat?.toString() || "",
+          rightArmFat: ocrData.rightArmFat?.toString() || "",
+          leftLegFat: ocrData.leftLegFat?.toString() || "",
+          rightLegFat: ocrData.rightLegFat?.toString() || "",
+        }));
+
+        toast.success(
+          "OCR 분석이 완료되었습니다. 데이터를 확인하고 수정해주세요."
+        );
+        setInputMode("manual"); // 수동 입력 모드로 전환
+      } else {
+        toast.error("OCR 분석에 실패했습니다. 수동으로 입력해주세요.");
+        setInputMode("manual");
+      }
+    } catch (error) {
+      console.error("OCR 분석 오류:", error);
+      toast.error("OCR 분석 중 오류가 발생했습니다. 수동으로 입력해주세요.");
+      setInputMode("manual");
+    } finally {
+      setIsProcessing(false);
+      setFile(null);
+    }
   };
 
   const handleBackToSelection = () => {
@@ -622,13 +703,50 @@ const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
 
       {inputMode === "photo" && (
         <div className="text-center">
-          <p className="text-gray-500">사진으로 입력 기능은 준비 중입니다.</p>
-          <button
-            onClick={handleBackToSelection}
-            className="mt-4 px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-          >
-            뒤로가기
-          </button>
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-4">
+              인바디 결과지 사진을 업로드하세요
+            </h3>
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                📸 인바디 결과지 예시:
+              </p>
+              <img
+                src={examGood}
+                alt="인바디 결과지 예시"
+                className="max-w-xs mx-auto border border-gray-300 rounded-lg shadow-sm"
+              />
+            </div>
+            <p className="text-red-500">
+              빨간 부분은 중요하지 않은 부분입니다. 빨간 부분을 제외한 부분을
+              촬영해주세요.
+            </p>
+          </div>
+
+          <div className="mb-6">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+            />
+          </div>
+
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={handleOcrAnalysis}
+              // disabled={!file || isProcessing}
+              className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {isProcessing ? "분석 중..." : "OCR 분석 시작"}
+            </button>
+            <button
+              onClick={handleBackToSelection}
+              className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            >
+              뒤로가기
+            </button>
+          </div>
         </div>
       )}
       <ToastContainer />
