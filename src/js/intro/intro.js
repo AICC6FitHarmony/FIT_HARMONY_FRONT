@@ -9,7 +9,6 @@ const useGetIntroData = () => {
     return async function getIntroData({callback}) {
         try {
             const result = await request(`/`, { method: "get" });
-            console.log("result" , result)
             const { success, message, data } = result;
             
             if (success) {

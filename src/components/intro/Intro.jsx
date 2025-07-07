@@ -24,7 +24,7 @@ const Intro = () => {
   return (
     <div className="min-h-screen bg-white text-black p-6 font-sans px-10">
       <div className="text-center">
-        <h1 className="text-5xl font-bold mb-2">Fit Harmony</h1>
+        <h1 className="text-5xl font-bold mb-2">{introData?.data?.diet[0].file_id} {introData?.data?.communityHot[0].post_id}  </h1>
         {user?.isLoggedIn ? (
           <div className="text-sm">{user.user.nickName}님 환영 합니다</div>
         ) : (
@@ -36,10 +36,10 @@ const Intro = () => {
           </button>
         )}
       </div>
-
-      <IntroDiet data={introData?.data?.diet} />
+      
+      <IntroDiet getDietData={introData?.data?.diet} />
       <IntroCommunity getHotData={introData?.data?.communityHot} getLatestData={introData?.data?.communityLatest} />
-      <IntroTrainer data={introData?.data?.trainer} />
+      <IntroTrainer getTrainerData={introData?.data?.trainer} />
     </div>
   );
 };
