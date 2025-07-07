@@ -44,12 +44,13 @@ const TrainerCarousel = ({ data }) => {
         data.map((item, idx) => (
           <SwiperSlide key={idx}>
             <div className="text-center">
-              <div className="border-1 h-24 w-24 mx-auto rounded-md flex items-center justify-center text-2xl font-bold">
+              <div className="border-1 h-24 w-24 mx-auto rounded-md flex items-center justify-center text-2xl font-bold overflow-hidden">
                 <img
                   src={`${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${
                     item.fileId
                   }`}
                   alt=""
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div className="text-xs mt-1 whitespace-pre-line">
