@@ -5,7 +5,7 @@ const IntroCommunity = ({getHotData, getLatestData}) => {
   const [latestData , setLatestData] = useState();
   useEffect(()=>{
     setHotData(getHotData);
-    setLatestData(getLatestData);  
+    setLatestData(getLatestData);
   },[getHotData,getLatestData])
 
   return (

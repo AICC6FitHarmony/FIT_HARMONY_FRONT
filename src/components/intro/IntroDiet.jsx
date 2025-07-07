@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -6,9 +6,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-const items = Array.from({ length: 20 }, (_, i) => i + 1); // [1, 2, ..., 20]
-
-const DietCarousel = () => {
+const DietCarousel = ({ data }) => {
   return (
     <Swiper
       modules={[Navigation, Pagination]}
@@ -42,16 +40,23 @@ const DietCarousel = () => {
       }}
       className="diet-swiper"
     >
-      {items.map((item) => (
-        <SwiperSlide key={item}>
-          <div className="text-center">
-            <div className="bg-gray-200 h-24 w-24 mx-auto rounded-md flex items-center justify-center text-2xl font-bold">
-              {item}
+      {data &&
+        data.map((item, idx) => (
+          <SwiperSlide key={idx}>
+            <div className="text-center">
+              <div className="border-1 h-24 w-24 mx-auto rounded-md flex items-center justify-center text-2xl font-bold overflow-hidden">
+                <img
+                  src={`${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${
+                    item.fileId
+                  }`}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <p className="text-sm mt-1">{item.dietMainMenuName}</p>
             </div>
-            <p className="text-sm mt-1">설명</p>
-          </div>
-        </SwiperSlide>
-      ))}
+          </SwiperSlide>
+        ))}
       <div className="swiper-button-prev-diet absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center cursor-pointer">
         <IoIosArrowBack />
       </div>
@@ -63,11 +68,15 @@ const DietCarousel = () => {
   );
 };
 
-const IntroDiet = () => {
+const IntroDiet = ({ getDietData }) => {
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    setData(getDietData);
+  }, [getDietData]);
   return (
     <div className="mt-10">
       <h2 className="text-lg font-semibold mb-4">인기 식단</h2>
-      <DietCarousel />
+      <DietCarousel data={data} />
     </div>
   );
 };

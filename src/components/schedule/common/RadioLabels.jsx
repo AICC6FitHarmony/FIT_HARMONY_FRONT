@@ -17,7 +17,8 @@ const RadioLabels = ({labels, labelId, labelName, radioUseState, radioUseStateHa
                           </label>
                           <div>{label.codeName}</div>
                           <input 
-                                type="radio" 
+                                type="radio"
+                                className='hidden'
                                 name={labelName} 
                                 id={`${labelId}-${label.codeId}`} 
                                 value={label.codeId} 

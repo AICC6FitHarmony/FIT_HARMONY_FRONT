@@ -1,12 +1,31 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { AddressSelectorWithModal } from './AddressSelector';
 import InputWithLabel from '../../cmmn/InputWithLabel';
+import { createGym, getGyms } from '../../../js/login/gymUtil';
+import ListSelector from '../../cmmn/ListSelector';
 
-const GymSelector = () => {
+const GymSelector = ({setSelect}) => {
   const [newGym, setNewGym] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [zipCode, setZipCode] = useState("");
   const [address, setAddress] = useState("");
+  const [gymList, setGymList] = useState([]);
+
+  const [gymInfo, setGymInfo] = useState({
+    name:"",
+    address:"",
+    addressDetail:""
+  });
+
+  const clearInfo = ()=>{
+    setZipCode("");
+    setAddress("");
+    setGymInfo({
+      name:"",
+      address:"",
+      addressDetail:""
+    })
+  }
 
   const handleComplete = (data) => {
     setZipCode(data.zonecode);
@@ -14,13 +33,55 @@ const GymSelector = () => {
     setIsOpen(false);
   };
 
-  const handleChange = (e)=>{
+  const updateGymList = async () =>{
+    const gyms = await getGyms();
+    setGymList(gyms);
+    // console.log(gyms);
+  }
 
+  useEffect(()=>{
+    
+    updateGymList();
+  },[]);
+
+  const handleChange = (e)=>{
+    const {name, value} = e.target;
+    const newInfo = {
+      ...gymInfo
+    }
+    newInfo[name] = value;
+    setGymInfo(newInfo);
+  }
+  const handleSelect = ({idx, item})=>{
+    // console.log(idx);
+    setSelect&&setSelect(item);
   }
 
   const selectClass = "bg-orange-200 p-1 shadow";
   const unSelectClass = "bg-orange-50 p-1 text-gray-400";
 
+  const handleAdd = async()=>{
+    // 조건 체크
+    if(!gymInfo.name.trim()){
+      return;
+    }
+    if(!address.trim()){
+      return;
+    }
+    if(!gymInfo.addressDetail.trim()){
+      return;
+    }
+
+    const body = {
+      gym_name : gymInfo.name.trim(),
+      gym_address : `${address.trim()}, ${gymInfo.addressDetail.trim()}`
+    }
+    const res = await createGym(body);
+    console.log(res);
+    await updateGymList();
+    setSelect(res[0]);
+    clearInfo();
+  }
 
   return (
     <div>
@@ -33,15 +94,38 @@ const GymSelector = () => {
         <InputWithLabel
           label={"이름"}
         />
+        <div className='h-[15rem] border border-neutral-300 rounded-sm shadow-xl'>
+          <ListSelector 
+            list={gymList} 
+            onSelect={handleSelect} 
+            className=""
+            Template={
+              ({item})=>(
+                <div className='w-full px-2 py-2 px-1'>
+                  <div className="title font-bold">
+                    {item.gym}
+                  </div>
+                  <div className="address text-[.7rem]">
+                    {item.gymAddress}
+                  </div>
+                </div>
+              )
+            }/>
+        </div>
       </div>
 
-
-
       <div className={`new-gym pt-[1rem] flex flex-col gap-2 ${newGym?"":"hidden"}`}>
+        <InputWithLabel
+          label={"이름"}
+          name={"name"}
+          value={gymInfo.name}
+          onChange={handleChange}
+          placeholder={"소속 체육관(단체) 이름을 적어주세요."}
+        />
+        <AddressSelectorWithModal isOpen={isOpen} setIsOpen={setIsOpen} setAddress={setAddress}/>
         <div className='flex justify-end'>
           <div onClick={()=>setIsOpen(true)} className='w-[6rem] cursor-pointer text-center rounded-sm border'>주소 검색</div>
         </div>
-        <AddressSelectorWithModal isOpen={isOpen} setIsOpen={setIsOpen} setAddress={setAddress}/>
         <InputWithLabel
           label={"주소"}
           name={"address"}
@@ -52,16 +136,18 @@ const GymSelector = () => {
         />
         <InputWithLabel
           label={"상세"}
-          name={"address_detail"}
+          name={"addressDetail"}
           onChange={handleChange}
+          value={gymInfo.addressDetail}
           placeholder={"상세 주소를 입력해 주세요."}
         />
-        <InputWithLabel
-          label={"이름"}
-          name={"gym_name"}
-          onChange={handleChange}
-          placeholder={"소속 체육관(단체) 이름을 적어주세요."}
-        />
+        <div className='flex justify-end'>
+          <div 
+            onClick={handleAdd}
+            className='w-fit h-fit py-1 px-10 rounded-sm border cursor-pointer'>
+            추가
+          </div>
+        </div>
       </div>
     </div>
   )

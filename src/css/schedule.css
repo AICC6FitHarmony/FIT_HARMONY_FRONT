@@ -66,6 +66,7 @@
 }
 
 
+
 @media screen and (max-width: 767px) {
     .schedule-header-wrapper {
         flex-direction: column-reverse;
