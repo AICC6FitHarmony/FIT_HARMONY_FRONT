@@ -21,7 +21,7 @@ export const googleRegister = async (formData) => {
   // 2. 직접 리디렉션 (백엔드가 바로 구글로 리디렉션하지 않고 URL만 응답하는 구조)
   const result = await response.json();
   const { redirectUrl } = result;
-  location.href = redirectUrl;
+  location.href = `${import.meta.env.VITE_BACKEND_DOMAIN}/${redirectUrl}`;
   return redirectUrl;
 };
 
