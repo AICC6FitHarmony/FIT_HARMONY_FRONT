@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux';
 
 function App() {
   const isLoading = useSelector((state) => state.loading.isLoading);
+  
   return (
     <BrowserRouter>
       <Header />
