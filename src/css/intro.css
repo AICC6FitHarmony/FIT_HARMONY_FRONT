@@ -3,3 +3,81 @@
     will-change: transform;
     
 }
+
+/* Swiper 커스텀 스타일 */
+.diet-swiper,
+.trainer-swiper {
+    position: relative;
+    padding: 0 40px;
+}
+
+.swiper-button-prev-diet,
+.swiper-button-next-diet,
+.swiper-button-prev-trainer,
+.swiper-button-next-trainer {
+    background: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.swiper-button-prev-diet:hover,
+.swiper-button-next-diet:hover,
+.swiper-button-prev-trainer:hover,
+.swiper-button-next-trainer:hover {
+    background: #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: scale(1.1);
+}
+
+.swiper-button-prev-diet::after,
+.swiper-button-next-diet::after,
+.swiper-button-prev-trainer::after,
+.swiper-button-next-trainer::after {
+    display: none;
+}
+
+.swiper-pagination-diet,
+.swiper-pagination-trainer {
+    position: relative;
+    margin-top: 16px;
+}
+
+.swiper-pagination-bullet {
+    background: #d1d5db;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+    background: #3b82f6;
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* 슬라이드 애니메이션 */
+.swiper-slide {
+    transition: transform 0.3s ease;
+}
+
+.swiper-slide:hover {
+    transform: translateY(-4px);
+}
+
+/* 반응형 조정 */
+@media (max-width: 768px) {
+    .diet-swiper,
+    .trainer-swiper {
+        padding: 0 30px;
+    }
+    
+    .swiper-button-prev-diet,
+    .swiper-button-next-diet,
+    .swiper-button-prev-trainer,
+    .swiper-button-next-trainer {
+        width: 28px;
+        height: 28px;
+    }
+}

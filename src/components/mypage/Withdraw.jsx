@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "./Withdraw.css";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
+import { useUpdateUserActive } from "../../js/mypage/mypage";
+import { userLogout } from "../../js/login/loginUtils";
 
 const withdrawReasons = [
   "서비스 불만족",
@@ -11,12 +13,17 @@ const withdrawReasons = [
   "기타",
 ];
 
-const Withdraw = () => {
+const Withdraw = ({ userId }) => {
   const [reason, setReason] = useState("");
   const [customReason, setCustomReason] = useState("");
   const [agree, setAgree] = useState(false);
+  const [agree2, setAgree2] = useState(false);
+
+  //훅 초기화
+  const updateUserActive = useUpdateUserActive();
 
   const handleReasonChange = (e) => {
+    setAgree2(true);
     setReason(e.target.value);
     const parentLabel = e.target.closest("label");
     if (parentLabel) {
@@ -30,8 +37,9 @@ const Withdraw = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!agree) {
+    if (!agree2) {
+      toast.error("탈퇴 사유를 선택해야 탈퇴가 가능합니다.");
+    } else if (!agree) {
       toast.error("데이터 처리 방침에 동의해야 탈퇴가 가능합니다.");
     } else {
       Swal.fire({
@@ -42,9 +50,28 @@ const Withdraw = () => {
         cancelButtonText: "취소",
       }).then((result) => {
         if (result.isConfirmed) {
-          Swal.fire({
-            title: "탈퇴가 완료되었습니다.",
-            icon: "success",
+          let reasonData = "";
+          if (reason == "기타") {
+            reasonData = customReason;
+          } else {
+            reasonData = reason;
+          }
+
+          const bodyData = {
+            userId: userId,
+            type: "DELETED",
+            reason: reasonData,
+          };
+          updateUserActive({
+            userId: userId,
+            bodyData,
+            callback: () => {
+              Swal.fire({
+                title: "탈퇴가 완료되었습니다.",
+                icon: "success",
+              });
+              userLogout();
+            },
           });
         }
       });
@@ -60,9 +87,21 @@ const Withdraw = () => {
       cancelButtonText: "취소",
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "계정 비활성화가 완료되었습니다.",
-          icon: "success",
+        const bodyData = {
+          userId: userId,
+          type: "INACTIVE",
+          reason: reason,
+        };
+        updateUserActive({
+          userId: userId,
+          bodyData,
+          callback: () => {
+            Swal.fire({
+              title: "계정 비활성화가 완료되었습니다.",
+              icon: "success",
+            });
+            userLogout();
+          },
         });
       }
     });
