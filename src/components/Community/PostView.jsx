@@ -19,7 +19,7 @@ const PostView = ({}) => {
   const {user} = useAuth();
   const [postHtml, setPostHtml] = useState();
   const [postInfo, setPostInfo] = useState({
-    title:"", nickName:""
+    title:"", nickName:"", userId: ""
   });
   const {postId} = useParams();
 
@@ -42,7 +42,8 @@ const PostView = ({}) => {
       setPostHtml(html);
       setPostInfo({
         title:data.title,
-        nickName:data.nickName
+        nickName:data.nickName,
+        userId:data.userId
       })
     };
     fetchPost();
@@ -78,8 +79,15 @@ const PostView = ({}) => {
       <div className='post_body rounded-sm min-h-[400px] p-2' dangerouslySetInnerHTML={{ __html: postHtml }}/>
       <div className='w-full h-[2px] bg-green-700'/>
       <div className='controls py-2 flex justify-end gap-3'>
-        <Link to={`/community/${postId}/update`}>수정</Link>
-        <button onClick={handleDelete}>삭제</button>
+        {
+          (user&&user.user&&user.user.userId == postInfo.userId)&&
+          (
+          <div className='font-bold flex gap-2'>
+            <Link to={`/community/${postId}/update`}>수정</Link>
+            <button onClick={handleDelete}>삭제</button>
+          </div>
+          )
+        }
       </div>
       
       </div>

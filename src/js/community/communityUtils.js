@@ -21,10 +21,35 @@ export const postUpdate = async (formData)=>{
 }
 
 export const getPosts = async (board_id, setPosts)=>{
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/${board_id}`);
+  const url = `${import.meta.env.VITE_BACKEND_DOMAIN}/community/${board_id}${query}`;
+
+  const response = await fetch(url);
   const res = await response.json();
   // console.log(res);
   setPosts(res);
+  console.log(res);
+  return res;
+}
+
+export const searchQuery = ({board_id, keyword, key_type, page})=>{
+  const queryStrings = [];
+  keyword&&queryStrings.push(`keyword=${keyword}`);
+  page&&queryStrings.push(`page=${page}`);
+  key_type&&queryStrings.push(`key_type=${key_type}`);
+  console.log(queryStrings);
+  const query = `${board_id?board_id:""}?${queryStrings.join('&')}`;
+  return query;
+}
+
+export const searchPost = async ({board_id, query, setPosts})=>{
+
+  const url = `${import.meta.env.VITE_BACKEND_DOMAIN}/community/${board_id}${query}`;
+
+  const response = await fetch(url);
+  const res = await response.json();
+  // console.log(res);
+  setPosts(res);
+  console.log(res);
   return res;
 }
 
