@@ -6,9 +6,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-
-const TrainerCarousel = ({data}) => {
- 
+const TrainerCarousel = ({ data }) => {
   return (
     <Swiper
       modules={[Navigation, Pagination]}
@@ -42,18 +40,25 @@ const TrainerCarousel = ({data}) => {
       }}
       className="trainer-swiper"
     >
-       {data && data.map((item, idx) => (
-        <SwiperSlide key={idx}>
-          <div className="text-center">
-          <span>파일 권한 제거해야함</span>
-            {/* <img src={`${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${item.fileId}`} alt="" /> */}
-            <div className="text-xs mt-1 whitespace-pre-line">
-              {item.nickName}
-              {item.fitGoal}
+      {data &&
+        data.map((item, idx) => (
+          <SwiperSlide key={idx}>
+            <div className="text-center">
+              <div className="border-1 h-24 w-24 mx-auto rounded-md flex items-center justify-center text-2xl font-bold">
+                <img
+                  src={`${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${
+                    item.fileId
+                  }`}
+                  alt=""
+                />
+              </div>
+              <div className="text-xs mt-1 whitespace-pre-line">
+                {item.nickName}
+                {item.fitGoal}
+              </div>
             </div>
-          </div>
-        </SwiperSlide>
-      ))}
+          </SwiperSlide>
+        ))}
       <div className="swiper-button-prev-trainer absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center cursor-pointer">
         <IoIosArrowBack />
       </div>
@@ -65,11 +70,11 @@ const TrainerCarousel = ({data}) => {
   );
 };
 
-const IntroTrainer = ({getTrainerData}) => {
-  const [data , setData] = useState([]);
-  useEffect(() =>{
-    setData(getTrainerData)
-  },[getTrainerData])
+const IntroTrainer = ({ getTrainerData }) => {
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    setData(getTrainerData);
+  }, [getTrainerData]);
 
   return (
     <div className="mt-10">

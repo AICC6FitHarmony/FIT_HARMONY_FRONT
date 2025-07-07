@@ -40,17 +40,22 @@ const DietCarousel = ({ data }) => {
       }}
       className="diet-swiper"
     >
-      {data && data.map((item, idx) => (
-        <SwiperSlide key={idx}>
-          <div className="text-center">
-            <div className="border-1 h-24 w-24 mx-auto rounded-md flex items-center justify-center text-2xl font-bold">
-              <span>파일 권한 제거해야함</span>
-              {/* <img src={`${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${item.fileId}`} alt="" /> */}
+      {data &&
+        data.map((item, idx) => (
+          <SwiperSlide key={idx}>
+            <div className="text-center">
+              <div className="border-1 h-24 w-24 mx-auto rounded-md flex items-center justify-center text-2xl font-bold">
+                <img
+                  src={`${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${
+                    item.fileId
+                  }`}
+                  alt=""
+                />
+              </div>
+              <p className="text-sm mt-1">{item.dietMainMenuName}</p>
             </div>
-            <p className="text-sm mt-1">{item.dietMainMenuName}</p>
-          </div>
-        </SwiperSlide>
-      ))}
+          </SwiperSlide>
+        ))}
       <div className="swiper-button-prev-diet absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center cursor-pointer">
         <IoIosArrowBack />
       </div>
