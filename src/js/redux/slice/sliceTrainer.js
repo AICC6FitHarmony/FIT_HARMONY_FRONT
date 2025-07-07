@@ -18,7 +18,6 @@ export const fetchTrainers = createAsyncThunk(
 export const fetchTrainerDetail = createAsyncThunk(
   'trainer/fetchTrainerDetail', // > 액션타입 이름으로 사용됨 (redux toolkit 에서 type으로 정해줌)
   async (userId) => {
-    console.log('[🔍] 요청 시작: trainerId =', userId);
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_DOMAIN}/trainer/${userId}`,
       {
@@ -26,6 +25,32 @@ export const fetchTrainerDetail = createAsyncThunk(
       }
     );
     return response.json(); //json 형태로 내보냄
+  }
+);
+
+export const fetchTrainerProduct = createAsyncThunk(
+  'trainer/fetchTrainerProduct',
+  async (userId) => {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_DOMAIN}/trainer/${userId}/product`,
+      {
+        credentials: 'include',
+      }
+    );
+    return response.json();
+  }
+);
+
+export const fetchTrainerReview = createAsyncThunk(
+  'trainer/fetchTrainerReview',
+  async (userId) => {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_DOMAIN}/trainer/${userId}/review`,
+      {
+        credentials: 'include',
+      }
+    );
+    return response.json();
   }
 );
 
@@ -37,6 +62,8 @@ const trainerSlice = createSlice({
       data: [], // 트레이너 정보 배열 (gym, product 정보 포함)
       total: 0, // 총 트레이너 수
       detail: {},
+      product: [],
+      review: [],
     },
     status: 'idle', // status 초기 상태
     error: null,
@@ -70,6 +97,20 @@ const trainerSlice = createSlice({
       .addCase(fetchTrainerDetail.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
+      })
+      .addCase(fetchTrainerProduct.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchTrainerProduct.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.trainers.product = action.payload.data;
+      })
+      .addCase(fetchTrainerReview.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchTrainerReview.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.trainers.review = action.payload.data;
       });
   },
 });
