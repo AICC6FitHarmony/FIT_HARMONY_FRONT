@@ -103,7 +103,6 @@ const Schedule = () => {
       getCalendarScheduleList();
     }, [calendarTerm]) // 캘린더에 시작 - 끝 일자 변경 감지
 
-
     // calendar 용 스케쥴 조회 함수(function)
     const getScheduleList = useGetScheduleList();
     const getCalendarScheduleList = async () => {
@@ -361,7 +360,6 @@ const Schedule = () => {
                             let params = {
                                 ...calendarTerm,
                                 callback : (data) => {
-                                    console.log("????????????????????")
                                     dispath(setScheduleList(data)); // 스케쥴리스트 리덕스 스토어 값 변경
                                     setDateCellModal(scheduleModal.selectDate);
                                 }

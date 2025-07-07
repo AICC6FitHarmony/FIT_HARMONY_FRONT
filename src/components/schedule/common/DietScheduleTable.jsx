@@ -33,41 +33,41 @@ const DietScheduleTable = ({data, selectDate, dietRegCallback}) => {
     }, [file])
 
     const upload = async () => {
-        // const uploadFormData = new FormData();
-        // uploadFormData.append('file', file);
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
 
-        // const upload = await fileUpload(uploadFormData);
+        const upload = await fileUpload(uploadFormData);
 
-        // const option = {
-        //     method:'POST',
-        //     body : {
-        //         fileId : upload.fileIdArr[0],
-        //     }
-        // }
+        const option = {
+            method:'POST',
+            body : {
+                fileId : upload.fileIdArr[0],
+            }
+        }
         
-        // const dietResult = await request('/schedule/requestAiDiet', option);
+        const dietResult = await request('/schedule/requestAiDiet', option);
 
-        // if(dietResult.success){
-        //     const updateGroupIdResult = await updateGroupId({groupId : upload.groupId, newGroupId: `diet-${dietResult.dietId}`});
-        //     if(updateGroupIdResult.success){
+        if(dietResult.success){
+            const updateGroupIdResult = await updateGroupId({groupId : upload.groupId, newGroupId: `diet-${dietResult.dietId}`});
+            if(updateGroupIdResult.success){
                 if(dietRegCallback){
                     dietRegCallback();
                 }
-        //     }else{
-        //         toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
-        //             position: "bottom-center"
-        //         });
-        //     }
-        // }else{
-        //     toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
-        //         position: "bottom-center"
-        //     });
-        // }
+            }else{
+                toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
+                    position: "bottom-center"
+                });
+            }
+        }else{
+            toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
+                position: "bottom-center"
+            });
+        }
     }
 
     // 최초 진입 처리
     useEffect(() => {
-        let totalCal = data.reduce((sum, item) => sum + item.totalCalorie, 0);
+        let totalCal = data?.reduce((sum, item) => sum + item.totalCalorie, 0);
         setTotalCal(totalCal)
     }, [])
 
@@ -75,7 +75,7 @@ const DietScheduleTable = ({data, selectDate, dietRegCallback}) => {
       <div className='w-full h-full flex flex-col justify-start'>
           <h2 className='text-2xl font-bold mb-3'>식단(ToDay Total : {totalCal})</h2>
           <div className='h-full max-h-[500px] overflow-y-auto'>
-            <table className='w-full'>
+            <table className='w-full bg-white'>
                 <colgroup>
                     <col width="30%"/>
                     <col width="80%"/>
