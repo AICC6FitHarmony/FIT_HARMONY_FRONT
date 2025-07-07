@@ -458,25 +458,27 @@ const Schedule = () => {
 
 
                         </div> : 
-                        <form ref={updateSchedulStatusForm} onSubmit={sendRequestUpdateSchedulStatus}>
-                          <input type="hidden" name="scheduleId" value={modalData.data.scheduleId} />
+                        <>
                           <h2 className='text-center font-bold text-2xl'>{modalData.scheduleText}</h2>
-                          {
-                            (modalData.alertText && (<div className='text-sm text-center text-red-500'>{modalData.alertText}</div>))
-                          }
-                          {
-                            (!modalData.alertText && (
-                                <div className='flex justify-between mt-5 ml-10 mr-10'>
-                                    <RadioLabels 
-                                        labels={labels} 
-                                        labelId="label-status"
-                                        labelName="status"
-                                        radioUseState={updateStatusRadio} 
-                                        radioUseStateHandleChange={updateStatusRadioHandleChange}/>
-                                </div>
-                              ))
-                          }
-                      </form>
+                          <form ref={updateSchedulStatusForm} onSubmit={sendRequestUpdateSchedulStatus}>
+                            <input type="hidden" name="scheduleId" value={modalData.data.scheduleId} />
+                            {
+                              (modalData.alertText && (<div className='text-sm text-center text-red-500'>{modalData.alertText}</div>))
+                            }
+                            {
+                              (!modalData.alertText && (
+                                  <div className='flex justify-between mt-5 ml-10 mr-10'>
+                                      <RadioLabels 
+                                          labels={labels} 
+                                          labelId="label-status"
+                                          labelName="status"
+                                          radioUseState={updateStatusRadio} 
+                                          radioUseStateHandleChange={updateStatusRadioHandleChange}/>
+                                  </div>
+                                ))
+                            }
+                        </form>
+                      </>
                     )}
 
                     
