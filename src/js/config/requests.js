@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux';
-import { hideLoading, showLoading } from "../redux/slice/loadingSlice";
+import { hideLoading, showLoading } from "../redux/slice/commonSlice";
 import { useRef } from 'react';
 import { toast } from 'react-toastify';
 

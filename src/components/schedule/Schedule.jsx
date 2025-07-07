@@ -33,7 +33,7 @@ import Img from '../common/Img';
 
 
 const Schedule = () => {
-    const isMobile = useSelector(state => state.loading.isMobile); // 모바일 화면인지 체크
+    const isMobile = useSelector(state => state.common.isMobile); // 모바일 화면인지 체크
     const dispath = useDispatch();
 
     // 캘린더 드래그 이벤트

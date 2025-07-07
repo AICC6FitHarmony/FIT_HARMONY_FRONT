@@ -4,15 +4,15 @@
 import { configureStore } from '@reduxjs/toolkit';
 import inbodyReducer from './slice/sliceInbody';
 import trainerReducer from './slice/sliceTrainer';
-import loadingReducer from './slice/loadingSlice';
+import commonReducer from './slice/commonSlice';
 import scheduleReducer from './slice/sliceSchedule';
 
 // 리덕스 툴킷으로 스토어 생성
 const store = configureStore({
   reducer: {
+    common: commonReducer,
     inbody: inbodyReducer,
     trainer: trainerReducer,
-    loading: loadingReducer,
     schedule: scheduleReducer
   },
 });

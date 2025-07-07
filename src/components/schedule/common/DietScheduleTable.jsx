@@ -8,7 +8,7 @@ import Img from '../../common/Img';
 import { useSelector } from 'react-redux';
 
 const DietScheduleTable = ({data, selectDate, dietRegCallback}) => {
-    const isMobile = useSelector(state => state.loading.isMobile); // 모바일 화면인지 체크
+    const isMobile = useSelector(state => state.common.isMobile); // 모바일 화면인지 체크
     
     const [totalCal, setTotalCal] = useState();
     
@@ -74,7 +74,7 @@ const DietScheduleTable = ({data, selectDate, dietRegCallback}) => {
     return (
       <div className='w-full h-full flex flex-col justify-start'>
           <h2 className='text-2xl font-bold mb-3'>식단(ToDay Total : {totalCal})</h2>
-          <div className='h-full max-h-[500px] overflow-y-auto'>
+          <div className='h-full max-h-[450px] overflow-y-auto'>
             <table className='w-full bg-white'>
                 <colgroup>
                     <col width="30%"/>

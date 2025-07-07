@@ -5,7 +5,7 @@ import { useUpdateScheduleStatus } from '../../../js/schedule/schedule';
 import { useSelector } from 'react-redux';
 
 const DayScheduleTable = ({data, labels, radioChangeCallback}) => {
-    const isMobile = useSelector(state => state.loading.isMobile); // 모바일 화면인지 체크
+    const isMobile = useSelector(state => state.common.isMobile); // 모바일 화면인지 체크
     const [raidoCheck, setRadioCheck] = useState();
 
     const [excersizeScheduleList, setExcersizeScheduleList] = useState([]);
