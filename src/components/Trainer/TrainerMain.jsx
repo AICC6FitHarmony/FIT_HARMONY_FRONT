@@ -8,6 +8,7 @@ import { FaListUl, FaStar } from 'react-icons/fa6';
 import aa from '../Trainer/test/aa.png';
 import { useNavigate } from 'react-router-dom';
 import { MdDialpad } from 'react-icons/md';
+import TrainerMapModal from './TrainerMapModal'; // 위에서 만든 컴포넌트
 
 const TrainerMain = () => {
   const dispatch = useDispatch();
@@ -18,32 +19,33 @@ const TrainerMain = () => {
   const [search, setSearch] = useState('');
   const [searchResult, setSearchResult] = useState([]);
   const [filteredResult, setFilteredResult] = useState([]);
-  const [displayedResult, setDisplayedResult] = useState([]); // 현재 페이지에 표시할 데이터
+  const [displayedResult, setDisplayedResult] = useState([]);
   const [listMode, setListMode] = useState('grid');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [sortBy, setSortBy] = useState('최신순');
+  const [showMapModal, setShowMapModal] = useState(false); // 지도 모달 상태 추가
 
   // 필터 상태
   const [filters, setFilters] = useState({
-    rating: 0, // 별점
-    gender: '', // 성별
-    location: '', // 지역
-    categories: [], // 종류 (PT, 수영, 요가 등)
-    minPrice: 10000, // 최소 가격
-    maxPrice: 500000, // 최대 가격
+    rating: 0,
+    gender: '',
+    location: '',
+    categories: [],
+    minPrice: 10000,
+    maxPrice: 500000,
   });
 
-  // 페이지 관리 - 프론트엔드에서 처리
+  // 페이지 관리
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
 
-  // 백엔드에서 초기 데이터 가져오기 (한 번만 실행)
+  // 백엔드에서 초기 데이터 가져오기
   useEffect(() => {
     dispatch(
       fetchTrainers({
-        limit: 1000, // 모든 데이터를 가져와서 프론트엔드에서 처리
+        limit: 1000,
         offset: 0,
       })
     );
@@ -54,12 +56,9 @@ const TrainerMain = () => {
     if (!trainersData || !Array.isArray(trainersData)) return [];
 
     return trainersData.map((trainer) => {
-      // 성별 변환 (M -> 남, F -> 여)
       const genderMap = { M: '남', F: '여' };
       const gender = genderMap[trainer.gender] || trainer.gender || '정보없음';
-
-      // 카테고리 설정 (실제 데이터가 없으므로 기본값 설정)
-      const categories = ['PT']; // 기본 카테고리, 추후 백엔드에서 카테고리 정보가 오면 수정
+      const categories = ['PT'];
 
       return {
         userId: trainer.userId,
@@ -69,7 +68,7 @@ const TrainerMain = () => {
           gym: trainer.gym,
           gymAddress: trainer.gymAddress,
         },
-        minPrice: trainer.minPrice, // 백엔드에서 min 컬럼으로 최소가격 제공
+        minPrice: trainer.minPrice,
         rating: trainer.rating || 0,
         reviewCount: trainer.reviewCount || 0,
         categories: categories[0] || 'PT',
@@ -77,7 +76,7 @@ const TrainerMain = () => {
         priceRange: trainer.minPrice
           ? `${trainer.minPrice.toLocaleString()}원부터`
           : '가격 정보 없음',
-        introduction: '전문 트레이너입니다.', // 기본 소개글, 추후 백엔드에서 제공되면 수정
+        introduction: '전문 트레이너입니다.',
       };
     });
   };
@@ -85,12 +84,7 @@ const TrainerMain = () => {
   // 백엔드 데이터 변환 및 초기 설정
   useEffect(() => {
     if (status === 'succeeded' && trainers) {
-      console.log('Raw trainers data:', trainers);
-
-      // 백엔드에서 받은 데이터 변환
       const transformedTrainers = transformTrainerData(trainers.data);
-      console.log('Transformed trainers:', transformedTrainers);
-
       setSearchResult(transformedTrainers);
     }
   }, [status, trainers]);
@@ -98,25 +92,18 @@ const TrainerMain = () => {
   // 필터 적용 함수
   const applyFilters = (data) => {
     return data.filter((trainer) => {
-      // 별점 필터
       if (filters.rating > 0 && trainer.rating < filters.rating) {
         return false;
       }
-
-      // 성별 필터
       if (filters.gender && trainer.gender !== filters.gender) {
         return false;
       }
-
-      // 지역 필터
       if (
         filters.location &&
         !trainer.gym?.gymAddress?.includes(filters.location)
       ) {
         return false;
       }
-
-      // 종류 필터 - 모든 카테고리에서 확인
       if (
         filters.categories.length > 0 &&
         !filters.categories.some((category) =>
@@ -125,8 +112,6 @@ const TrainerMain = () => {
       ) {
         return false;
       }
-
-      // 가격 필터 - minPrice가 있을 때만 적용
       if (
         trainer.minPrice &&
         (trainer.minPrice < filters.minPrice ||
@@ -134,7 +119,6 @@ const TrainerMain = () => {
       ) {
         return false;
       }
-
       return true;
     });
   };
@@ -143,7 +127,6 @@ const TrainerMain = () => {
   useEffect(() => {
     let result = searchResult;
 
-    // 검색어 필터링
     if (search.trim()) {
       const keyword = search.trim().toLowerCase();
       result = result.filter(
@@ -154,13 +137,11 @@ const TrainerMain = () => {
       );
     }
 
-    // 필터 적용
     result = applyFilters(result);
-
     setFilteredResult(result);
     setTotalItems(result.length);
     setTotalPages(Math.ceil(result.length / itemsPerPage));
-    setCurrentPage(1); // 필터 변경 시 첫 페이지로 이동
+    setCurrentPage(1);
   }, [searchResult, search, filters]);
 
   // 페이지 변경 시 표시할 데이터 계산
@@ -184,11 +165,6 @@ const TrainerMain = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showSortDropdown]);
-
-  console.log('Trainers data:', trainers);
-  console.log('Filtered result:', filteredResult);
-  console.log('Displayed result:', displayedResult);
-  console.log('Current page:', currentPage, 'Total pages:', totalPages);
 
   const handleSearch = () => {
     // 검색은 useEffect에서 자동으로 처리됨
@@ -245,7 +221,6 @@ const TrainerMain = () => {
         case '리뷰 많은 순':
           return (b.reviewCount || 0) - (a.reviewCount || 0);
         case '조회순':
-          // 실제 조회수 데이터가 없다면 userId 기준 (임시)
           return b.userId - a.userId;
         case '별점순':
           return (b.rating || 0) - (a.rating || 0);
@@ -255,7 +230,7 @@ const TrainerMain = () => {
           return (b.minPrice || 0) - (a.minPrice || 0);
         case '최신순':
         default:
-          return b.userId - a.userId; // 최신 가입한 트레이너 순
+          return b.userId - a.userId;
       }
     });
 
@@ -269,6 +244,11 @@ const TrainerMain = () => {
   const navigate = useNavigate();
   const handleReadMore = (userId) => {
     navigate(`/trainer/${userId}`);
+  };
+
+  // 지도에서 트레이너 선택 시 처리
+  const handleTrainerSelectFromMap = (trainer) => {
+    handleReadMore(trainer.userId);
   };
 
   // 페이지 번호 생성
@@ -350,7 +330,7 @@ const TrainerMain = () => {
       <div className="search-results flex mt-10">
         <div className="flex w-full gap-5 p-3">
           {/* 필터 사이드바 */}
-          <div className="trainer-navbar w-[20%]  mb-30 sticky z-10 top-20 border-2 border-gray-200 bg-white rounded-lg shadow-md p-4 h-fit">
+          <div className="trainer-navbar w-[20%] mb-30 sticky z-10 top-20 border-2 border-gray-200 bg-white rounded-lg shadow-md p-4 h-fit">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">필터 검색</h3>
               <button
@@ -427,6 +407,12 @@ const TrainerMain = () => {
                 </span>
                 지역
               </h4>
+              <button
+                onClick={() => setShowMapModal(true)}
+                className="hover:text-green-500 cursor-pointer text-blue-600 underline mb-2"
+              >
+                지도로 보기
+              </button>
               <div className="relative">
                 <input
                   type="text"
@@ -534,7 +520,6 @@ const TrainerMain = () => {
                   {sortBy} <TiArrowSortedDown />
                 </button>
 
-                {/* 정렬 드롭다운 */}
                 {showSortDropdown && (
                   <div className="absolute top-12 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 w-36">
                     <ul className="py-2">
@@ -694,6 +679,13 @@ const TrainerMain = () => {
           </div>
         </div>
       </div>
+
+      <TrainerMapModal
+        isOpen={showMapModal}
+        onClose={() => setShowMapModal(false)}
+        trainers={filteredResult}
+        onTrainerSelect={handleTrainerSelectFromMap}
+      />
     </div>
   );
 };

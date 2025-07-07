@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import {
   fetchTrainerDetail,
@@ -36,11 +36,11 @@ const TrainerReadMore = () => {
   const product = useSelector((state) => state.trainer.trainers.product);
   const review = useSelector((state) => state.trainer.trainers.review);
 
-  // 디버깅용 useEffect
+  // // 디버깅용 useEffect
 
-  useEffect(() => {
-    console.log('Error:', review);
-  }, [review]);
+  // useEffect(() => {
+  //   console.log('Error:', review);
+  // }, [review]);
 
   const handleConsultationRequest = () => {
     alert('상담 요청이 접수되었습니다! 곧 연락드리겠습니다.');
@@ -223,7 +223,9 @@ const TrainerReadMore = () => {
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-semibold text-orange-600">
-                            {p.price.toLocaleString()}원
+                            {p.price != null
+                              ? `${p.price.toLocaleString()}원`
+                              : '정보없음'}
                           </p>
                         </div>
                       </div>
@@ -336,6 +338,12 @@ const TrainerReadMore = () => {
                   </div>
                 )}
               </div>
+              <Link
+                to={`/trainer/review/${userId}`}
+                className="text-center my-4 hover:text-green-500 cursor-pointer block"
+              >
+                리뷰 전체보기
+              </Link>
             </div>
           </div>
 
