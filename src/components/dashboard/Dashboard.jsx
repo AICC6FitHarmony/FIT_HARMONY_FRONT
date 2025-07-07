@@ -9,10 +9,7 @@ import DietCalCharts from '../schedule/common/DietCalCharts';
 import { useRequest } from '../../js/config/requests';
 
 const Dashboard = () => {
-    const isMobile = useSelector(state => state.loading.isMobile); // 모바일 화면인지 체크
-
-    const isLoading = useSelector(state => state.loading.isLoading); // 로딩 체크
-
+    const isMobile = useSelector(state => state.common.isMobile); // 모바일 화면인지 체크
     const request = useRequest();
     const dispath = useDispatch();
 

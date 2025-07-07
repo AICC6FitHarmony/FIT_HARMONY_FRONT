@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Home from './components/cmmn/Home';
 import Login from './components/login/Login';
-import AuthGoogleResult from './components/cmmn/AuthGoogleResult';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import Intro from './components/intro/Intro';
@@ -14,7 +13,7 @@ import Community from './components/Community/Community';
 import { useSelector } from 'react-redux';
 
 function App() {
-  const isLoading = useSelector((state) => state.loading.isLoading);
+  const isLoading = useSelector((state) => state.common.isLoading);
   
   return (
     <BrowserRouter>
@@ -29,8 +28,6 @@ function App() {
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/trainer/*" element={<Trainer />} />
           <Route path="/community/*" element={<Community />} />
-          {/* 구글 인증 처리 후 동작 페이지 */}
-          <Route path="/auth/google/result" element={<AuthGoogleResult />} />
         </Routes>
 
         {isLoading && (
