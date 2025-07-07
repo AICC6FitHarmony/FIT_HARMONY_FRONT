@@ -14,11 +14,14 @@ import { useSelector } from 'react-redux';
 
 function App() {
   const isLoading = useSelector((state) => state.common.isLoading);
+
+
+  const isTrainerMatchMember = useSelector(state => state.common.isTrainerMatchMember);
   
   return (
     <BrowserRouter>
       <Header />
-      <div className="content-wrapper bg-orange-50">
+      <div className={`content-wrapper bg-orange-50${(isTrainerMatchMember ? ' trainer-match-wrapper' : '')}`}>
         <Routes>
           <Route path="/" element={<Intro />} />
           <Route path="/login/*" element={<Login />} />
