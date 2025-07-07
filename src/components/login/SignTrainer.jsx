@@ -9,6 +9,7 @@ import SignNav from "./common/SignNav";
 import SignGym from "./common/SignGym";
 import InputWithLabel from "../cmmn/InputWithLabel";
 import { googleRegister } from "../../js/login/loginUtils";
+import ListMultiSelector from "../cmmn/ListMultiSelector";
 
 const SignTrainer = () => {
   const idxMax = 4;
@@ -39,13 +40,17 @@ const SignTrainer = () => {
     await googleRegister(formData);
   };
 
-  const handleChangeValue = (e) => {
-    const { name, value } = e.target;
+  const ChangeValue = ({name,value})=>{
     const newInfo = {
       ...userInfo,
     };
     newInfo[name] = value;
     setUserInfo(newInfo);
+  }
+
+  const handleChangeValue = (e) => {
+    const { name, value } = e.target;
+    ChangeValue({name,value});
   };
 
   const handleInputNumber = (e) => {
@@ -107,6 +112,12 @@ const SignTrainer = () => {
       return;
     handleSign();
   };
+
+  const handleGoalMultiSelect = ({selects, list})=>{
+    const text =list.filter((item, idx)=> selects[idx]).join(";");
+    ChangeValue({name:"goal", value:text});
+  }
+
   return (
     <div className="sign-box bg-white shadow-xl relative w-1/3">
       <form action="">
@@ -139,22 +150,29 @@ const SignTrainer = () => {
             isWaring={userInfo.history < 0 || userInfo.history >100}/>
           </SignInputTab>
           <SignInputTab idx={tabIdx} thisIdx={3}>
-            <SignSelectText
-              infoHeader="types"
-              title="어떤 운동을 제공 할 수 있나요?"
-              texts={[
-                "헬스 PT",
-                "필라테스",
-                "요가",
-                "바디발란스",
-                "복싱",
-                "수영",
-              ]}
-              userInfo={userInfo}
-              setUserInfo={setUserInfo}
-              handleChangeValue={handleChangeValue}
-              handleInputNumber={handleInputNumber}
-            />
+            <ListMultiSelector
+              list={
+                [
+                  "헬스 PT",
+                  "필라테스",
+                  "요가",
+                  "바디발란스",
+                  "복싱",
+                  "수영",
+                ]
+              }
+              onSelect={handleGoalMultiSelect}
+              Template={
+                ({item, selected})=>(
+                  <div className="temp select-none py-2 px-1 text-xl text-center relative">
+                    {item}
+                    {
+                      selected&&(<div className="absolute w-full h-[1px] bottom-0 left-0 bg-green-700"/>)
+                    }
+                  </div>
+                )
+              }
+              />            
           </SignInputTab>
           <SignInputTab idx={tabIdx} thisIdx={4}>
             <SignGym
