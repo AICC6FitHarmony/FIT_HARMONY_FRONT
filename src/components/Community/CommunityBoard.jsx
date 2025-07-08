@@ -11,7 +11,7 @@ const CommunityBoard = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const [keyword, setKeyword] = useState();
-  const [keyType, setKeyType] = useState("title");
+  const [keyType, setKeyType] = useState(searchParams.get("key_type")?searchParams.get("key_type"):"title");
   const [pageCount, setPageCount] = useState(1);
   const navigate = useNavigate();
   const [writePermission, setWritePermission] = useState(false);
@@ -22,16 +22,19 @@ const CommunityBoard = () => {
   console.log("writePermission",writePermission);
 
   const getWriteable = async ()=>{
-    if(!boardId) return setWritePermission(true);
-    const wrp= await getPermission({
-      role:user.user.role,
-      boardId:boardId,
-      permission:"write"
-    })
-    setWritePermission(wrp.permission);
+    if(user&&user.user){
+      if(!boardId) return setWritePermission(true);
+      const wrp= await getPermission({
+        role:user.user.role,
+        boardId:boardId,
+        permission:"write"
+      })
+      setWritePermission(wrp.permission);
+    }
   }
 
   const update = async(query)=>{
+    getWriteable();
     const res = await searchPost(
       {
         board_id:boardId,
@@ -41,15 +44,13 @@ const CommunityBoard = () => {
     );
     console.log("res.data.pageCount",res.data.pageCount)
     setPageCount(res.success?res.data.pageCount:1);
-    if(user&&user.user){
-      getWriteable();
-    }
+
+    
+
   };
   
   useEffect(()=>{
-    if(user&&user.user){
-      getWriteable();
-    }
+    getWriteable();
   },[user])
   useEffect(()=>{
     // console.log(location);
@@ -97,7 +98,7 @@ const CommunityBoard = () => {
           <div className="board_action flex justify-between">
             <div className="search px-2 py-1 rounded-sm bg-white shadow-lg flex items-center">
               
-              <select name="" id="" className='rounded-sm py-1 pr-5' onChange={(e)=>{
+              <select name="" id="" className='rounded-sm py-1 pr-5' value={keyType} onChange={(e)=>{
                 setKeyType(e.target.value);
               }}> 
                 <option value="title">제목</option>
