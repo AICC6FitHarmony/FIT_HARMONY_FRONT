@@ -92,7 +92,7 @@ const PostView = ({}) => {
           (
           <div className='font-bold flex gap-2'>
             <Link to={`/community/${postId}/update`}>수정</Link>
-            <button onClick={handleDelete}>삭제</button>
+            <div className=' cursor-pointer' onClick={handleDelete}>삭제</div>
           </div>
           )
         }
