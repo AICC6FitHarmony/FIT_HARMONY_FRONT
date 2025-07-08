@@ -1,5 +1,15 @@
 // import { request } from "../config/requests";
 
+export const getBoards = async ()=>{
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/board/list`);
+  return await response.json();
+}
+
+export const getBoardInfo = async (boardId)=>{
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/board/${boardId}`);
+  return await response.json();
+}
+
 export const postCreate = async (formData)=>{
   const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/post`, {
     method: 'POST',

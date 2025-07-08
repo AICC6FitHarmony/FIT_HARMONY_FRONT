@@ -15,7 +15,7 @@ const CommunityBoard = () => {
   const [pageCount, setPageCount] = useState(1);
   const navigate = useNavigate();
 
-  const page = searchParams.get("page");
+  const page = searchParams.get("page")?searchParams.get("page"):1;
   const page_nav = (Math.floor(page/10)*10);
 
 
@@ -35,7 +35,7 @@ const CommunityBoard = () => {
     update(location.search);
     const keyword = searchParams.get("keyword");
     setKeyword(keyword?keyword:"");
-  },[searchParams])
+  },[searchParams,navigate])
   const handleSearch = async ()=>{
     const query = `${searchQuery(
       {
@@ -165,7 +165,7 @@ const CommunityBoard = () => {
                   console.log(idx, p)
                   if(p > page_nav+10 || p < page_nav+1) return;
                   return (
-                    <div key={p} onClick={handlePageNav(p)} className={`${(p==page)?"font-bold":""} cursor-pointer`}>{idx+1}</div>
+                    <div key={p} onClick={handlePageNav(p)} className={`${(p==page)?"font-bold underline":""} cursor-pointer`}>{idx+1}</div>
                   )
                 })
               }

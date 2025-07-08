@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { deletePost, getPost } from '../../js/community/communityUtils';
+import { deletePost, getBoardInfo, getPost } from '../../js/community/communityUtils';
 import { generateHTML } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -13,11 +13,10 @@ import { useAuth } from '../../js/login/AuthContext';
 import CommentsView from './components/CommentsView';
 import ImageResize from 'tiptap-extension-resize-image';
 
-
-
 const PostView = ({}) => {
   const navigate = useNavigate();
   const {user} = useAuth();
+  const [boardInfo, setBoardInfo] = useState({});
   const [postHtml, setPostHtml] = useState();
   const [postInfo, setPostInfo] = useState({
     title:"", nickName:"", userId: ""
@@ -50,7 +49,10 @@ const PostView = ({}) => {
         title:data.title,
         nickName:data.nickName,
         userId:data.userId
-      })
+      });
+
+      const boardRes = await getBoardInfo(data.categoryId);
+      setBoardInfo(boardRes.data.info);
     };
     fetchPost();
   }, []);
@@ -98,7 +100,10 @@ const PostView = ({}) => {
       
       </div>
       <div className='pt-5'>
-        <CommentsView/>
+        {
+          boardInfo.isComment?(<CommentsView/>):""
+        }
+        
       </div>
     </div>
   )

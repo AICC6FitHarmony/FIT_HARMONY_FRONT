@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import PostEditor from './components/PostEditor';
 import { getPost, postUpdate } from '../../js/community/communityUtils';
 
-const CommunityPostUpdate = () => {
+const CommunityPostUpdate = ({boards}) => {
   const {postId} = useParams();
   const [postData, setPostData] = useState({
     title:"", content:undefined
@@ -11,10 +11,11 @@ const CommunityPostUpdate = () => {
 
   useEffect(()=>{
     const init = async()=>{
-      const data = await getPost(postId);
+      const res = await getPost(postId);
+      const data = res.data;
       // console.log(data);
       setPostData({
-        title:data.title, content:JSON.parse(data.content)
+        title:data.title, content:JSON.parse(data.content), boardId:data.categoryId
       })
     }
 
@@ -33,7 +34,7 @@ const CommunityPostUpdate = () => {
   }
   return (
     <div>
-      <PostEditor handleSubmit={handleUpdate} defaultPost={postData}/>
+      <PostEditor handleSubmit={handleUpdate} defaultPost={postData} boards={boards}/>
     </div>
   )
 }
