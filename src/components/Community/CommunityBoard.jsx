@@ -9,49 +9,70 @@ const CommunityBoard = () => {
   const {boardId} = useParams();
   const [posts, setPosts] = useState([]);
   const [searchParams] = useSearchParams();
-  const page = searchParams.get("page");
   const location = useLocation();
   const [keyword, setKeyword] = useState();
   const [keyType, setKeyType] = useState("title");
+  const [pageCount, setPageCount] = useState(1);
   const navigate = useNavigate();
-  
 
-  useEffect(()=>{
-    console.log(location);
-    searchPost(
-      {
-        board_id:boardId,
-        query:location.search,
-        setPosts
-      }
-    );
-  },[]
-  )
-  const handleSearch = async ()=>{
-    const query = `${searchQuery(
-      {
-        board_id:boardId,
-        page,
-        key_type:keyType,
-        keyword,
-      }
-    )}`
-    const url = `/community/${query}`
-    await navigate(url);
-    searchPost(
+  const page = searchParams.get("page");
+  const page_nav = (Math.floor(page/10)*10);
+
+
+  const update = async(query)=>{
+    const res = await searchPost(
       {
         board_id:boardId,
         query,
         setPosts
       }
     );
+    console.log("res.data.pageCount",res.data.pageCount)
+    setPageCount(res.success?res.data.pageCount:1);
+  };
+  useEffect(()=>{
+    // console.log(location);
+    update(location.search);
+    const keyword = searchParams.get("keyword");
+    setKeyword(keyword?keyword:"");
+  },[searchParams])
+  const handleSearch = async ()=>{
+    const query = `${searchQuery(
+      {
+        board_id:boardId,
+        page:1,
+        key_type:keyType,
+        keyword,
+      }
+    )}`
+    const url = `/community/${query}`
+    await navigate(url);
+    // update(query);
   }
-
+  const handlePageNav = (idx)=>async()=>{
+    const query = `${searchQuery(
+      {
+        board_id:boardId,
+        page:idx,
+        key_type:searchParams.get("key_type"),
+        keyword:searchParams.get("keyword"),
+      }
+    )}`
+    console.log(query, idx);
+    const url = `/community/${query}`
+    await navigate(url);
+    // update(query);
+  }
+  const handlePageMove = (amount) => {
+    const p = Number(page) + amount;
+    if(p<1) return handlePageNav(1);
+    return handlePageNav(p);
+  }
 
   return (
       <div className='board_wrapper p-2'>
         <div className='board_header pb-3'>
-          <div className='board_title text-4xl p-5'>커뮤니티</div>
+          
           <div className="board_action flex justify-between">
             <div className="search px-2 py-1 rounded-sm bg-white shadow-lg flex items-center">
               
@@ -90,6 +111,13 @@ const CommunityBoard = () => {
         <div className="board_body">
           <div className='flex flex-col gap-2'>
           {
+            posts.length===0&&(
+              <div className='bg-white p-2 py-6 text-center rounded-lg shadow-lg'>
+                게시글이 없습니다.
+              </div>
+            )
+          }
+          {
             posts.map((post,idx)=>(
               <div key={post.postId} className='bg-white p-2 rounded-lg shadow-lg'>
                 <div className="post-header flex justify-between">
@@ -118,13 +146,37 @@ const CommunityBoard = () => {
         
         </div>
         <div className="board_footer w-full flex justify-center p-5">
-          <div className="board_nav w-1/3 flex justify-between rounded-sm shadow-lg bg-white py-2 px-3">
-            <button>pre</button>
-            <div className='text-center flex gap-1'>
-              <span>1</span>
-              <span>1</span>
+          <div 
+            className={`
+              board_nav w-1/3 flex justify-between 
+              items-center rounded-sm shadow-lg bg-white 
+              py-2 px-3 ${(posts.length<1)?"hidden":""}`}>
+            <div className='w-[3rem]'>
+            {
+              (page>1)&&(
+                <button className='items-center' onClick={handlePageMove(-1)}>prev</button>
+              )
+            }
             </div>
-            <button>next</button>
+            <div className='text-center flex gap-1'>
+              {
+                [...Array(pageCount)].map((item,idx)=>{
+                  const p = idx+1;
+                  console.log(idx, p)
+                  if(p > page_nav+10 || p < page_nav+1) return;
+                  return (
+                    <div key={p} onClick={handlePageNav(p)} className={`${(p==page)?"font-bold":""} cursor-pointer`}>{idx+1}</div>
+                  )
+                })
+              }
+            </div>
+            <div className='w-[3rem]'>
+            {
+              (page<pageCount)&&(
+                <button  className='items-center' onClick={handlePageMove(1)}>next</button>
+              )
+            }
+            </div>
           </div>
         </div>
       </div>

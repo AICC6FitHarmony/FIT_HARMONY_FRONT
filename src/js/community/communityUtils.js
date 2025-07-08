@@ -48,8 +48,10 @@ export const searchPost = async ({board_id, query, setPosts})=>{
   const response = await fetch(url);
   const res = await response.json();
   // console.log(res);
-  setPosts(res);
-  console.log(res);
+  if(res.success){
+    setPosts(res.data.posts);
+  }
+  // console.log(res);
   return res;
 }
 
@@ -82,7 +84,8 @@ export const getComments = async(postId, setComments)=>{
   const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/comments/${postId}`);
   const res = await response.json();
   // console.log(res);
-  setComments(res);
+  if(res.success)
+    setComments(res.data.comments);
   return res;
 }
 

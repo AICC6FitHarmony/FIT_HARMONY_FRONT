@@ -14,6 +14,9 @@ const Community = () => {
   // console.log(loading);
   return (
       <div>
+        <div className="header">
+          <div className='board_title text-4xl p-5 font-bold text-[#4a902c]'>커뮤니티</div>
+        </div>
         <Routes>
           <Route path='/' element={<CommunityBoard/>}/>
           <Route path='/:boardId' element={<CommunityBoard/>}/>

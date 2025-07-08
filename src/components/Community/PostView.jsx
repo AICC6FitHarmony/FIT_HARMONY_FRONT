@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { deletePost, getPost } from '../../js/community/communityUtils';
 import { generateHTML } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
@@ -16,6 +16,7 @@ import ImageResize from 'tiptap-extension-resize-image';
 
 
 const PostView = ({}) => {
+  const navigate = useNavigate();
   const {user} = useAuth();
   const [postHtml, setPostHtml] = useState();
   const [postInfo, setPostInfo] = useState({
@@ -25,7 +26,12 @@ const PostView = ({}) => {
 
   useEffect(() => {
     const fetchPost = async () => {
-      const data = await getPost(postId);
+      const res = await getPost(postId);
+      if(res.success == false) {
+        navigate("/community")
+        return ;
+      }
+      const data = res.data;
       const json = JSON.parse(data.content);
       const html = generateHTML(json,[
       StarterKit,
