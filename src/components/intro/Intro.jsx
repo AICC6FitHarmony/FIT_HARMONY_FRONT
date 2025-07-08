@@ -6,6 +6,7 @@ import { useGetIntroData } from "../../js/intro/intro";
 import IntroDiet from "./IntroDiet";
 import IntroCommunity from "./IntroCommunity";
 import IntroTrainer from "./IntroTrainer";
+import { Link } from "react-router-dom";
 
 const Intro = () => {
   const { user, loading } = useAuth();
@@ -16,29 +17,32 @@ const Intro = () => {
     getIntroData({
       callback: (result) => {
         setIntroData(result);
-    }
+      },
     });
-  },[]);
-
+  }, []);
 
   return (
     <div className="min-h-screen bg-white text-black p-6 font-sans px-10">
       <div className="text-center">
-        <h1 className="text-5xl font-bold mb-2">{introData?.data?.diet[0].file_id} {introData?.data?.communityHot[0].post_id}  </h1>
         {user?.isLoggedIn ? (
           <div className="text-sm">{user.user.nickName}님 환영 합니다</div>
         ) : (
-          <button className="border mt-2 px-4 py-2 rounded-md text-sm">
-            {/* `${import.meta.env.VITE_BACKEND_DOMAIN}/auth/google` */}
-            <a href="/login" className="flex items-center">
+          <button className="mt-2 px-4 py-2 rounded-md text-sm">
+            <Link
+              to="/login"
+              className="border text-green-700 text-sm hover:bg-green-100 px-3 py-1 rounded-full transition flex items-center"
+            >
               <FcGoogle className="mr-2" /> Login with Google
-            </a>
+            </Link>
           </button>
         )}
       </div>
-      
+
       <IntroDiet getDietData={introData?.data?.diet} />
-      <IntroCommunity getHotData={introData?.data?.communityHot} getLatestData={introData?.data?.communityLatest} />
+      <IntroCommunity
+        getHotData={introData?.data?.communityHot}
+        getLatestData={introData?.data?.communityLatest}
+      />
       <IntroTrainer getTrainerData={introData?.data?.trainer} />
     </div>
   );
