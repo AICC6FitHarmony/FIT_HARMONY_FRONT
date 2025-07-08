@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, redirect, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { getPosts, searchPost, searchQuery } from '../../js/community/communityUtils';
+import { getPermission, getPosts, searchPost, searchQuery } from '../../js/community/communityUtils';
 import {NotebookPen} from 'lucide-react'
 import { useAuth } from '../../js/login/AuthContext';
 
@@ -14,10 +14,22 @@ const CommunityBoard = () => {
   const [keyType, setKeyType] = useState("title");
   const [pageCount, setPageCount] = useState(1);
   const navigate = useNavigate();
+  const [writePermission, setWritePermission] = useState(false);
 
   const page = searchParams.get("page")?searchParams.get("page"):1;
   const page_nav = (Math.floor(page/10)*10);
 
+  console.log("writePermission",writePermission);
+
+  const getWriteable = async ()=>{
+    if(!boardId) return setWritePermission(true);
+    const wrp= await getPermission({
+      role:user.user.role,
+      boardId:boardId,
+      permission:"write"
+    })
+    setWritePermission(wrp.permission);
+  }
 
   const update = async(query)=>{
     const res = await searchPost(
@@ -29,7 +41,16 @@ const CommunityBoard = () => {
     );
     console.log("res.data.pageCount",res.data.pageCount)
     setPageCount(res.success?res.data.pageCount:1);
+    if(user&&user.user){
+      getWriteable();
+    }
   };
+  
+  useEffect(()=>{
+    if(user&&user.user){
+      getWriteable();
+    }
+  },[user])
   useEffect(()=>{
     // console.log(location);
     update(location.search);
@@ -97,7 +118,7 @@ const CommunityBoard = () => {
             </div>
             <div className="info_and_create flex">
               {
-                (user&&user.user)&&(
+                (user&&user.user&&writePermission)&&(
                 <Link to={`/community/${boardId?boardId:1}/create`}>
                   <div className='px-2 py-3 bg-white shadow-lg flex'>
                     <NotebookPen />
