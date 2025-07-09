@@ -54,6 +54,20 @@ export const fetchTrainerReview = createAsyncThunk(
   }
 );
 
+// sliceTrainer.js에 새로운 액션 추가
+export const fetchAllTrainerReviews = createAsyncThunk(
+  'trainer/fetchAllTrainerReviews',
+  async (userId) => {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_DOMAIN}/trainer/${userId}/reviews/all`, // 이렇게 수정
+      {
+        credentials: 'include',
+      }
+    );
+    return response.json();
+  }
+);
+
 const trainerSlice = createSlice({
   name: 'trainer',
   initialState: {
@@ -109,6 +123,13 @@ const trainerSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchTrainerReview.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.trainers.review = action.payload.data;
+      })
+      .addCase(fetchAllTrainerReviews.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchAllTrainerReviews.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.trainers.review = action.payload.data;
       });

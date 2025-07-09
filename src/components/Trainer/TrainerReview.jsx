@@ -2,17 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  fetchTrainerReview,
   fetchTrainerDetail,
+  fetchAllTrainerReviews,
 } from '../../js/redux/slice/sliceTrainer';
-import { FaStar } from 'react-icons/fa6';
+import { FaStar, FaChevronLeft, FaChevronRight } from 'react-icons/fa6';
 
 const TrainerReview = () => {
   const { userId } = useParams();
   const dispatch = useDispatch();
 
   const detail = useSelector((state) => state.trainer.trainers.detail);
-  const review = useSelector((state) => state.trainer.trainers.review);
+  // Redux slice에서 review 필드에 저장되므로 review 사용
+  const allReviews = useSelector((state) => state.trainer.trainers.review);
   const status = useSelector((state) => state.trainer.status);
 
   // 리뷰 작성 상태
@@ -23,10 +24,29 @@ const TrainerReview = () => {
   });
   const [hoveredRating, setHoveredRating] = useState(0);
 
+  // 페이징 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 15;
+
+  // 페이징 계산
+  const totalReviews = allReviews?.length || 0;
+  const totalPages = Math.ceil(totalReviews / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentReviews = allReviews?.slice(startIndex, endIndex) || [];
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // 페이지 변경 시 상단으로 스크롤
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchTrainerDetail(userId));
-      dispatch(fetchTrainerReview(userId));
+      // fetchTrainerReview 제거, fetchAllTrainerReviews만 사용
+      dispatch(fetchAllTrainerReviews(userId));
     }
   }, [userId, dispatch]);
 
@@ -40,7 +60,7 @@ const TrainerReview = () => {
     setNewReview((prev) => ({ ...prev, content: e.target.value }));
   };
 
-  // 리뷰 제출 핸들러
+  // 리뷰 제출 핸들러 수정
   const handleSubmitReview = async (e) => {
     e.preventDefault();
 
@@ -55,41 +75,25 @@ const TrainerReview = () => {
     }
 
     try {
-      // 리뷰 데이터 준비
       const reviewData = {
         trainerId: userId,
         rating: newReview.rating,
         content: newReview.content.trim(),
-        // 실제 사용자 정보는 로그인 상태에서 가져와야 함
-        // userId: currentUser.id, // 로그인한 사용자 ID
-        // userName: currentUser.name // 로그인한 사용자 이름
       };
 
-      // 백엔드 API 호출
-      const response = await fetch('/api/trainer/review', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(reviewData),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_DOMAIN}/trainer/review`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(reviewData),
+        }
+      );
 
-      // 응답이 JSON인지 확인
-      const contentType = response.headers.get('content-type');
-      let result;
-
-      if (contentType && contentType.includes('application/json')) {
-        result = await response.json();
-      } else {
-        // JSON이 아닌 경우 텍스트로 읽기
-        const text = await response.text();
-        console.error('Non-JSON response:', text);
-        throw new Error('서버에서 올바르지 않은 응답을 받았습니다.');
-      }
-
-      if (!response.ok) {
-        throw new Error(result.msg || '리뷰 등록에 실패했습니다.');
-      }
+      const result = await response.json();
 
       if (result.success) {
         alert(result.msg || '리뷰가 성공적으로 등록되었습니다!');
@@ -99,14 +103,17 @@ const TrainerReview = () => {
         setShowWriteForm(false);
         setHoveredRating(0);
 
-        // 리뷰 목록 새로고침
-        dispatch(fetchTrainerReview(userId));
+        // fetchAllTrainerReviews만 호출
+        dispatch(fetchAllTrainerReviews(userId));
+
+        // 새 리뷰 추가 후 첫 페이지로 이동
+        setCurrentPage(1);
       } else {
         throw new Error(result.msg || '리뷰 등록에 실패했습니다.');
       }
     } catch (error) {
       console.error('리뷰 등록 실패:', error);
-      alert(error.message || '리뷰 등록에 실패했습니다. 다시 시도해주세요.');
+      alert(`리뷰 등록에 실패했습니다: ${error.message}`);
     }
   };
 
@@ -134,6 +141,90 @@ const TrainerReview = () => {
         />
       );
     });
+  };
+
+  // 페이지네이션 렌더링 함수
+  const renderPagination = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="flex justify-center items-center gap-2 mt-8">
+        {/* 이전 페이지 버튼 */}
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="flex items-center gap-1 px-3 py-2 text-sm rounded-lg text-gray-600 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <FaChevronLeft className="w-3 h-3" />
+          이전
+        </button>
+
+        {/* 첫 페이지 */}
+        {startPage > 1 && (
+          <>
+            <button
+              onClick={() => handlePageChange(1)}
+              className="px-3 py-2 text-sm rounded-lg text-gray-600 hover:bg-gray-200 transition-colors"
+            >
+              1
+            </button>
+            {startPage > 2 && <span className="px-1 text-gray-400">...</span>}
+          </>
+        )}
+
+        {/* 페이지 번호들 */}
+        {pageNumbers.map((pageNumber) => (
+          <button
+            key={pageNumber}
+            onClick={() => handlePageChange(pageNumber)}
+            className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+              currentPage === pageNumber
+                ? 'bg-green-500 text-white'
+                : 'text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {pageNumber}
+          </button>
+        ))}
+
+        {/* 마지막 페이지 */}
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && (
+              <span className="px-1 text-gray-400">...</span>
+            )}
+            <button
+              onClick={() => handlePageChange(totalPages)}
+              className="px-3 py-2 text-sm rounded-lg text-gray-600 hover:bg-gray-200 transition-colors"
+            >
+              {totalPages}
+            </button>
+          </>
+        )}
+
+        {/* 다음 페이지 버튼 */}
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="flex items-center gap-1 px-3 py-2 text-sm rounded-lg text-gray-600 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          다음
+          <FaChevronRight className="w-3 h-3" />
+        </button>
+      </div>
+    );
   };
 
   if (status === 'loading') {
@@ -268,15 +359,14 @@ const TrainerReview = () => {
           </div>
         )}
 
-        {/* 리뷰 목록 */}
+        {/* 리뷰 목록 - review 대신 allReviews 사용 */}
         <div className="bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            전체 리뷰 ({review?.length || 0}개)
+            전체 리뷰 ({totalReviews}개)
           </h2>
-
           <div className="space-y-6">
-            {review?.length > 0 ? (
-              review.map((r, index) => (
+            {currentReviews?.length > 0 ? (
+              currentReviews.map((r, index) => (
                 <div
                   key={index}
                   className="bg-gray-50 rounded-lg p-6 border-l-4 border-green-500 hover:shadow-md transition-shadow duration-200"
@@ -330,6 +420,9 @@ const TrainerReview = () => {
               </div>
             )}
           </div>
+
+          {/* 페이지네이션 */}
+          {totalPages > 1 && renderPagination()}
         </div>
       </div>
     </div>
