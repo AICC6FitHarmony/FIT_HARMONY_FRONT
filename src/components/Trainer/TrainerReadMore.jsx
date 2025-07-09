@@ -284,7 +284,7 @@ const TrainerReadMore = () => {
   };
 
   const handleServiceClick = (name) => {
-    confirm(`${name} 강의를 신청하겠습니까?`);
+    confirm(`${name} 정말 이 상품을 신청하겠습니까?`);
   };
 
   const handleContactClick = (type) => {
