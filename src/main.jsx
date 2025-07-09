@@ -12,9 +12,7 @@ createRoot(document.getElementById('root')).render(
   // <StrictMode>
   <Provider store={store}>
     <ModalProvider>
-      <AuthProvider>
         <App />
-      </AuthProvider>
     </ModalProvider>
   </Provider>
   // </StrictMode>
