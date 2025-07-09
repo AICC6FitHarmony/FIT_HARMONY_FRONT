@@ -5,6 +5,13 @@ export const getPermission = async ({role, boardId, permission}) => {
   return await response.json();
 }
 
+export const getPermissions = async ({boardId})=>{
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/permissions/${boardId}`);
+  return await response.json();
+}
+
+
+
 export const getBoards = async ()=>{
   const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/board/list`);
   return await response.json();
