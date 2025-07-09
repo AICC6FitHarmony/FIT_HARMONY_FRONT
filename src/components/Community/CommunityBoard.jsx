@@ -15,6 +15,7 @@ const CommunityBoard = () => {
   const [pageCount, setPageCount] = useState(1);
   const navigate = useNavigate();
   const [writePermission, setWritePermission] = useState(false);
+  const [postLoading, setPostLoading] = useState(true);
 
   const page = searchParams.get("page")?searchParams.get("page"):1;
   const page_nav = (Math.floor(page/10)*10);
@@ -44,9 +45,7 @@ const CommunityBoard = () => {
     );
     console.log("res.data.pageCount",res.data.pageCount)
     setPageCount(res.success?res.data.pageCount:1);
-
-    
-
+    setPostLoading(false);
   };
   
   useEffect(()=>{
@@ -121,7 +120,7 @@ const CommunityBoard = () => {
               {
                 (user&&user.user&&writePermission)&&(
                 <Link to={`/community/${boardId?boardId:1}/create`}>
-                  <div className='px-2 py-3 bg-white shadow-lg flex'>
+                  <div className='px-2 py-3 bg-white shadow-lg rounded-sm flex hover:bg-green-100 transition-all duration-300'>
                     <NotebookPen />
                     게시글 작성
                   </div>
@@ -135,13 +134,13 @@ const CommunityBoard = () => {
           {
             posts.length===0&&(
               <div className='bg-white p-2 py-6 text-center rounded-lg shadow-lg'>
-                게시글이 없습니다.
+                {postLoading?"게시글을 불러오는 중 입니다.":"게시글이 없습니다."}
               </div>
             )
           }
           {
             posts.map((post,idx)=>(
-              <div key={post.postId} className='bg-white p-2 rounded-lg shadow-lg'>
+              <div key={post.postId} className='bg-white p-2 rounded-lg shadow-lg hover:bg-green-50 transition-all duration-200'>
                 <div className="post-header flex justify-between">
                   <div className="post-user-name min-w-[5rem] text-sm">{post.nickName}</div>
                   <div className="info flex justify-end  text-sm">

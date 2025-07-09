@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { Link, redirect, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import { AuthProvider, useAuth, useAuthRedirect } from '../../js/login/AuthContext'
-import StandardModal from '../cmmn/StandardModal';
 import CommunityBoard from './CommunityBoard';
 import CommunityPostEdit from './CommunityPostEdit';
 import PostView from './PostView';
