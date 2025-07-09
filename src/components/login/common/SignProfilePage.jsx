@@ -2,10 +2,12 @@ import React, { useRef, useState } from 'react'
 import defaultProfileImg from '../source/defaultProfileImg.png';
 import InputWithLabel from '../../cmmn/InputWithLabel';
 import { existNickName } from '../../../js/login/loginUtils';
+import { useAlertModal } from '../../cmmn/ModalContext';
 
 const SignProfilePage = ({userInfo, setUserInfo, handleChangeValue}) => {
   const [imgSource, setImgSource] = useState("");
   const [nickCheck, setNickCheck] = useState(false);
+  const openAlert = useAlertModal();
   const profile_img_ref = useRef();
   const specialCharRegex = /[^가-힣a-zA-Z0-9]/;
   const hasSpecial = (str) => specialCharRegex.test(str);
@@ -31,6 +33,10 @@ const SignProfilePage = ({userInfo, setUserInfo, handleChangeValue}) => {
   }
 
   const handleNameExist = async ()=>{
+    if(!userInfo.nick_name){
+      openAlert({title:"중복 체크", text:"닉네임을 입력해 주세요."})
+      return;
+    }
     const res = await existNickName(userInfo.nick_name);
     console.log(res)
     setNickCheck(true);

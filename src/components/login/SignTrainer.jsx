@@ -132,7 +132,7 @@ const SignTrainer = () => {
 
   return (
     <div className="sign-box bg-white relative w-1/3 shadow-md shadow-green-800/10">
-      <div className="flex items-center gap-2 p-1 cursor-pointer" onClick={()=>navigate("/login/signup")}>
+      <div className="flex items-center gap-2 p-1 cursor-pointer w-fit pr-4" onClick={()=>navigate("/login/signup")}>
         <ArrowLeftFromLineIcon/>
       </div>
       <div className="font-bold text-sm pb-1 pt-1 pl-5">
