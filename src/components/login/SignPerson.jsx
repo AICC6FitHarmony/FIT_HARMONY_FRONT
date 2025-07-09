@@ -8,6 +8,8 @@ import SignBodyPage from "./common/SignBodyPage";
 import { googleRegister } from "../../js/login/loginUtils";
 import SignSelectText from "./common/SignSelectText";
 import SignButton from "./common/SignButton";
+import { ArrowLeftFromLineIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const SignPerson = () => {
   const [tabIdx, setTabIdx] = useState(0);
@@ -22,6 +24,7 @@ const SignPerson = () => {
     goal: undefined,
     role: "MEMBER",
   });
+  const navigate = useNavigate();
 
   const idxMax = 3;
 
@@ -97,16 +100,22 @@ const SignPerson = () => {
     handleSign();
   };
   return (
-    <div className="sign-box bg-white py-5 shadow-xl relative w-1/3">
+    <div className="sign-box bg-white relative w-1/3 shadow-md shadow-green-800/10">
+      <div className="flex items-center gap-2 p-1 cursor-pointer" onClick={()=>navigate("/login/signup")}>
+        <ArrowLeftFromLineIcon/>
+      </div>
+      <div className="font-bold text-sm pb-1 pt-1 pl-5">
+        일반 회원 가입
+      </div>
       <form action="">
-        <SignInputTab idx={tabIdx} thisIdx={0}>
+        <SignInputTab idx={tabIdx} thisIdx={0} title="프로필 설정">
           <SignProfilePage
             userInfo={userInfo}
             setUserInfo={setUserInfo}
             handleChangeValue={handleChangeValue}
           />
         </SignInputTab>
-        <SignInputTab idx={tabIdx} thisIdx={1}>
+        <SignInputTab idx={tabIdx} thisIdx={1} title="신체 정보">
           <SignBodyPage
             userInfo={userInfo}
             setUserInfo={setUserInfo}
@@ -114,10 +123,9 @@ const SignPerson = () => {
             handleInputNumber={handleInputNumber}
           />
         </SignInputTab>
-        <SignInputTab idx={tabIdx} thisIdx={2}>
+        <SignInputTab idx={tabIdx} thisIdx={2} title="운동 수준">
           <SignSelectText
             infoHeader="history"
-            title="운동 수준"
             texts={[
               "입문 (0 ~ 6개월)",
               "초급 (6개월 ~ 1년)",
@@ -131,10 +139,9 @@ const SignPerson = () => {
             handleInputNumber={handleInputNumber}
           />
         </SignInputTab>
-        <SignInputTab idx={tabIdx} thisIdx={3}>
+        <SignInputTab idx={tabIdx} thisIdx={3} title="운동 목표">
           <SignSelectText
             infoHeader="goal"
-            title="운동 목표"
             texts={["체중 감소", "체중 유지", "체중 증가", "근육 증가"]}
             userInfo={userInfo}
             setUserInfo={setUserInfo}
@@ -146,10 +153,12 @@ const SignPerson = () => {
         <div
           className={`flex justify-center ${tabIdx === idxMax ? "" : "hidden"}`}
         >
-          <SignButton handleSubmit={handleSubmit} />
+        <SignButton handleSubmit={handleSubmit} />
         </div>
       </form>
+      <div className="relative py-6">
         <SignNav tabIdx={tabIdx} setTabIdx={setTabIdx} idxMax={idxMax} />
+      </div>
       {/* <button onClick={handleSign}>Sign</button> */}
       <ToastContainer />
     </div>

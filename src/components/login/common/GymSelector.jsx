@@ -10,7 +10,7 @@ const GymSelector = ({setSelect}) => {
   const [zipCode, setZipCode] = useState("");
   const [address, setAddress] = useState("");
   const [gymList, setGymList] = useState([]);
-
+  const [gymFilter, setGymFilter] = useState("");
   const [gymInfo, setGymInfo] = useState({
     name:"",
     address:"",
@@ -82,6 +82,15 @@ const GymSelector = ({setSelect}) => {
     setSelect(res[0]);
     clearInfo();
   }
+  const handleSearchGym = (e)=>{
+    const value = e.target.value;
+    setGymFilter(value);
+  }
+  const handleFilterGym = (item)=>{
+    if(gymFilter==="") return true;
+    console.log(item.gym," : ", item.gym.includes(gymFilter))
+    return item.gym.includes(gymFilter);
+  }
 
   return (
     <div>
@@ -91,17 +100,18 @@ const GymSelector = ({setSelect}) => {
       </div>
 
       <div className={`select-gym pt-[1rem] flex flex-col gap-2 ${newGym?"hidden":""}`}>
-        <InputWithLabel
-          label={"이름"}
-        />
-        <div className='h-[15rem] border border-neutral-300 rounded-sm shadow-xl'>
+        <div className='px-2'>
+          <InputWithLabel label={"이름"} onChange={handleSearchGym}/>
+        </div>
+        <div className='h-[15rem] border border-neutral-300 rounded-sm shadow-md'>
           <ListSelector 
             list={gymList} 
             onSelect={handleSelect} 
             className=""
+            filter={handleFilterGym}
             Template={
               ({item})=>(
-                <div className='w-full px-2 py-2 px-1'>
+                <div className='w-full px-2 py-2'>
                   <div className="title font-bold">
                     {item.gym}
                   </div>
