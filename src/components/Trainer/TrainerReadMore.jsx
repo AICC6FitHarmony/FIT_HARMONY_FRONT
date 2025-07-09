@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
-import { useEffect } from 'react';
 import {
   fetchTrainerDetail,
   fetchTrainerProduct,
@@ -15,12 +14,24 @@ import {
   MapPin,
   Star,
   ChevronRight,
+  Navigation,
 } from 'lucide-react';
 
 const TrainerReadMore = () => {
   const { userId } = useParams();
-
   const dispatch = useDispatch();
+  const mapRef = useRef(null);
+
+  // 지도 관련 상태
+  const [map, setMap] = useState(null);
+  const [marker, setMarker] = useState(null);
+  const [currentLocationMarker, setCurrentLocationMarker] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [distance, setDistance] = useState(null);
+  const [locationError, setLocationError] = useState(null);
+  const [locationLoading, setLocationLoading] = useState(true);
+  const [mapLoading, setMapLoading] = useState(true);
+  const [mapError, setMapError] = useState(null);
 
   useEffect(() => {
     if (userId) {
@@ -36,11 +47,246 @@ const TrainerReadMore = () => {
   const product = useSelector((state) => state.trainer.trainers.product);
   const review = useSelector((state) => state.trainer.trainers.review);
 
-  // // 디버깅용 useEffect
+  // 현재 위치 가져오기
+  const getCurrentLocation = () => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by this browser.'));
+        return;
+      }
 
-  // useEffect(() => {
-  //   console.log('Error:', review);
-  // }, [review]);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          resolve({ lat: latitude, lng: longitude });
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000,
+        }
+      );
+    });
+  };
+
+  // IP 기반 위치 가져오기
+  const getLocationByIP = async () => {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+      return { lat: data.latitude, lng: data.longitude };
+    } catch (error) {
+      console.error('IP location error:', error);
+      throw error;
+    }
+  };
+
+  // 위치 정보 초기화
+  useEffect(() => {
+    const initLocation = async () => {
+      try {
+        const location = await getCurrentLocation();
+        setCurrentLocation(location);
+        setLocationError(null);
+        setLocationLoading(false);
+      } catch (gpsError) {
+        console.warn('GPS 위치 가져오기 실패:', gpsError);
+        try {
+          const location = await getLocationByIP();
+          setCurrentLocation(location);
+          setLocationError(null);
+          setLocationLoading(false);
+        } catch (ipError) {
+          console.warn('IP 기반 위치 가져오기 실패:', ipError);
+          setLocationError('위치 정보를 가져올 수 없습니다.');
+          setCurrentLocation({ lat: 37.5665, lng: 126.978 });
+          setLocationLoading(false);
+        }
+      }
+    };
+
+    // 위치 정보 초기화를 비동기로 처리하여 컴포넌트 렌더링을 차단하지 않음
+    initLocation().catch((error) => {
+      console.error('위치 정보 초기화 실패:', error);
+      setLocationError('위치 정보를 초기화할 수 없습니다.');
+      setCurrentLocation({ lat: 37.5665, lng: 126.978 });
+      setLocationLoading(false);
+    });
+  }, []);
+
+  // 두 지점 간의 거리 계산 (Haversine formula)
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // 지구의 반지름 (km)
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    return distance;
+  };
+
+  // 카카오맵 초기화
+  useEffect(() => {
+    if (!detail) return;
+
+    setMapLoading(true);
+    setMapError(null);
+
+    const initKakaoMap = () => {
+      try {
+        window.kakao.maps.load(() => {
+          try {
+            const container = mapRef.current;
+            if (!container) {
+              setMapLoading(false);
+              return;
+            }
+
+            const gymAddress = detail.gymAddress || detail.gym?.gymAddress;
+            if (!gymAddress) {
+              setMapError('헬스장 주소 정보가 없습니다.');
+              setMapLoading(false);
+              return;
+            }
+
+            const geocoder = new window.kakao.maps.services.Geocoder();
+
+            // 주소로 좌표 검색
+            geocoder.addressSearch(gymAddress, (result, status) => {
+              try {
+                if (status === window.kakao.maps.services.Status.OK) {
+                  const coords = new window.kakao.maps.LatLng(
+                    result[0].y,
+                    result[0].x
+                  );
+
+                  const options = {
+                    center: coords,
+                    level: 3,
+                  };
+
+                  const mapInstance = new window.kakao.maps.Map(
+                    container,
+                    options
+                  );
+                  setMap(mapInstance);
+
+                  // 트레이너 위치 마커
+                  const trainerMarker = new window.kakao.maps.Marker({
+                    position: coords,
+                    map: mapInstance,
+                    title: detail.userName || '트레이너',
+                  });
+                  setMarker(trainerMarker);
+
+                  // 현재 위치가 있으면 마커 추가 및 거리 계산
+                  if (currentLocation && !locationError) {
+                    try {
+                      const currentCoords = new window.kakao.maps.LatLng(
+                        currentLocation.lat,
+                        currentLocation.lng
+                      );
+
+                      const currentMarker = new window.kakao.maps.Marker({
+                        position: currentCoords,
+                        map: mapInstance,
+                        title: '현재 위치',
+                      });
+
+                      // 현재 위치 마커 스타일
+                      const markerImage = new window.kakao.maps.MarkerImage(
+                        'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
+                        new window.kakao.maps.Size(24, 35)
+                      );
+                      currentMarker.setImage(markerImage);
+                      setCurrentLocationMarker(currentMarker);
+
+                      // 거리 계산
+                      const dist = calculateDistance(
+                        currentLocation.lat,
+                        currentLocation.lng,
+                        result[0].y,
+                        result[0].x
+                      );
+                      setDistance(dist);
+                    } catch (locationError) {
+                      console.warn('현재 위치 마커 추가 실패:', locationError);
+                    }
+                  }
+
+                  setMapLoading(false);
+                } else {
+                  setMapError('주소를 찾을 수 없습니다.');
+                  setMapLoading(false);
+                }
+              } catch (geocodeError) {
+                console.error('지도 생성 실패:', geocodeError);
+                setMapError('지도를 생성할 수 없습니다.');
+                setMapLoading(false);
+              }
+            });
+          } catch (mapError) {
+            console.error('지도 초기화 실패:', mapError);
+            setMapError('지도 초기화에 실패했습니다.');
+            setMapLoading(false);
+          }
+        });
+      } catch (kakaoError) {
+        console.error('카카오맵 로드 실패:', kakaoError);
+        setMapError('지도 서비스를 로드할 수 없습니다.');
+        setMapLoading(false);
+      }
+    };
+
+    if (!window.kakao) {
+      // 카카오맵 API 키 확인
+      const kakaoMapKey = import.meta.env.VITE_KAKAO_MAP_KEY;
+      if (!kakaoMapKey) {
+        console.warn('카카오맵 API 키가 설정되지 않았습니다.');
+        setMapError('지도 서비스를 사용할 수 없습니다.');
+        setMapLoading(false);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapKey}&autoload=false&libraries=services`;
+      document.head.appendChild(script);
+      script.onload = initKakaoMap;
+      script.onerror = () => {
+        console.error('카카오맵 스크립트 로드 실패');
+        setMapError('지도 스크립트를 로드할 수 없습니다.');
+        setMapLoading(false);
+      };
+    } else {
+      initKakaoMap();
+    }
+  }, [detail, currentLocation, locationError]);
+
+  // 컴포넌트 언마운트 시 마커 정리
+  useEffect(() => {
+    return () => {
+      try {
+        if (marker && marker.setMap) {
+          marker.setMap(null);
+        }
+        if (currentLocationMarker && currentLocationMarker.setMap) {
+          currentLocationMarker.setMap(null);
+        }
+      } catch (error) {
+        console.warn('마커 정리 중 오류:', error);
+      }
+    };
+  }, [marker, currentLocationMarker]);
 
   const handleConsultationRequest = () => {
     alert('상담 요청이 접수되었습니다! 곧 연락드리겠습니다.');
@@ -51,18 +297,48 @@ const TrainerReadMore = () => {
   };
 
   const handleContactClick = (type) => {
-    switch (type) {
-      case 'phone':
-        alert('전화 연결 중...');
-        break;
-      case 'email':
-        alert('이메일 작성 중...');
-        break;
-      case 'location':
-        alert('위치 정보를 확인합니다.');
-        break;
-      default:
-        break;
+    try {
+      switch (type) {
+        case 'phone':
+          alert('전화 연결 중...');
+          break;
+        case 'email':
+          alert('이메일 작성 중...');
+          break;
+        case 'location':
+          if (!map) {
+            alert('지도를 로드할 수 없습니다.');
+            return;
+          }
+          if (mapError) {
+            alert(mapError);
+            return;
+          }
+          map.setLevel(2); // 줌인
+          break;
+        case 'directions':
+          const gymAddress = detail.gymAddress || detail.gym?.gymAddress;
+          if (!gymAddress) {
+            alert('헬스장 주소 정보가 없어 길찾기를 할 수 없습니다.');
+            return;
+          }
+          try {
+            const url = `https://map.kakao.com/link/to/${encodeURIComponent(
+              gymAddress
+            )},${gymAddress}`;
+            window.open(url, '_blank');
+          } catch (error) {
+            console.error('길찾기 URL 생성 실패:', error);
+            alert('길찾기 서비스를 열 수 없습니다.');
+          }
+          break;
+        default:
+          console.warn('알 수 없는 연락 방식:', type);
+          break;
+      }
+    } catch (error) {
+      console.error('연락처 클릭 처리 실패:', error);
+      alert('요청을 처리할 수 없습니다.');
     }
   };
 
@@ -96,17 +372,6 @@ const TrainerReadMore = () => {
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-lime-50 to-green-100 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600">트레이너 정보를 찾을 수 없습니다.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // product이 없거나 빈 객체인 경우 처리
-  if (!product || Object.keys(product).length === 0) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-lime-50 to-green-100 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">상품 정보를 찾을 수 없습니다.</p>
         </div>
       </div>
     );
@@ -351,27 +616,101 @@ const TrainerReadMore = () => {
           <div className="space-y-8">
             {/* 위치 정보 */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-green-500" />
                 위치 정보
               </h3>
-              <div className="text-center">
-                <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                  <MapPin className="w-8 h-8 text-gray-400" />
+
+              {/* 지도 */}
+              <div className="mb-4 relative">
+                {mapLoading && (
+                  <div className="absolute inset-0 bg-gray-100 rounded-lg flex items-center justify-center z-10">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-2"></div>
+                      <p className="text-sm text-gray-600">지도 로딩 중...</p>
+                    </div>
+                  </div>
+                )}
+
+                {mapError && (
+                  <div className="absolute inset-0 bg-gray-100 rounded-lg flex items-center justify-center z-10">
+                    <div className="text-center">
+                      <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">{mapError}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div
+                  ref={mapRef}
+                  className="w-full h-48 bg-gray-100 rounded-lg border"
+                  style={{ minHeight: '192px' }}
+                />
+              </div>
+
+              {/* 위치 상세 정보 */}
+              <div className="space-y-3">
+                <div>
+                  <p className="font-medium text-gray-900">
+                    {detail?.gym || '헬스장 정보'}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {detail?.gymAddress ||
+                      detail?.gym?.gymAddress ||
+                      '주소 정보 없음'}
+                  </p>
                 </div>
-                <p className="font-medium text-gray-900">
-                  {detail?.gym || detail?.gymAddress || '정보없음'}
-                </p>
-                <p className="text-sm text-gray-600 mt-1">
-                  {detail?.gym?.address ||
-                    detail?.address ||
-                    '지하철역 도보 5분 거리'}
-                </p>
-                <button
-                  onClick={() => handleContactClick('location')}
-                  className="mt-3 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                >
-                  위치 확인
-                </button>
+
+                {/* 거리 정보 */}
+                {distance && !locationError && (
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <div className="flex items-center gap-2 text-blue-700">
+                      <Navigation className="w-4 h-4" />
+                      <span className="text-sm font-medium">
+                        현재 위치에서 약 {distance.toFixed(1)}km
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* 현재 위치 로딩 중 */}
+                {locationLoading && (
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                      <span className="text-sm">현재 위치 확인 중...</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* 위치 오류 메시지 */}
+                {locationError && (
+                  <div className="bg-orange-50 p-3 rounded-lg">
+                    <div className="flex items-center gap-2 text-orange-700">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">{locationError}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* 액션 버튼들 */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleContactClick('location')}
+                    disabled={!map || mapError}
+                    className="flex-1 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  >
+                    지도 확대
+                  </button>
+                  <button
+                    onClick={() => handleContactClick('directions')}
+                    disabled={!detail?.gymAddress && !detail?.gym?.gymAddress}
+                    className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm flex items-center justify-center gap-1 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  >
+                    <Navigation className="w-4 h-4" />
+                    길찾기
+                  </button>
+                </div>
               </div>
             </div>
           </div>
