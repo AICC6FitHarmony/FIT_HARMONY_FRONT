@@ -6,16 +6,8 @@ import {
   fetchTrainerProduct,
   fetchTrainerReview,
 } from '../../js/redux/slice/sliceTrainer';
-import {
-  Heart,
-  Share2,
-  Phone,
-  Mail,
-  MapPin,
-  Star,
-  ChevronRight,
-  Navigation,
-} from 'lucide-react';
+import { MapPin, Star, Navigation } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const TrainerReadMore = () => {
   const { userId } = useParams();
@@ -292,19 +284,64 @@ const TrainerReadMore = () => {
     alert('상담 요청이 접수되었습니다! 곧 연락드리겠습니다.');
   };
 
-  const handleServiceClick = (name) => {
-    alert(`${name} 상세 정보를 확인하시겠습니까?`);
+  // 강의 신청 확인 데이터 전달 swal 사용
+  const handleServiceClick = (p) => {
+    Swal.fire({
+      title: `${p.name} 강의를 신청하시겠습니까?`,
+      text: '신청 후에는 상담을 통해 일정 조율이 진행됩니다.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: '신청하기',
+      cancelButtonText: '취소',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // ✅ 서버 요청 또는 처리 로직
+        //fetch 요청 추가
+        fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/trainer/product/buy`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            productId: p.id,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              // 성공했을 때만 성공 메시지 표시
+              Swal.fire({
+                title: '신청 완료!',
+                text: '상담 요청이 접수되었습니다. 곧 연락드리겠습니다.',
+                icon: 'success',
+                confirmButtonText: '확인',
+              });
+            } else {
+              // 실패했을 때 실패 메시지 표시
+              Swal.fire({
+                title: '신청 실패',
+                text: data.msg || '신청 중 오류가 발생했습니다.',
+                icon: 'error',
+                confirmButtonText: '확인',
+              });
+            }
+          })
+          .catch((error) => {
+            console.error('신청 오류:', error);
+            Swal.fire({
+              title: '신청 실패',
+              text: '네트워크 오류가 발생했습니다. 다시 시도해주세요.',
+              icon: 'error',
+              confirmButtonText: '확인',
+            });
+          });
+      }
+    });
   };
-
   const handleContactClick = (type) => {
     try {
       switch (type) {
-        case 'phone':
-          alert('전화 연결 중...');
-          break;
-        case 'email':
-          alert('이메일 작성 중...');
-          break;
         case 'location':
           if (!map) {
             alert('지도를 로드할 수 없습니다.');
@@ -471,7 +508,7 @@ const TrainerReadMore = () => {
                   product.map((p, idx) => (
                     <div
                       key={idx}
-                      onClick={() => handleServiceClick(p.name)}
+                      onClick={() => handleServiceClick(p)}
                       className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
                     >
                       <div className="flex justify-between items-start">
