@@ -5,7 +5,6 @@ const MemberOrders = ({ userId }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("userId :: ", userId);
     if (userId) {
       // TODO: 회원 주문 데이터 조회 API 호출
       // getMemberOrders({

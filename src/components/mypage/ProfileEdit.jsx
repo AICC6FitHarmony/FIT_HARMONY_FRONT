@@ -108,8 +108,6 @@ const ProfileEdit = ({ userData }) => {
       if (uploadResult.success) {
         const newFileId = uploadResult.fileIdArr[0];
         setFileId(newFileId);
-        console.log("uploadResult.fileIdArr[0]", uploadResult.fileIdArr[0]);
-        console.log("newFileId", newFileId);
         return newFileId;
       } else {
         setFileId("1");
@@ -127,7 +125,6 @@ const ProfileEdit = ({ userData }) => {
     setProfileImg(null);
     setFile(null);
     setFileId("1");
-    console.log("setFileID");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -219,7 +216,6 @@ const ProfileEdit = ({ userData }) => {
         fileId: currentFileId,
       };
     }
-    console.log("userDataToUpdate", userDataToUpdate);
 
     updateUserData({
       userId: userData.userId,

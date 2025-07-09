@@ -78,7 +78,6 @@ const InbodyDetailForm = ({ onClose, onSubmit, userName, inbodyData }) => {
   };
 
   const handleSubmit = async () => {
-    console.log("formData", formData);
     const inbodyData = {
       weight: parseFloat(formData.weight),
       bodyWater: parseFloat(formData.bodyWater),

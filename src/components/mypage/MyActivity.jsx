@@ -10,7 +10,6 @@ const MyActivity = ({ userId }) => {
   const getUserActivity = useGetUserActivity();
 
   useEffect(() => {
-    console.log("userId :: ", userId);
     if (userId) {
       getUserActivity({
         userId,
