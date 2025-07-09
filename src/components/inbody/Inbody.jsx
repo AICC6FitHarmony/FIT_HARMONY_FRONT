@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   fetchInbodyDayData,
   fetchInbodyMonthData,
@@ -23,6 +23,8 @@ import InbodyCalendarModal from "./InbodyCalendarModal";
 import InbodyRadarCharts from "./InbodyRadarCharts";
 import { useAuthRedirect } from "../../js/login/AuthContext";
 import InbodyDetailForm from "./InbodyDetailForm";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Inbody = () => {
   const dispatch = useDispatch();
@@ -37,15 +39,35 @@ const Inbody = () => {
   const [userName, setUserName] = useState(null);
   const [isShowDetailModal, setIsShowDetailModal] = useState(false);
 
+
+  const navigate = useNavigate(); // 화면 라우팅 시 활용하는 훅
+  // 강사 회원 매칭 정보 리덕스(강사 회원 관리 화면)
+  const isTrainerMatchMember = useSelector(state => state.common.isTrainerMatchMember);
+  const trainerSelectedMember = useSelector(state => state.common.trainerSelectedMember);
+
   // modalInbodyData 상태 변경 감지
   useEffect(() => {}, [modalInbodyData]);
 
   // user 값이 있을 때만 userId 설정
   useEffect(() => {
-    if (user?.user?.userId) {
+    if(user?.user?.role == "TRAINER" && isTrainerMatchMember){ // 트레이너이며, 
+      if(trainerSelectedMember.userId == 0){
+          toast.error("확인하실 회원님을 선택해주세요.", {
+              position: "bottom-center"
+          });
+          setTimeout(() => {
+              navigate("/")
+          }, 2000);
+          return;
+      }else{
+        setUserId(trainerSelectedMember.userId);
+        setUserName(trainerSelectedMember.nickName);
+      }
+    }else if (user?.user?.userId) {
       setUserId(user.user.userId);
       setUserName(user.user.nickName);
     }
+
   }, [user]);
 
   // user와 userId가 있을 때만 데이터 요청
