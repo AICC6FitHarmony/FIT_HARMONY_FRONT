@@ -10,11 +10,14 @@ import SignGym from "./common/SignGym";
 import InputWithLabel from "../cmmn/InputWithLabel";
 import { googleRegister } from "../../js/login/loginUtils";
 import ListMultiSelector from "../cmmn/ListMultiSelector";
+import { ArrowLeftFromLineIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const SignTrainer = () => {
   const idxMax = 4;
   const [tabIdx, setTabIdx] = useState(0);
   const [file, setFile] = useState();
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
     profile_image: undefined,
     nick_name: undefined,
@@ -27,6 +30,7 @@ const SignTrainer = () => {
     goal: undefined,
     role: "TRAINER",
     gymId: undefined,
+    nickExist: false
   });
 
   const handleSign = async () => {
@@ -88,6 +92,14 @@ const SignTrainer = () => {
       return;
     if (
       await valueCheck(
+        userInfo.nickExist,
+        "닉네임 중복을 확인해 주세요",
+        MoveIndex(0)
+      )
+    )
+      return;
+    if (
+      await valueCheck(
         userInfo.nick_name.length > 10,
         "프로필 이름이 너무 깁니다.",
         MoveIndex(0)
@@ -119,11 +131,17 @@ const SignTrainer = () => {
   }
 
   return (
-    <div className="sign-box bg-white shadow-xl relative w-1/3">
+    <div className="sign-box bg-white relative w-1/3 shadow-md shadow-green-800/10">
+      <div className="flex items-center gap-2 p-1 cursor-pointer w-fit pr-4" onClick={()=>navigate("/login/signup")}>
+        <ArrowLeftFromLineIcon/>
+      </div>
+      <div className="font-bold text-sm pb-1 pt-1 pl-5">
+        강사 회원 가입
+      </div>
       <form action="">
         <div className="pb-20">
           
-          <SignInputTab idx={tabIdx} thisIdx={0}>
+          <SignInputTab idx={tabIdx} thisIdx={0} title="프로필 설정">
             <SignProfilePage
               userInfo={userInfo}
               setUserInfo={setUserInfo}
@@ -131,25 +149,22 @@ const SignTrainer = () => {
             />
           </SignInputTab>
 
-
-          <SignBodyPage
-            userInfo={userInfo}
-            setUserInfo={setUserInfo}
-            handleChangeValue={handleChangeValue}
-            handleInputNumber={handleInputNumber}
-            tabIdx={tabIdx}
-            thisIdx={1}
-            />
-          <SignInputTab idx={tabIdx} thisIdx={2}>
-            <div className="text-2xl text-center pb-5">운동 경력</div>
-
+          <SignInputTab idx={tabIdx} thisIdx={1} title="신체 정보">
+            <SignBodyPage
+              userInfo={userInfo}
+              setUserInfo={setUserInfo}
+              handleChangeValue={handleChangeValue}
+              handleInputNumber={handleInputNumber}
+              />
+          </SignInputTab>
+          <SignInputTab idx={tabIdx} thisIdx={2} title="운동 경력">
             <InputWithLabel name="history" onChange={handleChangeValue} 
             value={userInfo.history} 
             isNumber={true} 
             waringText={"0~100 범위의 값을 입력해주세요"} 
             isWaring={userInfo.history < 0 || userInfo.history >100}/>
           </SignInputTab>
-          <SignInputTab idx={tabIdx} thisIdx={3}>
+          <SignInputTab idx={tabIdx} thisIdx={3} title="제공 서비스">
             <ListMultiSelector
               list={
                 [
@@ -174,7 +189,7 @@ const SignTrainer = () => {
               }
               />            
           </SignInputTab>
-          <SignInputTab idx={tabIdx} thisIdx={4}>
+          <SignInputTab idx={tabIdx} thisIdx={4} title="체육관 선택">
             <SignGym
               onChange={handleChangeValue}
             />

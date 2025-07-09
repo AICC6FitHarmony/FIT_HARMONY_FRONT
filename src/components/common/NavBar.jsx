@@ -57,11 +57,26 @@ const NavBar = () => {
           method: "GET",
         };
         const result = await request("/buy/matchMember?status=A", options);
-        setTrainerMatchUserList(result.data);
+
+        const { success, message } = result;
+
+        if(success){
+          setTrainerMatchUserList(result.data);
+        }else{
+          if(message == "noAuth"){
+              toast.error("로그인 후 이용 가능한 서비스 입니다.", {
+                  position: "bottom-center"
+              });
+          }else{
+              toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
+                  position: "bottom-center"
+              });
+          }
+        }
+
       };
       selectTrainerMatchUserList();
     }
-    navigate("/");
   }, [isTrainerMatchMember]);
 
   const trainerSelectedMember = useSelector((state) => state.common.trainerSelectedMember);
