@@ -24,7 +24,7 @@ import InbodyRadarCharts from "./InbodyRadarCharts";
 import { useAuthRedirect } from "../../js/login/AuthContext";
 import InbodyDetailForm from "./InbodyDetailForm";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 const Inbody = () => {
   const dispatch = useDispatch();
@@ -657,6 +657,7 @@ const Inbody = () => {
           />
         </StandardModal>
       )}
+      <ToastContainer/>
     </>
   );
 };
