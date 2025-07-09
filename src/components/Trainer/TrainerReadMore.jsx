@@ -6,16 +6,7 @@ import {
   fetchTrainerProduct,
   fetchTrainerReview,
 } from '../../js/redux/slice/sliceTrainer';
-import {
-  Heart,
-  Share2,
-  Phone,
-  Mail,
-  MapPin,
-  Star,
-  ChevronRight,
-  Navigation,
-} from 'lucide-react';
+import { MapPin, Star, Navigation } from 'lucide-react';
 
 const TrainerReadMore = () => {
   const { userId } = useParams();
@@ -293,7 +284,7 @@ const TrainerReadMore = () => {
   };
 
   const handleServiceClick = (name) => {
-    alert(`${name} 상세 정보를 확인하시겠습니까?`);
+    confirm(`${name} 강의를 신청하겠습니까?`);
   };
 
   const handleContactClick = (type) => {
