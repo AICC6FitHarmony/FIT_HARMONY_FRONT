@@ -12,10 +12,10 @@ const SignSelectText = ({texts,title,infoHeader, userInfo, setUserInfo, handleCh
   }
   return (
     <div className=''>
-      <div className='text-2xl text-center'>
+      {title&&(<div className='text-2xl text-center pb-10'>
         {title}
-      </div>
-      <div className='pt-10'>
+      </div>)}
+      <div className=''>
         {
           texts.map((txt, idx)=>(
             <div 

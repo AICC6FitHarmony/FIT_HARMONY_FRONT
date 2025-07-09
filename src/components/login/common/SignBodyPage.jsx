@@ -10,7 +10,7 @@ const SignBodyPage = ({
 }) => {
   const { age, height, weight} = userInfo;
   return (
-    <SignInputTab idx={tabIdx} thisIdx={thisIdx}>
+    <div>
       <div className={"flex justify-center flex-col items-center gap-5"}>
         <InputWithLabel 
           label="나이" name="age" onChange={handleChangeValue} 
@@ -45,7 +45,7 @@ const SignBodyPage = ({
           </div>
         </div>
       </div>
-    </SignInputTab>
+    </div>
   );
 };
 
