@@ -11,6 +11,7 @@ import Trainer from './components/Trainer/Trainer';
 import Community from './components/Community/Community';
 import { useSelector } from 'react-redux';
 import Reload from './components/common/Reload';
+import { AuthProvider } from './js/login/AuthContext';
 
 function App() {
   const isLoading = useSelector((state) => state.common.isLoading);
@@ -18,6 +19,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <AuthProvider>
       <Header />
       <div className={`content-wrapper bg-orange-50${(isTrainerMatchMember ? ' trainer-match-wrapper' : '')}`}>
         <Routes>
@@ -54,6 +56,7 @@ function App() {
         )}
       </div>
       <Footer />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

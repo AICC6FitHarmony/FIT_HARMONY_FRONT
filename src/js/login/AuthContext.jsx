@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import StandardModal from '../../components/cmmn/StandardModal';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);        // 사용자 정보
   const [loading, setLoading] = useState(true);  // 로딩 상태
   const [isModal, setIsModal] = useState(false);
@@ -25,7 +27,8 @@ export const AuthProvider = ({ children }) => {
 
   
   const handleModalOK = ()=>{
-    location.href = "/login"
+    setIsModal(false);
+    navigate("/login");
   }
 
   return (
