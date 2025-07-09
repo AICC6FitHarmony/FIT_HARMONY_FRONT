@@ -51,9 +51,11 @@ export const useModal = () => {
 
 export const useAlertModal = () => {
   const openModal = useContext(ModalContext);
-  const openAlert = (title, text)=>{
+  const openAlert = ({title, text})=>{
     openModal({
-      title, children:text, isOkClose, size:{height:"auto"}
+      title, children:(
+        <div>{text}</div>
+      ), isOkClose:true, size:{height:"auto", width:"auto"}
     })
   }
   return openAlert; 

@@ -32,13 +32,7 @@ const CommunityPostUpdate = ({boards}) => {
     if(result.success == false){
       openAlert({
         title:"권한 없음",
-        children:(
-          <div className='text-center'>
-            {result.msg}
-          </div>
-        ),
-        size:{width:"20rem",height:"auto"},
-        isOkClose:true
+        text:result.msg
       })
       return
     }
