@@ -65,6 +65,9 @@
     padding:0;
 }
 
+/* .fc-daygrid-day-number{
+    width:100%;
+} */
 
 .trainer-match-wrapper .excersize-day-schedule-wrapper table tr td:last-child,
 .trainer-match-wrapper .excersize-day-schedule-wrapper table colgroup col:last-child,
