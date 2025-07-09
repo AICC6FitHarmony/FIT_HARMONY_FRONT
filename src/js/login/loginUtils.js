@@ -59,3 +59,8 @@ export const userLogout = (next) => {
       else location.href = '/';
     });
 };
+
+export const existNickName = async (nickName)=>{
+  const res = await fetch(import.meta.env.VITE_BACKEND_DOMAIN + `/login/exist-nick?nick_name=${nickName}`);
+  return await res.json();
+}

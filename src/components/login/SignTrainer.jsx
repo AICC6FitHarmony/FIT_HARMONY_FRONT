@@ -30,6 +30,7 @@ const SignTrainer = () => {
     goal: undefined,
     role: "TRAINER",
     gymId: undefined,
+    nickExist: false
   });
 
   const handleSign = async () => {
@@ -85,6 +86,14 @@ const SignTrainer = () => {
       await valueCheck(
         !userInfo.nick_name,
         "프로필 이름을 입력해 주세요",
+        MoveIndex(0)
+      )
+    )
+      return;
+    if (
+      await valueCheck(
+        userInfo.nickExist,
+        "닉네임 중복을 확인해 주세요",
         MoveIndex(0)
       )
     )

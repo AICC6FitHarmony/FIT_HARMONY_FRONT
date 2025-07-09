@@ -23,6 +23,7 @@ const SignPerson = () => {
     history: undefined,
     goal: undefined,
     role: "MEMBER",
+    nickExist: true
   });
   const navigate = useNavigate();
 
@@ -77,6 +78,14 @@ const SignPerson = () => {
       await valueCheck(
         !userInfo.nick_name,
         "프로필 이름을 입력해 주세요",
+        MoveIndex(0)
+      )
+    )
+      return;
+    if (
+      await valueCheck(
+        userInfo.nickExist,
+        "닉네임 중복을 확인해 주세요",
         MoveIndex(0)
       )
     )
