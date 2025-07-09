@@ -6,7 +6,6 @@ const GET_INBODY_API_URL = `${DOMAIN}/inbody`;
 
 // API 요청 함수들
 const getRequest = async (url) => {
-  console.log("url : ", url);
   return await fetch(url, {
     credentials: 'include',
   }).then((response) => {
@@ -19,8 +18,6 @@ const getRequest = async (url) => {
 
 // POST 요청 함수
 const postRequest = async (url, data) => {
-  console.log("POST url : ", url);
-  console.log("POST data : ", data);
   return await fetch(url, {
     method: 'POST',
     credentials: 'include',
@@ -38,8 +35,6 @@ const postRequest = async (url, data) => {
 
 // PUT 요청 함수
 const putRequest = async (url, data) => {
-  console.log("PUT url : ", url);
-  console.log("PUT data : ", data);
   return await fetch(url, {
     method: 'PUT',
     credentials: 'include',
@@ -60,9 +55,7 @@ export const fetchInbodyDayData = createAsyncThunk(
   'inbody/fetchInbodyDayData',
   async ({ userId, inbodyTime }) => {
     const fullPath = `${GET_INBODY_API_URL}/${userId}?inbodyTime=${inbodyTime}`;
-    //console.log('API 호출 URL:', fullPath);
     const response = await getRequest(fullPath);
-    //console.log('API 응답 데이터:', response);
     return response;
   }
 );
@@ -127,7 +120,6 @@ const inbodySlice = createSlice({
       .addCase(fetchInbodyDayData.fulfilled, (state, action) => {
         state.loading = false;
         state.inbodyData = action.payload;
-        //console.log('Redux 스토어에 저장된 데이터:', action.payload);
       })
       .addCase(fetchInbodyDayData.rejected, (state, action) => {
         state.loading = false;
@@ -141,7 +133,6 @@ const inbodySlice = createSlice({
       .addCase(fetchInbodyMonthData.fulfilled, (state, action) => {
         state.loading = false;
         state.inbodyData = action.payload;
-        //console.log('Redux 스토어에 저장된 데이터:', action.payload);
       })
       .addCase(fetchInbodyMonthData.rejected, (state, action) => {
         state.loading = false;

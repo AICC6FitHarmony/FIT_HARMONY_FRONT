@@ -17,8 +17,7 @@ const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
     (state) => state.inbody
   );
   const [inputMode, setInputMode] = useState(null); // 'photo' 또는 'manual'
-  // const [file, setFile] = useState(null);
-  const [file, setFile] = useState(true);
+  const [file, setFile] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const fileUpload = useImageFileUpload();
   const request = useRequest();
@@ -91,7 +90,6 @@ const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
 
   const handlePhotoInput = () => {
     setInputMode("photo");
-    console.log("사진으로 입력 선택");
   };
 
   const handleFileChange = (e) => {
@@ -99,29 +97,28 @@ const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
   };
 
   const handleOcrAnalysis = async () => {
-    // if (!file) {
-    //   toast.error("파일을 선택해주세요.");
-    //   return;
-    // }
+    if (!file) {
+      toast.error("파일을 선택해주세요.");
+      return;
+    }
 
     setIsProcessing(true);
     try {
-      // // 1. 파일 업로드
-      // const uploadFormData = new FormData();
-      // uploadFormData.append("file", file);
-      // const upload = await fileUpload(uploadFormData);
+      // 1. 파일 업로드
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      const upload = await fileUpload(uploadFormData);
 
       // 2. OCR 분석 요청
       const option = {
         method: "POST",
         body: {
-          // fileId: upload.fileIdArr[0],
-          fileId: 299,
+          fileId: upload.fileIdArr[0],
         },
       };
 
       const ocrResult = await request("/inbody/requestOcr", option);
-      console.log("ocrResult 121 line inbodyRegisterForm.jsx : ", ocrResult);
+
       if (ocrResult.success) {
         // 3. OCR 결과를 폼에 자동 입력
         const ocrData = ocrResult.data;
@@ -735,7 +732,7 @@ const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
           <div className="flex gap-4 justify-center">
             <button
               onClick={handleOcrAnalysis}
-              // disabled={!file || isProcessing}
+              disabled={!file || isProcessing}
               className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {isProcessing ? "분석 중..." : "OCR 분석 시작"}
