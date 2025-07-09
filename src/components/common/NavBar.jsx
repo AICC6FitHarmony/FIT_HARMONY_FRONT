@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { BsPeopleFill } from "react-icons/bs";
 import { HiMenu, HiX } from "react-icons/hi";
 import { TiArrowSortedDown } from "react-icons/ti";
@@ -41,11 +41,11 @@ const NavBar = () => {
   // const [isTrainerMatchMember, setIsTrainerMatchMember] = useState(false);
   const request = useRequest();
   const dispatch = useDispatch();
-  const isTrainerMatchMember = useSelector(
-    (state) => state.common.isTrainerMatchMember
-  );
+  const isTrainerMatchMember = useSelector((state) => state.common.isTrainerMatchMember);
   const [trainerMatchUserList, setTrainerMatchUserList] = useState([]);
+  
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!isTrainerMatchMember) {
@@ -64,14 +64,23 @@ const NavBar = () => {
     navigate("/");
   }, [isTrainerMatchMember]);
 
-  const trainerSelectedMember = useSelector(
-    (state) => state.common.trainerSelectedMember
-  );
+  const trainerSelectedMember = useSelector((state) => state.common.trainerSelectedMember);
   const [showSelectDropdown, setShowSelectDropdown] = useState(false);
   const handleSelect = (option) => {
     dispatch(setTrainerSelectedMember(option));
     setShowSelectDropdown(false);
+
   };
+
+  useEffect(() => {
+      const nowPage = location.pathname;
+      if(nowPage == '/schedule' || nowPage == '/inbody'){
+        navigate('/reload'); // 리로드용 빈페이지
+        setTimeout(() => {
+          navigate(nowPage); // 현제 페이지
+        }, 50)
+      }
+  }, [trainerSelectedMember]);
 
   return (
     // 사이트 전체 배경
@@ -118,22 +127,21 @@ const NavBar = () => {
                   className="trainer-array bg-white rounded-2xl h-10 flex items-center justify-center gap-2 hover:underline px-4"
                   onClick={() => setShowSelectDropdown(!showSelectDropdown)}
                 >
-                  {trainerSelectedMember.userName}{" "}
-                  {trainerSelectedMember.userId == 0 ? "" : "회원님"}{" "}
+                  {trainerSelectedMember.userId == 0 ? trainerSelectedMember.userName : `${trainerSelectedMember.nickName}( ${trainerSelectedMember.userName} )`}&nbsp;
+                  {trainerSelectedMember.userId == 0 ? "" : "회원님"}
                   <TiArrowSortedDown />
                 </button>
 
                 {/* 정렬 드롭다운 */}
                 {showSelectDropdown && (
-                  <div className="absolute top-12 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-40 w-36">
+                  <div className="absolute top-12 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-40">
                     <ul className="py-2">
                       {trainerMatchUserList?.map((item, idx) => (
                         <li key={idx}>
                           <button
                             className="w-full text-center px-4 py-3 hover:bg-gray-100 text-sm"
-                            onClick={() => handleSelect(item)}
-                          >
-                            {item.userName} 회원님
+                            onClick={() => handleSelect(item)}>
+                            {`${item.nickName}( ${item.userName} )`} 회원님
                           </button>
                         </li>
                       ))}

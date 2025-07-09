@@ -148,8 +148,8 @@ const SignPerson = () => {
         >
           <SignButton handleSubmit={handleSubmit} />
         </div>
-        <SignNav tabIdx={tabIdx} setTabIdx={setTabIdx} idxMax={idxMax} />
       </form>
+        <SignNav tabIdx={tabIdx} setTabIdx={setTabIdx} idxMax={idxMax} />
       {/* <button onClick={handleSign}>Sign</button> */}
       <ToastContainer />
     </div>

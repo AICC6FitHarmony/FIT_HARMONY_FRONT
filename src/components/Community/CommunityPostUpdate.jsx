@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import PostEditor from './components/PostEditor';
 import { getPost, postUpdate } from '../../js/community/communityUtils';
+import { useAlertModal } from '../cmmn/ModalContext';
 
 const CommunityPostUpdate = ({boards}) => {
   const {postId} = useParams();
+  const openAlert = useAlertModal();
   const [postData, setPostData] = useState({
     title:"", content:undefined
   })
@@ -28,6 +30,10 @@ const CommunityPostUpdate = ({boards}) => {
     const result = await postUpdate(form);
     console.log(result)
     if(result.success == false){
+      openAlert({
+        title:"권한 없음",
+        text:result.msg
+      })
       return
     }
     location.href = `/community/post/${postId}`

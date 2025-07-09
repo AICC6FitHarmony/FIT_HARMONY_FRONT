@@ -12,6 +12,7 @@ import { FontSize } from './components/PostEditor';
 import { useAuth } from '../../js/login/AuthContext';
 import CommentsView from './components/CommentsView';
 import ImageResize from 'tiptap-extension-resize-image';
+import { useModal } from '../cmmn/ModalContext';
 
 const PostView = ({}) => {
   const navigate = useNavigate();
@@ -21,7 +22,9 @@ const PostView = ({}) => {
   const [postInfo, setPostInfo] = useState({
     title:"", nickName:"", userId: ""
   });
+  const openModal = useModal();
   const {postId} = useParams();
+  
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -56,7 +59,15 @@ const PostView = ({}) => {
     };
     fetchPost();
   }, []);
-
+  const handleOpenDelete = ()=>{
+    openModal({
+      title:"삭제 확인",
+      children:"게시글을 삭제하시겠습니까?",
+      okEvent:handleDelete,
+      isCancelClose:true,
+      size:{width:"auto", height:"auto"}
+    });
+  }
   const handleDelete = async ()=>{
     const requestBody = {
       userId:user.user.userId,
@@ -92,7 +103,7 @@ const PostView = ({}) => {
           (
           <div className='font-bold flex gap-2'>
             <Link to={`/community/${postId}/update`}>수정</Link>
-            <div className=' cursor-pointer' onClick={handleDelete}>삭제</div>
+            <div className=' cursor-pointer' onClick={handleOpenDelete}>삭제</div>
           </div>
           )
         }

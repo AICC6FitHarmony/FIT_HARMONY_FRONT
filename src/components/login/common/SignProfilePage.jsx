@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import defaultProfileImg from '../defaultProfileImg.png';
+import defaultProfileImg from '../source/defaultProfileImg.png';
 import InputWithLabel from '../../cmmn/InputWithLabel';
 
 const SignProfilePage = ({userInfo, setUserInfo, handleChangeValue}) => {

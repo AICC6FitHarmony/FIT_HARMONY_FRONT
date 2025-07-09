@@ -1,5 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Home from './components/cmmn/Home';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import Login from './components/login/Login';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
@@ -11,26 +10,28 @@ import Schedule from './components/schedule/Schedule';
 import Trainer from './components/Trainer/Trainer';
 import Community from './components/Community/Community';
 import { useSelector } from 'react-redux';
+import Reload from './components/common/Reload';
+import { AuthProvider } from './js/login/AuthContext';
 
 function App() {
   const isLoading = useSelector((state) => state.common.isLoading);
-
-
   const isTrainerMatchMember = useSelector(state => state.common.isTrainerMatchMember);
-  
+
   return (
     <BrowserRouter>
+      <AuthProvider>
       <Header />
       <div className={`content-wrapper bg-orange-50${(isTrainerMatchMember ? ' trainer-match-wrapper' : '')}`}>
         <Routes>
           <Route path="/" element={<Intro />} />
           <Route path="/login/*" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/inbody" element={<Inbody />} />
+          <Route path="/inbody" element={<Inbody/>} />
           <Route path="/mypage" element={<MyPage />} />
-          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/schedule" element={<Schedule/>} />
           <Route path="/trainer/*" element={<Trainer />} />
           <Route path="/community/*" element={<Community />} />
+          <Route path="/reload" element={<Reload />} />
         </Routes>
 
         {isLoading && (
@@ -55,6 +56,7 @@ function App() {
         )}
       </div>
       <Footer />
+      </AuthProvider>
     </BrowserRouter>
   );
 }
