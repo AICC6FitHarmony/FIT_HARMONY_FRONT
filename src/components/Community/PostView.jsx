@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { deletePost, getPost } from '../../js/community/communityUtils';
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { deletePost, getBoardInfo, getPost } from '../../js/community/communityUtils';
 import { generateHTML } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -13,19 +13,24 @@ import { useAuth } from '../../js/login/AuthContext';
 import CommentsView from './components/CommentsView';
 import ImageResize from 'tiptap-extension-resize-image';
 
-
-
 const PostView = ({}) => {
+  const navigate = useNavigate();
   const {user} = useAuth();
+  const [boardInfo, setBoardInfo] = useState({});
   const [postHtml, setPostHtml] = useState();
   const [postInfo, setPostInfo] = useState({
-    title:"", nickName:""
+    title:"", nickName:"", userId: ""
   });
   const {postId} = useParams();
 
   useEffect(() => {
     const fetchPost = async () => {
-      const data = await getPost(postId);
+      const res = await getPost(postId);
+      if(res.success == false) {
+        navigate("/community")
+        return ;
+      }
+      const data = res.data;
       const json = JSON.parse(data.content);
       const html = generateHTML(json,[
       StarterKit,
@@ -42,8 +47,12 @@ const PostView = ({}) => {
       setPostHtml(html);
       setPostInfo({
         title:data.title,
-        nickName:data.nickName
-      })
+        nickName:data.nickName,
+        userId:data.userId
+      });
+
+      const boardRes = await getBoardInfo(data.categoryId);
+      setBoardInfo(boardRes.data.info);
     };
     fetchPost();
   }, []);
@@ -78,13 +87,23 @@ const PostView = ({}) => {
       <div className='post_body rounded-sm min-h-[400px] p-2' dangerouslySetInnerHTML={{ __html: postHtml }}/>
       <div className='w-full h-[2px] bg-green-700'/>
       <div className='controls py-2 flex justify-end gap-3'>
-        <Link to={`/community/${postId}/update`}>수정</Link>
-        <button onClick={handleDelete}>삭제</button>
+        {
+          (user&&user.user&&user.user.userId == postInfo.userId)&&
+          (
+          <div className='font-bold flex gap-2'>
+            <Link to={`/community/${postId}/update`}>수정</Link>
+            <div className=' cursor-pointer' onClick={handleDelete}>삭제</div>
+          </div>
+          )
+        }
       </div>
       
       </div>
       <div className='pt-5'>
-        <CommentsView/>
+        {
+          boardInfo.isComment?(<CommentsView/>):""
+        }
+        
       </div>
     </div>
   )

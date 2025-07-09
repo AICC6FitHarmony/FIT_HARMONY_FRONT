@@ -80,7 +80,7 @@ const DietScheduleTable = ({data, selectDate, dietRegCallback}) => {
                     <col width="30%"/>
                     <col width="80%"/>
                 </colgroup>
-                <thead className='bg-green-100 font-bold sticky z-1 top-[1px]'>
+                <thead className='bg-green-100 font-bold sticky z-1 top-0'>
                     <tr>
                         <td colSpan={2}>식단</td>
                     </tr>

@@ -1,5 +1,8 @@
+import { useSelector } from "react-redux";
 import { useRequest } from "../config/requests";
 import { toast } from "react-toastify";
+import { useAuth } from "../login/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const useUpdateScheduleStatus = () => {
     const request = useRequest();
@@ -36,9 +39,32 @@ const useUpdateScheduleStatus = () => {
 
 const useGetScheduleList = () => {
     const request = useRequest();
+    
+    const {user} = useAuth();
+    const isTrainerMatchMember = useSelector(state => state.common.isTrainerMatchMember);
+    const trainerSelectedMember = useSelector(state => state.common.trainerSelectedMember);
+    const navigate = useNavigate();
 
     return async function getScheduleList ({startTime, endTime, checkedStatus, callback}){
-        const queryParamString = (checkedStatus ? `?status=${checkedStatus}` : '');
+        let queryParam = [];
+        if(checkedStatus){
+            queryParam.push(`status=${checkedStatus}`);
+        }
+        if(user?.user?.role == "TRAINER" && isTrainerMatchMember){ // 트레이너이며, 
+            if(trainerSelectedMember.userId == 0){
+                toast.error("확인하실 회원님을 선택해주세요.", {
+                    position: "bottom-center"
+                });
+                setTimeout(() => {
+                    navigate("/")
+                }, 2000);
+                return;
+            }else{
+                queryParam.push(`selectedUserId=${trainerSelectedMember.userId}`);
+            }
+        }
+
+        const queryParamString = (queryParam.length > 0 ? `?${queryParam.join('&')}` : '');
         const result = await request(`/schedule/calendar/${startTime}/${endTime}${queryParamString}`, {method:"get"});
 
         const { success, message, data } = result;

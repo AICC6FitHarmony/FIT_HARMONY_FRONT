@@ -57,7 +57,7 @@ img {
 button {
   cursor: pointer;
   border-radius: 10px;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 0.75rem !important;
 }
 
 button.ok,
@@ -74,6 +74,11 @@ button.ok {
   background-color: #3498db;
   color: white;
 }
+
+.trainer-match-wrapper button.ok, .trainer-match-wrapper .modal-contents-wrapper form {
+  display: none;
+}
+
 
 button.cancel {
   background-color: #ff2d55;

@@ -40,7 +40,7 @@ const DayScheduleTable = ({data, labels, radioChangeCallback}) => {
     }
     
     return (
-        <div className='overflow-auto max-h-150'>
+        <div className='excersize-day-schedule-wrapper overflow-auto max-h-150'>
             <h2 className='text-2xl font-bold mb-3'>운동 스케쥴</h2>
             <table className='w-full bg-white'>
                 <colgroup>

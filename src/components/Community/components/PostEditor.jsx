@@ -77,8 +77,11 @@ function sanitizeContent(node) {
 import MenuBar from './MenuBar';
 // import { ResizableImage } from './ResizableImage';
 import Image from '@tiptap/extension-image';
-const PostEditor = ({handleSubmit, defaultPost}) => {
+import { useParams } from 'react-router-dom';
+const PostEditor = ({handleSubmit, defaultPost, boards}) => {
+  const {boardId:board_param} = useParams();
   const [postTitle, setPostTitle] = useState('');
+  const [boardId, setBoardId] = useState(board_param?board_param:1);
   const editor = useEditor({
     extensions: [
       Document,
@@ -105,12 +108,14 @@ const PostEditor = ({handleSubmit, defaultPost}) => {
     if(!defaultPost) return;
     setPostTitle(defaultPost.title)
     editor?.commands.setContent(defaultPost.content);
+    setBoardId(defaultPost.boardId);
   },[defaultPost]);
 
   const generateForm = async()=>{
     const form = new FormData();
     const jsonContent = editor.getJSON();
     const cleanJSON = sanitizeContent(structuredClone(jsonContent));
+    form.append("board_id", boardId);
     form.append('title',postTitle);
     form.append("content",JSON.stringify(cleanJSON));
     return form;
@@ -128,7 +133,17 @@ const PostEditor = ({handleSubmit, defaultPost}) => {
       <div className='p-4.5'>
       <div className='post-wrapper flex flex-col gap-5 rounded-xl bg-white shadow-xl p-2'>
 
-      <div className='post-header p-2'>
+      <div className='post-header p-2 pb-0'>
+        <div>
+          <select name="" id="" value={boardId} onChange={(e)=>setBoardId(e.target.value)}>
+            {
+              boards?.map((item,idx)=>{
+                return(
+                <option key={idx} value={item.categoryId}>{item.categoryName}</option>
+              )})
+            }
+          </select>
+        </div>
         <div className='post_title border-[#ccc] text-green-700 font-bold'>
           <input
           type="text"
@@ -137,7 +152,6 @@ const PostEditor = ({handleSubmit, defaultPost}) => {
           style={{
             width: '100%',
             fontSize: '1.5em',
-            marginBottom: '1em',
           }}
           onChange={(e)=>{setPostTitle(e.target.value)}}
         />

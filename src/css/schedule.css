@@ -66,6 +66,14 @@
 }
 
 
+.trainer-match-wrapper .excersize-day-schedule-wrapper table tr td:last-child,
+.trainer-match-wrapper .excersize-day-schedule-wrapper table colgroup col:last-child,
+.trainer-match-wrapper .excersize-day-schedule-wrapper table tr th:last-child,
+.trainer-match-wrapper .schedule-diet-chart-wrapper tbody tr:last-child{
+    display:none;
+}
+
+
 
 @media screen and (max-width: 767px) {
     .schedule-header-wrapper {
