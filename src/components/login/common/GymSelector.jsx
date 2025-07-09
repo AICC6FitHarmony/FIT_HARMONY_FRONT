@@ -103,7 +103,6 @@ const GymSelector = ({setSelect}) => {
         <div className={"cursor-pointer rounded-r-sm "+ (newGym?selectClass:unSelectClass)} onClick={()=>setNewGym(true)}>신규</div>
       </div>
       <div className={`select-gym pt-[1rem] flex flex-col gap-2 ${newGym?"hidden":""}`}>
-        <div onClick={()=>{setSelectIdx(3)}}>test</div>
         <div className='px-2'>
           <InputWithLabel label={"이름"} value={gymFilter} onChange={handleSearchGym}/>
         </div>
