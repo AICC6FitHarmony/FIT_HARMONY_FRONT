@@ -64,6 +64,7 @@ const TrainerMain = () => {
       return {
         userId: trainer.userId,
         userName: trainer.userName,
+        fileId: trainer.fileId,
         gender: gender,
         gym: {
           gym: trainer.gym,
@@ -683,9 +684,11 @@ const TrainerMain = () => {
                         }
                       >
                         <img
-                          src={aa}
-                          alt="Trainer"
-                          className="w-full h-full object-cover rounded-lg sm:rounded-2xl"
+                          src={`${
+                            import.meta.env.VITE_BACKEND_DOMAIN
+                          }/common/file/${trainer.fileId}`}
+                          alt=""
+                          className="w-full h-full object-cover"
                         />
                         <div className="rounded-lg sm:rounded-2xl text-shadow-2xs text-xs text-white border-1 px-1 sm:px-2 w-auto bg-black opacity-50 absolute z-10 bottom-0.5 sm:bottom-1 md:bottom-2 left-0.5 sm:left-1 md:left-2">
                           {trainer.categories}
