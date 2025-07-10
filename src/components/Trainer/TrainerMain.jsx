@@ -5,13 +5,17 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchTrainers } from '../../js/redux/slice/sliceTrainer';
 import { TiArrowSortedDown } from 'react-icons/ti';
 import { FaListUl, FaStar } from 'react-icons/fa6';
-import aa from '../Trainer/test/aa.png';
+
 import { useNavigate } from 'react-router-dom';
 import { MdDialpad } from 'react-icons/md';
 import TrainerMapModal from './TrainerMapModal'; // 위에서 만든 컴포넌트
+import { useAuth } from '../../js/login/AuthContext';
+import StandardModal from '../cmmn/StandardModal';
 
 const TrainerMain = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const trainers = useSelector((state) => state.trainer.trainers);
   const status = useSelector((state) => state.trainer.status);
   const error = useSelector((state) => state.trainer.error);
@@ -25,6 +29,7 @@ const TrainerMain = () => {
   const [sortBy, setSortBy] = useState('최신순');
   const [showMapModal, setShowMapModal] = useState(false); // 지도 모달 상태 추가
   const [showMobileFilter, setShowMobileFilter] = useState(false); // 모바일 필터 토글 상태 추가
+  const [showLoginModal, setShowLoginModal] = useState(false); // 로그인 모달 상태 추가
 
   // 필터 상태
   const [filters, setFilters] = useState({
@@ -42,15 +47,36 @@ const TrainerMain = () => {
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
 
+  // 로그인 상태 확인
+  useEffect(() => {
+    if (!authLoading && !user?.isLoggedIn) {
+      setShowLoginModal(true);
+    }
+  }, [authLoading, user?.isLoggedIn]);
+
   // 백엔드에서 초기 데이터 가져오기
   useEffect(() => {
-    dispatch(
-      fetchTrainers({
-        limit: 1000,
-        offset: 0,
-      })
-    );
-  }, [dispatch]);
+    if (!authLoading && user?.isLoggedIn) {
+      dispatch(
+        fetchTrainers({
+          limit: 1000,
+          offset: 0,
+        })
+      );
+    }
+  }, [dispatch, authLoading, user?.isLoggedIn]);
+
+  // 로그인 모달 확인 버튼 클릭 시
+  const handleLoginModalOK = () => {
+    setShowLoginModal(false);
+    navigate('/login');
+  };
+
+  // 로그인 모달 취소 버튼 클릭 시
+  const handleLoginModalCancel = () => {
+    setShowLoginModal(false);
+    navigate('/');
+  };
 
   // 백엔드에서 받은 데이터를 프론트엔드에서 사용할 형태로 변환
   const transformTrainerData = (trainersData) => {
@@ -284,7 +310,6 @@ const TrainerMain = () => {
     if (e.key === 'Enter') handleSearch();
   };
 
-  const navigate = useNavigate();
   const handleReadMore = (userId) => {
     navigate(`/trainer/${userId}`);
   };
@@ -787,6 +812,18 @@ const TrainerMain = () => {
         trainers={filteredResult}
         onTrainerSelect={handleTrainerSelectFromMap}
       />
+
+      {showLoginModal && (
+        <StandardModal
+          title="로그인이 필요합니다"
+          closeEvent={handleLoginModalCancel}
+          okEvent={handleLoginModalOK}
+          cancelEvent={handleLoginModalCancel}
+          size={{ width: '400px', height: 'auto' }}
+        >
+          <p>강사를 찾으시려면 로그인이 필요합니다.</p>
+        </StandardModal>
+      )}
     </div>
   );
 };
