@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { deleteComment, updateComment } from '../../../js/community/communityUtils';
 import { CornerDownRight } from 'lucide-react';
 
-const Comment = ({load_comments, comment, auth_id, handleReply}) => {
+const Comment = ({load_comments, comment, auth_id, handleReply, focusParent}) => {
   const {nickName, content, createdTime, userId, commentId,isDeleted, depth} = comment;
   const [editComment, setEditComment] = useState(false);
   const [editContent, setContent] = useState(content);

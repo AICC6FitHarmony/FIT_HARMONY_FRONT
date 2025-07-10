@@ -95,7 +95,9 @@ const PostView = ({}) => {
         </div>
       </div>
       <div className='w-full h-[2px] bg-green-700'/>
+      
       <div className='post_body rounded-sm min-h-[400px] p-2' dangerouslySetInnerHTML={{ __html: postHtml }}/>
+
       <div className='w-full h-[2px] bg-green-700'/>
       <div className='controls py-2 flex justify-end gap-3'>
         {

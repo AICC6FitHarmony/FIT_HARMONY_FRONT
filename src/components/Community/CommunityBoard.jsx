@@ -140,7 +140,8 @@ const CommunityBoard = () => {
           }
           {
             posts.map((post,idx)=>(
-              <div key={post.postId} className='bg-white p-2 rounded-lg shadow-lg hover:bg-green-50 transition-all duration-200'>
+              <Link to={`/community/post/${post.postId}`} key={post.postId} >
+              <div className='bg-white p-2 rounded-lg shadow-lg hover:bg-green-50 transition-all duration-200'>
                 <div className="post-header flex justify-between">
                   <div className="post-user-name min-w-[5rem] text-sm">{post.nickName}</div>
                   <div className="info flex justify-end  text-sm">
@@ -148,19 +149,18 @@ const CommunityBoard = () => {
                   </div>
                 </div>
                 <div className="post-body flex gap-2">
-                    <Link to={`/community/post/${post.postId}`} className='w-full h-full'>
                       <div className="post-title w-full pl-[6rem] text-green-700">
                         <span className='text-lg '>{post.title}</span>
                         &nbsp;
                         <span className='text-yellow-600'>[{post.commentCnt}]</span>
                       </div>
-                    </Link>
                 </div>
                 <div className="post-footer flex justify-between">
                   <div className="create-date min-w-[8rem] text-sm">{post.createdTime.substr(0,10)}</div>
                   <div className="post-num min-w-[5rem] text-center text-gray-600 text-sm">No. {post.postId}</div>
                 </div>
               </div>
+              </Link>
             ))
           }
           </div>
