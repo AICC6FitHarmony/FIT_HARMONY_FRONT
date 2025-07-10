@@ -304,13 +304,13 @@ const TrainerReadMore = () => {
           },
           credentials: 'include',
           body: JSON.stringify({
-            productId: p.id,
+            productId: p.productId,
           }),
         })
           .then((response) => response.json())
           .then((data) => {
             if (data.success) {
-              // 성공했을 때만 성공 메시지 표시
+              //  성공 메시지 표시
               Swal.fire({
                 title: '신청 완료!',
                 text: '상담 요청이 접수되었습니다. 곧 연락드리겠습니다.',
