@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./Withdraw.css";
+import "../../css/Mypage.css";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import { useUpdateUserActive } from "../../js/mypage/mypage";

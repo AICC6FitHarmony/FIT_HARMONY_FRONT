@@ -1,18 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  useCheckNicknameDuplicate,
-  useUpdateUserData,
-} from "../../js/mypage/mypage";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useUpdateUserData } from "../../js/mypage/mypage";
 import { useImageFileUpload } from "../../js/common/util";
 import { toast } from "react-toastify";
 import { FormInput } from "./common";
 import defaultProfile from "../../images/profile.png";
+import { useDispatch, useSelector } from "react-redux";
+import { checkNicknameDuplicate } from "../../js/redux/slice/sliceMypage";
 
 const ProfileEdit = ({ userData }) => {
   const [profileImg, setProfileImg] = useState(null);
-  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
-  const [nicknameChecked, setNicknameChecked] = useState(false);
-  const [nicknameDuplicate, setNicknameDuplicate] = useState(false);
   const [role, setRole] = useState(userData?.role || "");
   const [form, setForm] = useState({
     name: userData?.userName || "",
@@ -28,13 +24,22 @@ const ProfileEdit = ({ userData }) => {
   });
   const [fileId, setFileId] = useState(userData?.fileId || "");
 
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
+  const [nicknameChecked, setNicknameChecked] = useState(false);
+  const [nicknameDuplicate, setNicknameDuplicate] = useState(false);
+  const [nicknameValid, setNicknameValid] = useState(true);
+
   // 파일 업로드 관련 상태
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
 
+  // 디바운싱을 위한 타이머
+  const nicknameCheckTimerRef = useRef(null);
+
   // 훅 초기화
   const updateUserData = useUpdateUserData();
-  const checkNicknameDuplicate = useCheckNicknameDuplicate();
+  const dispatch = useDispatch();
+  const { nicknameData, isDuplicate } = useSelector((state) => state.mypage);
   const fileUpload = useImageFileUpload();
 
   useEffect(() => {
@@ -64,13 +69,27 @@ const ProfileEdit = ({ userData }) => {
         setProfileImg(null);
         setFileId("");
       }
+
+      // 기존 닉네임이 있으면 중복검사 완료 상태로 설정
+      if (userData.nickName) {
+        setNicknameChecked(true);
+        setNicknameDuplicate(false);
+      }
     }
   }, [userData]);
 
   useEffect(() => {
-    // setRole(userData?.role || "");
-    setRole("MEMBER");
+    setRole(userData?.role || "");
   }, [userData]);
+
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (nicknameCheckTimerRef.current) {
+        clearTimeout(nicknameCheckTimerRef.current);
+      }
+    };
+  }, []);
 
   // 파일 선택 핸들러
   const handleFileSelect = (e) => {
@@ -131,53 +150,88 @@ const ProfileEdit = ({ userData }) => {
     toast.success("기본이미지로 변경되었습니다. 저장시 적용됩니다.");
   };
 
+  // 자동 닉네임 중복검사 (디바운싱 적용)
+  const autoCheckNickname = useCallback(
+    async (nickname) => {
+      if (!nickname.trim()) {
+        setNicknameChecked(false);
+        setNicknameDuplicate(false);
+        return;
+      }
+
+      // 기존 닉네임과 동일한 경우 검사하지 않음
+      if (nickname === userData?.nickName) {
+        setNicknameChecked(true);
+        setNicknameDuplicate(false);
+        return;
+      }
+
+      setIsCheckingNickname(true);
+      try {
+        const result = await dispatch(checkNicknameDuplicate({ nickname }));
+
+        if (result.payload.success) {
+          setNicknameChecked(true);
+          setNicknameDuplicate(result.payload.isDuplicate);
+        } else {
+          setNicknameChecked(false);
+          setNicknameDuplicate(false);
+        }
+      } catch (error) {
+        setNicknameChecked(false);
+        setNicknameDuplicate(false);
+      } finally {
+        setIsCheckingNickname(false);
+      }
+    },
+    [dispatch, userData?.nickName]
+  );
+
   // 개인정보 입력값 변경
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
 
-    // if (name === "nickname") {
-    //   setNicknameChecked(false);
-    //   setNicknameDuplicate(false);
-    //   handleNicknameCheck();
-    // }
-  };
-
-  // 닉네임 중복체크
-  const handleNicknameCheck = async () => {
-    // 닉네임 형식 검증
-    const nicknameRegex = /^[a-zA-Z0-9가-힣_]+$/;
-    if (!nicknameRegex.test(form.nickname)) {
-      toast.error("닉네임은 한글, 영문, 숫자, 언더바(_)만 사용할 수 있습니다.");
-      return;
-    }
-
-    setIsCheckingNickname(true);
-    try {
-      const result = await checkNicknameDuplicate(form.nickname);
-
-      if (result.success) {
-        setNicknameChecked(true);
-        setNicknameDuplicate(result.isDuplicate);
-
-        if (result.isDuplicate) {
-          toast.error(result.message);
-        } else {
-          toast.success(result.message);
-        }
+    // 닉네임이 변경되면 자동 중복검사 실행 (디바운싱)
+    if (name === "nickname") {
+      // 닉네임 형식 검증
+      // 닉네임이 옳바른 형식이면 중복검사 실행 (NicknameValid = true)
+      const nicknameRegex = /^[a-zA-Z0-9가-힣_]+$/;
+      if (!nicknameRegex.test(value)) {
+        console.log("닉네임 형식 검증 실패");
+        setNicknameValid(false);
+        setNicknameChecked(false); // 형식이 틀리면 중복검사 상태 초기화
       } else {
-        toast.error(result.message);
+        setNicknameValid(true);
+        // 기존 타이머 클리어
+        if (nicknameCheckTimerRef.current) {
+          clearTimeout(nicknameCheckTimerRef.current);
+        }
+
+        // 500ms 후에 중복검사 실행
+        nicknameCheckTimerRef.current = setTimeout(() => {
+          autoCheckNickname(value);
+        }, 500);
       }
-    } catch (error) {
-      toast.error("중복체크 중 오류가 발생했습니다.");
-    } finally {
-      setIsCheckingNickname(false);
     }
   };
 
   // 저장 버튼 클릭
   const handleSave = async (e) => {
     e.preventDefault();
+
+    // 닉네임 중복검사 확인 (기존 닉네임과 다른 경우에만)
+    if (form.nickname !== userData.nickName) {
+      if (!nicknameChecked) {
+        toast.error("닉네임 중복검사를 완료해주세요.");
+        return;
+      }
+
+      if (nicknameDuplicate) {
+        toast.error("중복된 닉네임입니다. 다른 닉네임을 사용해주세요.");
+        return;
+      }
+    }
 
     let currentFileId = fileId;
 
@@ -302,6 +356,11 @@ const ProfileEdit = ({ userData }) => {
                 value={form.nickname}
                 onChange={handleChange}
                 placeholder="닉네임을 입력하세요"
+                showDuplicateCheck={true}
+                isCheckingDuplicate={isCheckingNickname}
+                isDuplicateChecked={nicknameChecked}
+                isDuplicate={nicknameDuplicate}
+                nicknameValid={nicknameValid}
               />
 
               <FormInput
