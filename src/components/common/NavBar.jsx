@@ -252,12 +252,18 @@ const NavBar = () => {
               커뮤니티
             </Link>
 
-            {!(user?.user?.role == 'TRAINER' && isTrainerMatchMember) && (
+
+            {user?.user?.role != "TRAINER" && (
               <Link
                 to="/trainer"
                 className="hover:bg-green-100 px-4 py-2 rounded-full transition"
               >
                 강사 찾기
+              </Link>
+            )}
+            {(user?.user?.role == "TRAINER" && !isTrainerMatchMember) && (
+              <Link to="/products" className="hover:bg-green-100 px-4 py-2 rounded-full transition">
+                강사상품관리
               </Link>
             )}
           </div>
@@ -374,13 +380,21 @@ const NavBar = () => {
                     커뮤니티
                   </Link>
 
-                  {!(user?.user?.role == 'TRAINER' && isTrainerMatchMember) && (
+
+                  {user?.user?.role != "TRAINER" && (
                     <Link
                       to="/trainer"
                       onClick={closeMenu}
-                      className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation"
-                    >
+                      className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation">
                       강사 찾기
+                    </Link>
+                  )}
+                  {(user?.user?.role == "TRAINER" && !isTrainerMatchMember) && (
+                    <Link
+                      to="/trainer"
+                      onClick={closeMenu}
+                      className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation">
+                      강사상품관리
                     </Link>
                   )}
                 </div>
