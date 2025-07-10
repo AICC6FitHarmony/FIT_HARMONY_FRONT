@@ -1,24 +1,41 @@
 import React, { useState, useEffect } from "react";
+import { useRequest } from '../../js/config/requests';
+import { toast } from "react-toastify";
 
 const MemberOrders = ({ userId }) => {
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  
+  const request = useRequest()
   useEffect(() => {
-    if (userId) {
-      // TODO: 회원 주문 데이터 조회 API 호출
-      // getMemberOrders({
-      //   userId,
-      //   callback: (data) => {
-      //     setOrderData(data);
-      //     setLoading(false);
-      //   },
-      // });
-
-      // 임시로 로딩 상태 해제
-      setLoading(false);
+    const requestProductList = async () => {
+      const options = {method : 'GET'};
+      const result = await request(`/buy/myproducts`, options);
+      const { success, message, data } = result;
+  
+      if(success){
+          console.log(data)
+      }else{
+        if(message == "noAuth"){
+            toast.error("로그인 후 이용 가능한 서비스 입니다.", {
+                position: "bottom-center"
+            });
+        }else{
+            toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
+                position: "bottom-center"
+            });
+        }
+      }
     }
-  }, [userId]);
+    requestProductList();
+  }, []);
+
+
+
+
+
+
+
 
   if (loading) {
     return (

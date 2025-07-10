@@ -74,9 +74,9 @@ const MyPage = () => {
         {selectedMenu === "profile" && <ProfileEdit userData={userData} />}
         {selectedMenu === "withdraw" && <Withdraw userId={userId} />}
         {selectedMenu === "activity" && <MyActivity userId={userId} />}
-        {role === "TRAINER" && selectedMenu === "memberOrders" && (
+        {/* {role === "TRAINER" && selectedMenu === "memberOrders" && (
           <MemberOrders userId={userId} />
-        )}
+        )} */}
       </div>
       <ToastContainer />
     </div>
