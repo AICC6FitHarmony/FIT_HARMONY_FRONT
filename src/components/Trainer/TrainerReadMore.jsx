@@ -25,6 +25,9 @@ const TrainerReadMore = () => {
   const [mapLoading, setMapLoading] = useState(true);
   const [mapError, setMapError] = useState(null);
 
+  // 자기소개 더보기 상태
+  const [showFullDescription, setShowFullDescription] = useState(false);
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchTrainerDetail(userId));
@@ -424,7 +427,13 @@ const TrainerReadMore = () => {
             <div className="relative">
               <div className="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center">
                 <span className="text-white text-sm font-medium">
-                  <h1>{detail?.fileId}</h1>
+                  <img
+                    src={`${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${
+                      detail.fileId
+                    }`}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 </span>
               </div>
               <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
@@ -487,14 +496,40 @@ const TrainerReadMore = () => {
                 자기소개
               </h2>
               <div className="prose text-gray-700 leading-relaxed">
-                <p className="mb-4">
-                  안녕하세요! 건강한 삶을 추구하는{' '}
-                  <strong>
-                    {detail?.userName || detail?.name || '트레이너'}
-                  </strong>{' '}
-                  트레이너입니다.
-                </p>
-                <p className="mb-4">{detail?.introduction || '비어있음'}</p>
+                {(() => {
+                  const introduction = `안녕하세요! 건강한 삶을 추구하는 ${
+                    detail?.userName || detail?.name || '트레이너'
+                  } 트레이너입니다.`;
+                  const title = detail?.title || '';
+                  const content = detail?.content || '';
+
+                  // 전체 텍스트 합치기
+                  const fullText = `${introduction} ${title} ${content}`.trim();
+
+                  // 150글자 이상인지 확인
+                  const isLongText = fullText.length > 150;
+                  const displayText =
+                    isLongText && !showFullDescription
+                      ? fullText.substring(0, 150) + '...'
+                      : fullText;
+
+                  return (
+                    <div>
+                      <p className="mb-4 whitespace-pre-wrap">{displayText}</p>
+
+                      {isLongText && (
+                        <button
+                          onClick={() =>
+                            setShowFullDescription(!showFullDescription)
+                          }
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium underline transition-colors"
+                        >
+                          {showFullDescription ? '접기' : '상세설명 더보기'}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
             {/* 제공 서비스 */}
