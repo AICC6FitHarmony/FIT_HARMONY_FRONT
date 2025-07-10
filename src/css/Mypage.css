@@ -12,6 +12,13 @@
 
 .blink-animation {
   animation: blink 0.5s ease-in-out;
-  
-  
 } 
+
+.spinner{
+  width: 1.5rem;
+  height: 1.5rem;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}

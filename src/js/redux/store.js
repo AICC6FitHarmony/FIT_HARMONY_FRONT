@@ -6,6 +6,7 @@ import inbodyReducer from './slice/sliceInbody';
 import trainerReducer from './slice/sliceTrainer';
 import commonReducer from './slice/commonSlice';
 import scheduleReducer from './slice/sliceSchedule';
+import mypageReducer from './slice/sliceMypage';
 
 // 리덕스 툴킷으로 스토어 생성
 const store = configureStore({
@@ -13,7 +14,8 @@ const store = configureStore({
     common: commonReducer,
     inbody: inbodyReducer,
     trainer: trainerReducer,
-    schedule: scheduleReducer
+    schedule: scheduleReducer,
+    mypage: mypageReducer
   },
 });
 
