@@ -3,6 +3,8 @@ import ListSelector from '../cmmn/ListSelector';
 import {useAlertModal, useModal} from '../cmmn/ModalContext';
 import InputWithLabel from '../cmmn/InputWithLabel';
 import { getPermissions, PERMISSION_ROLES, PERMISSION_TYPES, updateBoard, updatePermission } from '../../js/community/communityUtils';
+import { ArrowLeftFromLineIcon, LogOutIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const CommunityAdmin = ({boards, updateBoards}) => {
   const openModal = useModal();
@@ -13,7 +15,7 @@ const CommunityAdmin = ({boards, updateBoards}) => {
   const [changed, setChanged] = useState(false);
 
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
   console.log(selectPermissions);
   
   const roleText = ["관리자", "트레이너", "일반회원", "비회원"];
@@ -23,13 +25,13 @@ const CommunityAdmin = ({boards, updateBoards}) => {
     if(item.categoryId === currentBoard?.categoryId) return;
     const selectUpdate = async ()=>{
       setLoading(true);
-      const res = await getPermissions({boardId:item.categoryId})
-        const new_permissions = {};
-        PERMISSION_ROLES.forEach((p_role, idx)=>{
+      const res = await getPermissions({boardId:item.categoryId});
+      const new_permissions = {};
+      PERMISSION_ROLES.forEach((p_role, idx)=>{
         new_permissions[p_role] = {};
         PERMISSION_TYPES.forEach((p_type)=>{
-        new_permissions[p_role][p_type] = false;
-      })
+          new_permissions[p_role][p_type] = false;
+        })
       })
       res.permissions.forEach((data,idx)=>{
         new_permissions[data.role][data.permission] = true;
@@ -98,14 +100,18 @@ const CommunityAdmin = ({boards, updateBoards}) => {
         if(selectPermissions[role][permission]) permissions.push({role, permission})
       })
     })
+    
+    setLoading(true);
+    const b_res = await updateBoard(currentBoard);
+    if(b_res.success===false) return;
+
+
     const req_body={
-      boardId:currentBoard.categoryId,
+      boardId:b_res.board.categoryId,
       permissions:permissions
     }
-    setLoading(true);
     const p_res = await updatePermission(req_body);
-    const b_res = await updateBoard(currentBoard);
-    if(p_res.success&&b_res.success){
+    if(p_res.success){
       openAlert({title:"저장 완료", text:"저장이 완료되었습니다."})
       setChanged(false);
       updateBoards();
@@ -114,14 +120,38 @@ const CommunityAdmin = ({boards, updateBoards}) => {
     setLoading(false);
   }
 
+  const handleAddBoard = ()=>{
+    const newBoard = {
+      categoryId : -1,
+      categoryName : "New Board",
+      isReply:false,
+      isComment:false,
+    }
+    const new_permissions = {};
+    PERMISSION_ROLES.forEach((p_role, idx)=>{
+      new_permissions[p_role] = {};
+      PERMISSION_TYPES.forEach((p_type)=>{
+        new_permissions[p_role][p_type] = false;
+      })
+    });
+
+    setCurrentBoard(newBoard);
+    setSelectPermissions(new_permissions);
+    setChanged(true);
+    setSelectIdx(-1);
+  }
+
   return (
-    <div className='px-4 pt-[3rem]'>
+    <div className='px-4 pt-[3rem] pb-10'>
       <div className='header'>
-        <div className='text-2xl pb-4'>
-          게시판 관리 페이지
+        <div className='text-2xl pb-4 flex items-center justify-between'>
+          <div className='font-bold'>게시판 관리 페이지</div>
+          <div>
+            <LogOutIcon className='cursor-pointer' onClick={()=>{navigate("/community")}}/>
+          </div>
         </div>
       </div>
-      <div className='body border p-5 flex sm:justify-between sm:flex-row flex-col justify-center items-center'>
+      <div className='body p-5 select-none flex lg:justify-between lg:flex-row flex-col justify-center items-center rounded-lg bg-white overflow-hidden shadow-md'>
         <div className='min-w-[20rem] w-1/3 h-[25rem] p-3'>
           <div className="border h-full">
             <div className='h-[2rem] p-2 pl-3'>게시판 목록</div>
@@ -140,14 +170,18 @@ const CommunityAdmin = ({boards, updateBoards}) => {
               />
             </div>
             <div className='flex justify-between h-[2rem] px-2 pb-2 gap-2'>
-              <div className='bg-white w-1/2 text-center'>제거</div>
-              <div className='bg-white w-1/2 text-center'>추가</div>
+              <div className='bg-white w-1/2 text-center cursor-pointer'>제거</div>
+              <div className='bg-white w-1/2 text-center cursor-pointer' onClick={handleAddBoard}>추가</div>
             </div>
           </div>
         </div>
         <div className='setting-wrapper w-2/3 h-[25rem] p-3'>
           <div className='w-full h-full border relative'>
-            <div className={'w-full h-full z-10 bg-black opacity-10 absolute bottom-0 left-0 '+(loading?"":"hidden")}/>
+            <div className={'w-full h-full z-10 bg-[#0001] flex justify-center items-center absolute bottom-0 left-0 '+(loading?"":"hidden")}>
+              <div className='text-3xl font-bold py-2 px-4 rounded-lg bg-white shadow-lg'>
+                로딩중
+              </div>
+            </div>
             <div className='h-[2rem] p-2 pl-3'>게시판 수정</div>
             <div className="info h-[calc(100%-4rem)] p-2 flex justify-center gap-2 flex-col sm:flex-row">
               <div className='base w-1/2 min-w-[20rem] border'>

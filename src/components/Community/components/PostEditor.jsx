@@ -78,7 +78,11 @@ import MenuBar from './MenuBar';
 // import { ResizableImage } from './ResizableImage';
 import Image from '@tiptap/extension-image';
 import { useParams } from 'react-router-dom';
-const PostEditor = ({handleSubmit, defaultPost, boards}) => {
+import { useAuth } from '../../../js/login/AuthContext';
+import { getFilteredBoards } from '../../../js/community/communityUtils';
+const PostEditor = ({handleSubmit, defaultPost}) => {
+  const {user, loading} = useAuth();
+  const [boards, setBoards] = useState([]);
   const {boardId:board_param} = useParams();
   const [postTitle, setPostTitle] = useState('');
   const [boardId, setBoardId] = useState(board_param?board_param:1);
@@ -103,6 +107,19 @@ const PostEditor = ({handleSubmit, defaultPost, boards}) => {
   if (!editor) {
     return null;
   }
+
+  useEffect(()=>{
+    // console.log(user)
+    if(loading||user?.loggedIn == false) return;
+
+    const role = user.user.role;
+    const update = async()=>{
+      const result = await getFilteredBoards(role,"write");
+      setBoards(result.boards);
+      // console.log(result);
+    }
+    update();
+  },[loading])
 
   useEffect(()=>{
     if(!defaultPost) return;
