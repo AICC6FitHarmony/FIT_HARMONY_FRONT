@@ -42,7 +42,7 @@ const ListSelector = ({
               {
                 Template
                 ? (<Template item={item}/>)
-                : {item}
+                : String(item)
               }
             </div>
           )

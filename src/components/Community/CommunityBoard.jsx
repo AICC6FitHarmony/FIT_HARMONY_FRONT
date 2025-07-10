@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, redirect, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { getPermission, getPosts, searchPost, searchQuery } from '../../js/community/communityUtils';
+import { getPermission, getPosts, searchPost, searchPost2, searchQuery } from '../../js/community/communityUtils';
 import {NotebookPen} from 'lucide-react'
 import { useAuth } from '../../js/login/AuthContext';
 
@@ -36,7 +36,7 @@ const CommunityBoard = () => {
 
   const update = async(query)=>{
     getWriteable();
-    const res = await searchPost(
+    const res = await searchPost2(
       {
         board_id:boardId,
         query,
