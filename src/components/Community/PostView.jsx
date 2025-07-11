@@ -64,6 +64,7 @@ const PostView = ({}) => {
     };
     fetchPost();
   }, []);
+
   const handleOpenDelete = () => {
     openModal({
       title: '삭제 확인',
@@ -73,6 +74,7 @@ const PostView = ({}) => {
       size: { width: 'auto', height: 'auto' },
     });
   };
+
   const handleDelete = async () => {
     const requestBody = {
       userId: user.user.userId,
@@ -106,14 +108,16 @@ const PostView = ({}) => {
           {user && user.user && user.user.userId == postInfo.userId && (
             <div className="font-bold flex gap-2">
               <Link to={`/community/${postId}/update`}>수정</Link>
-              <div className=" cursor-pointer" onClick={handleOpenDelete}>
+              <div className="cursor-pointer" onClick={handleOpenDelete}>
                 삭제
               </div>
             </div>
           )}
         </div>
       </div>
-      <div className="pt-5">{boardInfo.isComment ? <CommentsView /> : ''}</div>
+      <div className="pt-5">
+        {boardInfo.isComment ? <CommentsView /> : ''}
+      </div>
     </div>
   );
 };
