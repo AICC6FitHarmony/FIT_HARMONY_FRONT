@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FiSearch, FiPlus } from 'react-icons/fi';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRequest } from '../../js/config/requests';
@@ -242,10 +242,25 @@ const Products = () => {
     };
 
 
+    const sideDetailLayoutRef = useRef(null);
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (sideDetailLayoutRef.current && !sideDetailLayoutRef.current.contains(e.target)) {
+                setSelectedProduct(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [selectedProduct])
+
+
+
     return (
         <div className="bg-[#fdf6ec] min-h-screen p-4 relative overflow-x-hidden">
             {(isRegModalShow && (
-                <StandardModal 
+                <StandardModal
                     title={regModalData.title} 
                     okEvent={regModalData.okEvent}
                     size={regModalData.size}
@@ -287,18 +302,6 @@ const Products = () => {
                                 onChange={regProductFormHandleChange} 
                                 placeholder="상품 제공 횟수를 입력해주세요"/>
                         </div>
-                        {/* <div className='input-with-label w-full flex gap-2 items-center justify-between'>
-                            <div className='label'>상품유형</div>
-                            <div className="input-wrapper relative flex w-[80%] gap-1">
-                                <select className="border py-2 w-[20%]" name="type" value={regProductFormData?.type}>
-                                    <option value="C">횟수제</option>
-                                    <option value="T">기간제</option>
-                                </select>
-                                <input className="text-center border py-2 w-full" type="number" name="sessionCnt" value={regProductFormData?.sessionCnt} 
-                                    onChange={regProductFormHandleChange} 
-                                    placeholder="상품 제공 횟수 또는 기간(일)을 입력해주세요."/>
-                            </div>
-                        </div> */}
                     </form>
                 </StandardModal>
             ))}
@@ -306,10 +309,10 @@ const Products = () => {
 
             {/* 🔍 검색 + 등록 버튼 */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
-                <div className="flex items-center w-full sm:w-auto bg-white rounded-md shadow-md px-3 py-2 border border-gray-200">
+                <div className="flex items-center justify-between w-full sm:w-auto bg-white rounded-md shadow-md px-3 py-2 border border-gray-200">
                     <FiSearch className="text-gray-500 mr-2" />
-                    <input type="text" className="outline-none w-full sm:w-64 text-sm" placeholder="검색어를 입력해주세요." value={search} onChange={(e) => {setSearch(e.target.value);}}/>
-                    <button type="button" className="bg-[var(--color-green-700)] text-white px-4 py-2 rounded-md ml-2 hover:bg-[var(--color-green-600)] transition" onClick={searchHandler}>검색</button>
+                    <input type="text" className="outline-none w-70 text-sm" placeholder="검색어를 입력해주세요." value={search} onChange={(e) => {setSearch(e.target.value);}}/>
+                    <button type="button" className="bg-[var(--color-green-700)] text-white px-4 py-2 rounded-md ml-2 hover:bg-[var(--color-green-600)] transition text-sm sm:text-[1rem]" onClick={searchHandler}>검색</button>
                 </div>
 
                 <button className="flex items-center gap-2 bg-[var(--color-green-700)] text-white px-4 py-2 rounded-md shadow-md hover:bg-[var(--color-green-600)] transition" onClick={() => showRegModal(0)}>
@@ -370,6 +373,7 @@ const Products = () => {
                         initial={{ x: '100%' }}
                         animate={{ x: 0 }}
                         exit={{ x: '100%' }}
+                        ref={sideDetailLayoutRef}
                         transition={{ type: 'tween', duration: 0.3 }}>
                     <div className="flex justify-between items-start mb-4">
                         <h2 className="text-xl font-bold text-[var(--color-green-700)]">{selectedProduct.name}</h2>

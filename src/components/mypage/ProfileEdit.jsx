@@ -7,8 +7,7 @@ import IntroductionEditor from "./common/IntroductionEditor";
 import defaultProfile from "../../images/profile.png";
 import { useDispatch, useSelector } from "react-redux";
 import { checkNicknameDuplicate } from "../../js/redux/slice/sliceMypage";
-import GymSelecotr from "./common/GymSelecotr";
-import Test from "./common/Test";
+import GymSelector from "./common/GymSelector";
 
 const ProfileEdit = ({ userData }) => {
   const [profileImg, setProfileImg] = useState(null);
@@ -23,7 +22,7 @@ const ProfileEdit = ({ userData }) => {
     fitHistory: userData?.fitHistory || "",
     fitGoal: userData?.fitGoal || "",
     introduction: userData?.introduction || "",
-    GYM: userData?.GYM || "",
+    gym: userData?.gym || "",
   });
   const [fileId, setFileId] = useState(userData?.fileId || "");
   const [introduction, setIntroduction] = useState(null);
@@ -73,7 +72,7 @@ const ProfileEdit = ({ userData }) => {
         fitHistory: userData.fitHistory || "",
         fitGoal: userData.fitGoal || "",
         introduction: parsedIntroduction,
-        GYM: userData.GYM || "",
+        gym: userData.gym || "",
       });
 
       // 기존 프로필 이미지가 있다면 표시
@@ -98,8 +97,7 @@ const ProfileEdit = ({ userData }) => {
   }, [userData]);
 
   useEffect(() => {
-    // setRole(userData?.role || "");
-    setRole("TRAINER");
+    setRole(userData?.role || "");
   }, [userData]);
 
   // 컴포넌트 언마운트 시 타이머 정리
@@ -275,7 +273,7 @@ const ProfileEdit = ({ userData }) => {
         fitHistory: form.fitHistory,
         fitGoal: form.fitGoal,
         introduction: introductionEditorRef.current.getContent(),
-        GYM: form.GYM,
+        gym: form.gym,
         fileId: currentFileId,
       };
     } else {
@@ -441,31 +439,13 @@ const ProfileEdit = ({ userData }) => {
                     as="textarea"
                   />
 
-                  <FormInput
+                  <GymSelector
                     label="운동 센터"
-                    name="GYM"
-                    value={form.GYM}
-                    onChange={handleChange}
-                    placeholder="추후 주소API 사용 예정"
-                    as="GYM"
-                  />
-
-                  {/* <Test
-                    label="운동 센터"
-                    name="GYM"
-                    value={form.GYM}
+                    name="gym"
+                    value={form.gym}
                     onChange={handleChange}
                     placeholder="운동 센터를 검색하세요"
-                  /> */}
-
-                  {/* <GymSelecotr
-                    label="운동 센터"
-                    name="GYM"
-                    value={form.GYM}
-                    onChange={handleChange}
-                    placeholder="추후 주소API 사용 예정"
-                    as="number"
-                  /> */}
+                  />
 
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-700">

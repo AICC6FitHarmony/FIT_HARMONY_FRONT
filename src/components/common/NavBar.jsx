@@ -391,7 +391,7 @@ const NavBar = () => {
                   )}
                   {(user?.user?.role == "TRAINER" && !isTrainerMatchMember) && (
                     <Link
-                      to="/trainer"
+                      to="/products"
                       onClick={closeMenu}
                       className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation">
                       강사상품관리
