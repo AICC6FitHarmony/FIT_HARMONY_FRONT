@@ -13,9 +13,8 @@ const CommunityNav = ({}) => {
   useEffect(()=>{
     // console.log(user)
     if(loading) return;
-    if(loading||user?.loggedIn == false) return;
-
-    const role = user.loggedIn?user.user.role:"OTHERS";
+    // console.log(user, " ; ",user.user.role);
+    const role = (user.isLoggedIn)?user.user.role:"OTHERS";
     const update = async()=>{
       const result = await getFilteredBoards(role,"read");
       setBoards(result.boards);
