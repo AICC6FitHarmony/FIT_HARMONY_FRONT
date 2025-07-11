@@ -20,7 +20,7 @@ const postRequest = async (url, data) => {
 };
 
 
-// Inbody 데이터 등록 Thunk
+// 닉네임 중복 검사
 export const checkNicknameDuplicate = createAsyncThunk(
   '/mypage/check-nickname',
   async ({ nickname }) => {
@@ -30,10 +30,20 @@ export const checkNicknameDuplicate = createAsyncThunk(
   }
 );
 
+export const searchGym = createAsyncThunk(
+  '/mypage/search-gym',
+  async ({ search }) => {
+    const fullPath = `${GET_MYPAGE_API_URL}/search-gym`;
+    const response = await postRequest(fullPath, { search });
+    return response;
+  }
+);
+
 const mypageSlice = createSlice({
   name: 'mypage',
   initialState: {
     nicknameData: null,
+    gymData: null,
     loading: false,
     error: null,
     isDuplicate: false,
@@ -45,6 +55,10 @@ const mypageSlice = createSlice({
     },
     clearIsDuplicate: (state) => {
       state.isDuplicate = false;
+    },
+    clearGymData: (state) => {
+      state.gymData = null;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -62,9 +76,23 @@ const mypageSlice = createSlice({
         state.error = action.error.message;
         state.isDuplicate = false;
         console.error('닉네임 중복 검사 실패:', action.error.message);
+      })
+      .addCase(searchGym.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(searchGym.fulfilled, (state, action) => {
+        state.loading = false;
+        state.gymData = action.payload;
+      })
+      .addCase(searchGym.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        state.gymData = null;
+        console.error('운동 센터 검색 실패:', action.error.message);
       });
   },
 });
 
-export const { clearNicknameData, clearIsDuplicate } = mypageSlice.actions;
+export const { clearNicknameData, clearIsDuplicate, clearGymData } = mypageSlice.actions;
 export default mypageSlice.reducer; 

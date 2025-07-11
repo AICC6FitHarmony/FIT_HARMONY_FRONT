@@ -50,7 +50,7 @@ const MyPage = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto flex rounded-xl shadow-md min-h-[600px]">
+    <div className="flex rounded-xl shadow-md min-h-[600px]">
       {/* 왼쪽 NavBar */}
       <nav className="w-64 flex flex-col py-14 px-4 bg-[#f3efe6] rounded-l-xl shadow-sm justify-start items-center">
         {navItems.map((item) => (
@@ -74,9 +74,9 @@ const MyPage = () => {
         {selectedMenu === "profile" && <ProfileEdit userData={userData} />}
         {selectedMenu === "withdraw" && <Withdraw userId={userId} />}
         {selectedMenu === "activity" && <MyActivity userId={userId} />}
-        {role === "TRAINER" && selectedMenu === "memberOrders" && (
+        {/* {role === "TRAINER" && selectedMenu === "memberOrders" && (
           <MemberOrders userId={userId} />
-        )}
+        )} */}
       </div>
       <ToastContainer />
     </div>

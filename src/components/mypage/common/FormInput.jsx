@@ -57,6 +57,7 @@ const FormInput = ({
             name={name}
             type={as}
             value={value}
+            step="any"
             onChange={onChange}
             className={inputClasses}
             placeholder={placeholder}

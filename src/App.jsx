@@ -12,6 +12,7 @@ import Community from './components/Community/Community';
 import { useSelector } from 'react-redux';
 import Reload from './components/common/Reload';
 import { AuthProvider } from './js/login/AuthContext';
+import Products from './components/products/Products';
 
 function App() {
   const isLoading = useSelector((state) => state.common.isLoading);
@@ -31,6 +32,7 @@ function App() {
           <Route path="/schedule" element={<Schedule/>} />
           <Route path="/trainer/*" element={<Trainer />} />
           <Route path="/community/*" element={<Community />} />
+          <Route path="/products" element={<Products />} />
           <Route path="/reload" element={<Reload />} />
         </Routes>
 

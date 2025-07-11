@@ -3,9 +3,12 @@ import { useUpdateUserData } from "../../js/mypage/mypage";
 import { useImageFileUpload } from "../../js/common/util";
 import { toast } from "react-toastify";
 import { FormInput } from "./common";
+import IntroductionEditor from "./common/IntroductionEditor";
 import defaultProfile from "../../images/profile.png";
 import { useDispatch, useSelector } from "react-redux";
 import { checkNicknameDuplicate } from "../../js/redux/slice/sliceMypage";
+import GymSelecotr from "./common/GymSelecotr";
+import Test from "./common/Test";
 
 const ProfileEdit = ({ userData }) => {
   const [profileImg, setProfileImg] = useState(null);
@@ -23,7 +26,7 @@ const ProfileEdit = ({ userData }) => {
     GYM: userData?.GYM || "",
   });
   const [fileId, setFileId] = useState(userData?.fileId || "");
-
+  const [introduction, setIntroduction] = useState(null);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [nicknameChecked, setNicknameChecked] = useState(false);
   const [nicknameDuplicate, setNicknameDuplicate] = useState(false);
@@ -39,11 +42,27 @@ const ProfileEdit = ({ userData }) => {
   // 훅 초기화
   const updateUserData = useUpdateUserData();
   const dispatch = useDispatch();
-  const { nicknameData, isDuplicate } = useSelector((state) => state.mypage);
+  const { nicknameData, isDuplicate, loading } = useSelector(
+    (state) => state.mypage
+  );
   const fileUpload = useImageFileUpload();
+
+  const introductionEditorRef = useRef();
 
   useEffect(() => {
     if (userData) {
+      // introduction이 JSON 문자열인 경우 파싱
+      let parsedIntroduction = "";
+      if (userData.introduction) {
+        try {
+          const parsed = JSON.parse(userData.introduction);
+          parsedIntroduction = parsed;
+        } catch (error) {
+          console.error("introduction 파싱 오류:", error);
+          parsedIntroduction = "";
+        }
+      }
+
       setForm({
         name: userData.userName || "",
         nickname: userData.nickName || "",
@@ -53,7 +72,7 @@ const ProfileEdit = ({ userData }) => {
         age: userData.age || "",
         fitHistory: userData.fitHistory || "",
         fitGoal: userData.fitGoal || "",
-        introduction: userData.introduction || "",
+        introduction: parsedIntroduction,
         GYM: userData.GYM || "",
       });
 
@@ -79,7 +98,8 @@ const ProfileEdit = ({ userData }) => {
   }, [userData]);
 
   useEffect(() => {
-    setRole(userData?.role || "");
+    // setRole(userData?.role || "");
+    setRole("TRAINER");
   }, [userData]);
 
   // 컴포넌트 언마운트 시 타이머 정리
@@ -240,11 +260,13 @@ const ProfileEdit = ({ userData }) => {
       currentFileId = await uploadProfileImage();
     }
 
+    // 일반 사용자의 경우 기존 로직 사용
     let userDataToUpdate;
     if (role === "TRAINER") {
       userDataToUpdate = {
         userId: userData.userId,
         userName: form.name,
+        email: form.email,
         nickName: form.nickname,
         phoneNumber: form.phone,
         height: form.height,
@@ -252,7 +274,7 @@ const ProfileEdit = ({ userData }) => {
         age: form.age,
         fitHistory: form.fitHistory,
         fitGoal: form.fitGoal,
-        introduction: form.introduction,
+        introduction: introductionEditorRef.current.getContent(),
         GYM: form.GYM,
         fileId: currentFileId,
       };
@@ -260,6 +282,7 @@ const ProfileEdit = ({ userData }) => {
       userDataToUpdate = {
         userId: userData.userId,
         userName: form.name,
+        email: form.email,
         nickName: form.nickname,
         phoneNumber: form.phone,
         height: form.height,
@@ -340,7 +363,7 @@ const ProfileEdit = ({ userData }) => {
           </div>
 
           {/* 개인정보 입력 폼 */}
-          <form onSubmit={handleSave} className="space-y-6">
+          <form className="space-y-6">
             <div className="flex flex-col gap-6">
               <FormInput
                 label="이름"
@@ -424,17 +447,35 @@ const ProfileEdit = ({ userData }) => {
                     value={form.GYM}
                     onChange={handleChange}
                     placeholder="추후 주소API 사용 예정"
-                    as="number"
+                    as="GYM"
                   />
 
-                  <FormInput
-                    label="소개글"
-                    name="introduction"
-                    value={form.introduction}
+                  {/* <Test
+                    label="운동 센터"
+                    name="GYM"
+                    value={form.GYM}
                     onChange={handleChange}
-                    placeholder="소개글을 작성해주세요"
-                    as="textarea"
-                  />
+                    placeholder="운동 센터를 검색하세요"
+                  /> */}
+
+                  {/* <GymSelecotr
+                    label="운동 센터"
+                    name="GYM"
+                    value={form.GYM}
+                    onChange={handleChange}
+                    placeholder="추후 주소API 사용 예정"
+                    as="number"
+                  /> */}
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      소개글
+                    </label>
+                    <IntroductionEditor
+                      ref={introductionEditorRef}
+                      defaultPost={form.introduction}
+                    />
+                  </div>
                 </>
               ) : (
                 <>
@@ -459,7 +500,7 @@ const ProfileEdit = ({ userData }) => {
               )}
             </div>
             <div className="flex justify-end pt-6 border-t border-gray-200">
-              <button className="ok" onClick={handleSave}>
+              <button type="button" className="ok" onClick={handleSave}>
                 저장하기
               </button>
             </div>
