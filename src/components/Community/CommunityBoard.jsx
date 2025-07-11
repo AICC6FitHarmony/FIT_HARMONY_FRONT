@@ -152,7 +152,7 @@ const CommunityBoard = () => {
                       <div className="post-title w-full pl-[6rem] text-green-700">
                         <span className='text-lg '>{post.title}</span>
                         &nbsp;
-                        <span className='text-yellow-600'>[{post.commentCnt}]</span>
+                        {(post.commentCnt>0)&&(<span className='text-yellow-600'>[{post.commentCnt}]</span>)}
                       </div>
                 </div>
                 <div className="post-footer flex justify-between">
