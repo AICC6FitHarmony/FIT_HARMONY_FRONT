@@ -94,7 +94,7 @@ const CommunityBoard = ({boards}) => {
   const getPostCategory = (categoryId)=>{
     if(!boards) return "";
     const find = boards.find((item)=>item.categoryId===categoryId);
-    return find.categoryName;
+    return find?.categoryName;
   }
 
   return (
