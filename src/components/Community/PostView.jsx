@@ -93,6 +93,9 @@ const PostView = ({}) => {
     <div className="p-4.5">
       <div className="post-wrapper flex flex-col gap-5 rounded-xl bg-white shadow-xl p-2">
         <div className="post-header p-2">
+          <div className='text-sm font-bold'>
+            {boardInfo.categoryName}
+          </div>
           <div className="post_title text-2xl border-[#ccc] text-green-700 font-bold">
             {postInfo.title}
           </div>

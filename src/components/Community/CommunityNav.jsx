@@ -4,7 +4,7 @@ import { getBoards, getFilteredBoards } from '../../js/community/communityUtils'
 import { useAuth } from '../../js/login/AuthContext';
 import { SettingsIcon } from 'lucide-react';
 
-const CommunityNav = ({}) => {
+const CommunityNav = () => {
   const {user, loading} = useAuth();
   const navigate = useNavigate();
   const location = useLocation();

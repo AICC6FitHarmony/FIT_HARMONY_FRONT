@@ -21,7 +21,6 @@ const Community = () => {
   useEffect(()=>{
     update();
   },[]);
-
   return (
       <div>
         <div className="header">
@@ -31,9 +30,9 @@ const Community = () => {
           </Routes>
         </div>
         <Routes>
-          <Route path='/' element={<CommunityBoard/>}/>
+          <Route path='/' element={<CommunityBoard boards={boards}/>}/>
           <Route path='/admin' element={<CommunityAdmin boards={boards} updateBoards={update}/>}/>
-          <Route path='/:boardId' element={<CommunityBoard/>}/>
+          <Route path='/:boardId' element={<CommunityBoard boards={boards}/>}/>
           <Route path='/:boardId/create' element={<CommunityPostEdit boards={boards}/>}/>
           <Route path='/:postId/update' element={<CommunityPostUpdate  boards={boards}/>}/>
           <Route path='/post/:postId' element={<PostView/>}/>
