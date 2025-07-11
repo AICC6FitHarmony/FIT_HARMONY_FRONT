@@ -1,17 +1,31 @@
 import React, { useState } from 'react'
-import { deleteComment, updateComment } from '../../../js/community/communityUtils';
+import { deleteComment, findComment, updateComment } from '../../../js/community/communityUtils';
 import { CornerDownRight } from 'lucide-react';
+import { useModal } from '../../cmmn/ModalContext';
 
-const Comment = ({load_comments, comment, auth_id, handleReply, focusParent}) => {
+const Comment = ({load_comments, comment, auth_id, handleReply, focusParent,isFocus}) => {
   const {nickName, content, createdTime, userId, commentId,isDeleted, depth} = comment;
   const [editComment, setEditComment] = useState(false);
   const [editContent, setContent] = useState(content);
+  const openModal = useModal();
+
   const handleDelete = async()=>{
-    const res = await deleteComment({
-      userId:auth_id, commentId
-    });
-    console.log(res);
-    load_comments();
+    const deleteEvent = async ()=>{
+      const res = await deleteComment({
+        userId:auth_id, commentId
+      });
+      console.log(res);
+      load_comments();
+    }
+
+    openModal({
+      title:"댓글 삭제",
+      children:(<div>댓글을 삭제하시겠습니까?</div>),
+      okEvent:()=>deleteEvent(),
+      isOkClose:true,
+      isCancelClose:true,
+      size:{width:"auto", height:"auto"}
+    })
   }
 
   const handleUpdate = async()=>{
@@ -30,11 +44,18 @@ const Comment = ({load_comments, comment, auth_id, handleReply, focusParent}) =>
   const handleChange = (e)=>{
     setContent(e.target.value);
   }
+
+  const handleFindParent =  (e)=>{
+    focusParent(comment.parentCommentId);
+    e.preventDefault();
+    
+  }
+
   return (
-    <div className={`p-2 relative rounded-xl shadow-xl mt-0.5 ${isDeleted?"bg-gray-100":"bg-white"}`}>
+    <div className={`p-2 relative rounded-xl shadow-xl mt-0.5 overflow-hidden ${isDeleted?"bg-gray-100":"bg-white"}`}>
       <div className="header flex justify-between">
         <div className="nick-name font-bold text-green-700 flex">
-          {(depth>1)?(<CornerDownRight/>):""}
+          {(depth>1)?(<CornerDownRight className='cursor-pointer' onClick={handleFindParent}/>):""}
           <span>{nickName}</span>
         </div>
         <div className="nav">
@@ -70,6 +91,13 @@ const Comment = ({load_comments, comment, auth_id, handleReply, focusParent}) =>
       <div className='absolute w-[100%] border-b top-[-1px] left-0'/> */}
       
       {/* {(depth>1)?(<div className='absolute rounded-2xl h-full border-l bottom-0 left-0'/>):""} */}
+      {
+        isFocus&&(
+          <div className='absolute h-full w-[5px] bottom-0 left-0 bg-green-200'>
+
+          </div>
+        )
+      }
     </div>
   )
 }

@@ -30,9 +30,12 @@ const PostView = ({}) => {
   });
   const openModal = useModal();
   const { postId } = useParams();
+  const [postLoading, setPostLoading] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
+      setPostLoading(true);
+      window.scrollTo({ top: 0});
       const res = await getPost(postId);
       if (res.success == false) {
         navigate('/community');
@@ -61,6 +64,7 @@ const PostView = ({}) => {
 
       const boardRes = await getBoardInfo(data.categoryId);
       setBoardInfo(boardRes.data.info);
+      setPostLoading(false);
     };
     fetchPost();
   }, []);
@@ -91,8 +95,17 @@ const PostView = ({}) => {
 
   return (
     <div className="p-4.5">
-      <div className="post-wrapper flex flex-col gap-5 rounded-xl bg-white shadow-xl p-2">
+      <div className="post-wrapper overflow-hidden relative flex flex-col gap-5 rounded-xl bg-white shadow-xl p-2">
+        {
+          postLoading?
+          (
+            <div className='w-full h-[4rem] bg-white bottom-0 left-0 flex justify-center items-center'>내용 불러오는 중...</div>
+          )
+          :(<>
         <div className="post-header p-2">
+          <div className='text-sm font-bold'>
+            {boardInfo.categoryName}
+          </div>
           <div className="post_title text-2xl border-[#ccc] text-green-700 font-bold">
             {postInfo.title}
           </div>
@@ -102,7 +115,7 @@ const PostView = ({}) => {
         <div
           className="post_body rounded-sm min-h-[400px] p-2"
           dangerouslySetInnerHTML={{ __html: postHtml }}
-        />
+          />
         <div className="w-full h-[2px] bg-green-700" />
         <div className="controls py-2 flex justify-end gap-3">
           {user && user.user && user.user.userId == postInfo.userId && (
@@ -114,6 +127,9 @@ const PostView = ({}) => {
             </div>
           )}
         </div>
+        </>)}
+        
+
       </div>
       <div className="pt-5">
         {boardInfo.isComment ? <CommentsView /> : ''}

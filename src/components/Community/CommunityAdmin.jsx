@@ -5,8 +5,10 @@ import InputWithLabel from '../cmmn/InputWithLabel';
 import { getPermissions, PERMISSION_ROLES, PERMISSION_TYPES, updateBoard, updatePermission } from '../../js/community/communityUtils';
 import { ArrowLeftFromLineIcon, LogOutIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../js/login/AuthContext';
 
 const CommunityAdmin = ({boards, updateBoards}) => {
+  const {user,loading:authLoading} = useAuth()
   const openModal = useModal();
   const openAlert = useAlertModal();
   const [currentBoard, setCurrentBoard] = useState();
@@ -16,10 +18,17 @@ const CommunityAdmin = ({boards, updateBoards}) => {
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  console.log(selectPermissions);
+  // console.log(selectPermissions);
+  
   
   const roleText = ["관리자", "트레이너", "일반회원", "비회원"];
   const permissionText = ["읽기", "쓰기", "답글", "댓글"];
+
+  useEffect(()=>{
+    if(authLoading) return;
+    // console.log(authLoading,":",user);
+    if(user.user.role !== "ADMIN") navigate('/community');
+  },[authLoading]);
 
   useEffect(()=>{
     if(!boards || boards.length < 1) return;
@@ -29,7 +38,7 @@ const CommunityAdmin = ({boards, updateBoards}) => {
   },[])
 
   const handleBoardSelect = async ({item,idx})=>{
-    console.log(item);
+    // console.log(item);
     if(item.categoryId === currentBoard?.categoryId) return;
     const selectUpdate = async ()=>{
       setLoading(true);
@@ -149,8 +158,10 @@ const CommunityAdmin = ({boards, updateBoards}) => {
     setSelectIdx(-1);
   }
 
+  const isAdmin = (!authLoading)&& (user?.user?.role === "ADMIN");
+
   return (
-    <div className='px-4 pt-[3rem] pb-10'>
+    <div className={`px-4 pt-[3rem] pb-10 ${isAdmin?"":"hidden"}`}>
       <div className='header'>
         <div className='text-2xl pb-4 flex items-center justify-between'>
           <div className='font-bold'>게시판 관리 페이지</div>

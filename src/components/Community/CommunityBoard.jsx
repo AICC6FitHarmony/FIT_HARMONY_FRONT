@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { Link, redirect, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getPermission, getPosts, searchPost, searchPost2, searchQuery } from '../../js/community/communityUtils';
-import {NotebookPen} from 'lucide-react'
+import {ArrowLeftIcon, ArrowRightIcon, NotebookPen} from 'lucide-react'
 import { useAuth } from '../../js/login/AuthContext';
 
-const CommunityBoard = () => {
+const CommunityBoard = ({boards}) => {
   const {user} = useAuth();
   const {boardId} = useParams();
   const [posts, setPosts] = useState([]);
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const [keyword, setKeyword] = useState();
+  const [keyword, setKeyword] = useState("");
   const [keyType, setKeyType] = useState(searchParams.get("key_type")?searchParams.get("key_type"):"title");
   const [pageCount, setPageCount] = useState(1);
   const navigate = useNavigate();
@@ -19,8 +19,7 @@ const CommunityBoard = () => {
 
   const page = searchParams.get("page")?searchParams.get("page"):1;
   const page_nav = (Math.floor(page/10)*10);
-
-  console.log("writePermission",writePermission);
+  // console.log("writePermission",writePermission);
 
   const getWriteable = async ()=>{
     if(user&&user.user){
@@ -35,6 +34,9 @@ const CommunityBoard = () => {
   }
 
   const update = async(query)=>{
+    setPostLoading(true);
+    setPosts([]);
+    window.scrollTo({ top: 0});
     getWriteable();
     const res = await searchPost2(
       {
@@ -43,7 +45,7 @@ const CommunityBoard = () => {
         setPosts
       }
     );
-    console.log("res.data.pageCount",res.data.pageCount)
+    // console.log("res.data.pageCount",res.data.pageCount)
     setPageCount(res.success?res.data.pageCount:1);
     setPostLoading(false);
   };
@@ -88,6 +90,11 @@ const CommunityBoard = () => {
     const p = Number(page) + amount;
     if(p<1) return handlePageNav(1);
     return handlePageNav(p);
+  }
+  const getPostCategory = (categoryId)=>{
+    if(!boards) return "";
+    const find = boards.find((item)=>item.categoryId===categoryId);
+    return find?.categoryName;
   }
 
   return (
@@ -149,10 +156,19 @@ const CommunityBoard = () => {
                   </div>
                 </div>
                 <div className="post-body flex gap-2">
-                      <div className="post-title w-full pl-[6rem] text-green-700">
-                        <span className='text-lg '>{post.title}</span>
-                        &nbsp;
-                        {(post.commentCnt>0)&&(<span className='text-yellow-600'>[{post.commentCnt}]</span>)}
+                      <div className="relative post-title w-full pl-[6rem] text-green-700">
+                        {
+                          (boardId === undefined)&&(
+                            <div className='text-xs text-gray-600 absolute top-0 left-0'>
+                              {getPostCategory(post.categoryId)}
+                            </div>
+                          )
+                        }
+                        <div>
+                          <span className='text-lg '>{post.title}</span>
+                          &nbsp;
+                          {(post.commentCnt>0)&&(<span className='text-yellow-600'>[{post.commentCnt}]</span>)}
+                        </div>
                       </div>
                 </div>
                 <div className="post-footer flex justify-between">
@@ -175,7 +191,7 @@ const CommunityBoard = () => {
             <div className='w-[3rem]'>
             {
               (page>1)&&(
-                <button className='items-center' onClick={handlePageMove(-1)}>prev</button>
+                <button className='items-center' onClick={handlePageMove(-1)}><ArrowLeftIcon/></button>
               )
             }
             </div>
@@ -183,7 +199,7 @@ const CommunityBoard = () => {
               {
                 [...Array(pageCount)].map((item,idx)=>{
                   const p = idx+1;
-                  console.log(idx, p)
+                  // console.log(idx, p)
                   if(p > page_nav+10 || p < page_nav+1) return;
                   return (
                     <div key={p} onClick={handlePageNav(p)} className={`${(p==page)?"font-bold underline":""} cursor-pointer`}>{idx+1}</div>
@@ -194,7 +210,7 @@ const CommunityBoard = () => {
             <div className='w-[3rem]'>
             {
               (page<pageCount)&&(
-                <button  className='items-center' onClick={handlePageMove(1)}>next</button>
+                <button  className='items-center' onClick={handlePageMove(1)}><ArrowRightIcon/></button>
               )
             }
             </div>
