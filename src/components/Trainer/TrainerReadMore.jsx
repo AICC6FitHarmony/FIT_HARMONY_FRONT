@@ -9,6 +9,195 @@ import {
 import { MapPin, Star, Navigation } from 'lucide-react';
 import Swal from 'sweetalert2';
 
+// TipTap JSON 콘텐츠 렌더러 컴포넌트
+const TipTapContentRenderer = ({
+  content,
+  showFullContent,
+  maxChars = 150,
+}) => {
+  if (!content) return null;
+
+  // JSON 문자열인 경우 파싱
+  const parsedContent =
+    typeof content === 'string' ? JSON.parse(content) : content;
+
+  // 텍스트 추출 함수 (길이 체크용)
+  const extractText = (node) => {
+    if (!node) return '';
+
+    if (node.type === 'text') {
+      return node.text || '';
+    }
+
+    if (node.content && Array.isArray(node.content)) {
+      return node.content.map(extractText).join('');
+    }
+
+    return '';
+  };
+
+  // 전체 텍스트 길이 계산
+  const fullText = extractText(parsedContent);
+  const isLongText = fullText.length > maxChars;
+
+  // 노드 렌더링 함수
+  const renderNode = (node, index = 0, isPreview = false) => {
+    if (!node) return null;
+
+    switch (node.type) {
+      case 'doc':
+        return (
+          <div key={index}>
+            {node.content?.map((child, childIndex) =>
+              renderNode(child, childIndex, isPreview)
+            )}
+          </div>
+        );
+
+      case 'paragraph':
+        return (
+          <p key={index} className="mb-4 last:mb-0">
+            {node.content?.map((child, childIndex) =>
+              renderNode(child, childIndex, isPreview)
+            )}
+          </p>
+        );
+
+      case 'text':
+        let textContent = node.text || '';
+
+        // 미리보기 모드이고 긴 텍스트인 경우 자르기
+        if (isPreview && isLongText && !showFullContent) {
+          const currentLength = textContent.length;
+          if (currentLength > maxChars) {
+            textContent = textContent.substring(0, maxChars) + '...';
+          }
+        }
+
+        // 텍스트 스타일 적용
+        let element = textContent;
+
+        if (node.marks) {
+          node.marks.forEach((mark) => {
+            switch (mark.type) {
+              case 'bold':
+                element = <strong key={`bold-${index}`}>{element}</strong>;
+                break;
+              case 'italic':
+                element = <em key={`italic-${index}`}>{element}</em>;
+                break;
+              case 'underline':
+                element = <u key={`underline-${index}`}>{element}</u>;
+                break;
+              case 'textStyle':
+                if (mark.attrs?.color) {
+                  element = (
+                    <span
+                      key={`color-${index}`}
+                      style={{ color: mark.attrs.color }}
+                    >
+                      {element}
+                    </span>
+                  );
+                }
+                break;
+            }
+          });
+        }
+
+        return element;
+
+      case 'image':
+        // 미리보기 모드에서는 이미지 숨기기 (선택사항)
+        if (isPreview && !showFullContent) {
+          return null;
+        }
+
+        return (
+          <div key={index} className="my-4">
+            <img
+              src={node.attrs?.src}
+              alt={node.attrs?.alt || ''}
+              className="max-w-full h-auto rounded-lg shadow-sm"
+              style={{
+                width: node.attrs?.width || 'auto',
+                height: node.attrs?.height || 'auto',
+              }}
+            />
+          </div>
+        );
+
+      case 'heading':
+        const HeadingTag = `h${node.attrs?.level || 1}`;
+        return (
+          <HeadingTag
+            key={index}
+            className={`font-semibold mb-3 ${
+              node.attrs?.level === 1
+                ? 'text-xl'
+                : node.attrs?.level === 2
+                ? 'text-lg'
+                : 'text-base'
+            }`}
+          >
+            {node.content?.map((child, childIndex) =>
+              renderNode(child, childIndex, isPreview)
+            )}
+          </HeadingTag>
+        );
+
+      case 'bulletList':
+        return (
+          <ul key={index} className="list-disc list-inside mb-4">
+            {node.content?.map((child, childIndex) =>
+              renderNode(child, childIndex, isPreview)
+            )}
+          </ul>
+        );
+
+      case 'orderedList':
+        return (
+          <ol key={index} className="list-decimal list-inside mb-4">
+            {node.content?.map((child, childIndex) =>
+              renderNode(child, childIndex, isPreview)
+            )}
+          </ol>
+        );
+
+      case 'listItem':
+        return (
+          <li key={index} className="mb-1">
+            {node.content?.map((child, childIndex) =>
+              renderNode(child, childIndex, isPreview)
+            )}
+          </li>
+        );
+
+      case 'hardBreak':
+        return <br key={index} />;
+
+      default:
+        // 알 수 없는 타입의 경우 콘텐츠가 있다면 렌더링
+        if (node.content) {
+          return (
+            <div key={index}>
+              {node.content.map((child, childIndex) =>
+                renderNode(child, childIndex, isPreview)
+              )}
+            </div>
+          );
+        }
+        return null;
+    }
+  };
+
+  return (
+    <div className="prose text-gray-700 leading-relaxed max-w-none">
+      {renderNode(parsedContent, 0, !showFullContent)}
+    </div>
+  );
+};
+
 const TrainerReadMore = () => {
   const { userId } = useParams();
   const dispatch = useDispatch();
@@ -495,18 +684,70 @@ const TrainerReadMore = () => {
               <h2 className="text-xl font-semibold text-gray-900 mb-6">
                 자기소개
               </h2>
-              <div className="prose text-gray-700 leading-relaxed">
-                {(() => {
-                  const introduction = `안녕하세요! 건강한 삶을 추구하는 ${
-                    detail?.userName || detail?.name || '트레이너'
-                  } 트레이너입니다.`;
-                  const title = detail?.title || '';
-                  const content = detail?.content || '';
+              {(() => {
+                const introduction = `안녕하세요! 건강한 삶을 추구하는 ${
+                  detail?.userName || detail?.name || '트레이너'
+                } 트레이너입니다.`;
+                const title = detail?.title || '';
+                const content = detail?.content || '';
 
-                  // 전체 텍스트 합치기
+                // content가 JSON 형태인지 확인
+                let isJsonContent = false;
+                let parsedContent = null;
+
+                try {
+                  if (
+                    typeof content === 'string' &&
+                    content.trim().startsWith('{')
+                  ) {
+                    parsedContent = JSON.parse(content);
+                    isJsonContent = true;
+                  } else if (typeof content === 'object' && content !== null) {
+                    parsedContent = content;
+                    isJsonContent = true;
+                  }
+                } catch (e) {
+                  // JSON 파싱 실패 시 일반 텍스트로 처리
+                  isJsonContent = false;
+                }
+
+                if (isJsonContent && parsedContent) {
+                  // TipTap JSON 콘텐츠 렌더링
+                  return (
+                    <div>
+                      {/* 기본 소개 문구 */}
+                      <p className="mb-4 text-gray-700">{introduction}</p>
+
+                      {/* 제목이 있으면 표시 */}
+                      {title && (
+                        <h3 className="text-lg font-medium text-gray-900 mb-3">
+                          {title}
+                        </h3>
+                      )}
+
+                      {/* TipTap 콘텐츠 렌더링 */}
+                      <TipTapContentRenderer
+                        content={parsedContent}
+                        showFullContent={showFullDescription}
+                        maxChars={150}
+                      />
+
+                      {/* 더보기 버튼 */}
+                      <div className="text-center mt-5">
+                        <button
+                          onClick={() =>
+                            setShowFullDescription(!showFullDescription)
+                          }
+                          className="text-gray-300  hover:text-gray-600 text-xl font-medium transition-colors mt-4"
+                        >
+                          {showFullDescription ? '접기' : '상세설명 더보기'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                } else {
+                  // 기존 방식 (일반 텍스트)
                   const fullText = `${introduction} ${title} ${content}`.trim();
-
-                  // 150글자 이상인지 확인
                   const isLongText = fullText.length > 150;
                   const displayText =
                     isLongText && !showFullDescription
@@ -515,22 +756,26 @@ const TrainerReadMore = () => {
 
                   return (
                     <div>
-                      <p className="mb-4 whitespace-pre-wrap">{displayText}</p>
+                      <p className="mb-4  flex whitespace-pre-wrap text-gray-700">
+                        {displayText}
+                      </p>
 
                       {isLongText && (
-                        <button
-                          onClick={() =>
-                            setShowFullDescription(!showFullDescription)
-                          }
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium underline transition-colors"
-                        >
-                          {showFullDescription ? '접기' : '상세설명 더보기'}
-                        </button>
+                        <div className="text-center">
+                          <button
+                            onClick={() =>
+                              setShowFullDescription(!showFullDescription)
+                            }
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium underline transition-colors"
+                          >
+                            {showFullDescription ? '접기' : '상세설명 더보기'}
+                          </button>
+                        </div>
                       )}
                     </div>
                   );
-                })()}
-              </div>
+                }
+              })()}
             </div>
             {/* 제공 서비스 */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
