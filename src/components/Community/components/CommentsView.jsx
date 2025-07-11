@@ -11,6 +11,7 @@ const CommentsView = () => {
   const [comments, setComments] = useState([]);
   const {user, loading} = useAuth();
   const [userId, setUserId] = useState("");
+  const [page, setPage] = useState(1);
 
   const [replyId, setReplyId] = useState(0)
 

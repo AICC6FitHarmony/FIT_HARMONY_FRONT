@@ -21,7 +21,15 @@ const CommunityAdmin = ({boards, updateBoards}) => {
   const roleText = ["관리자", "트레이너", "일반회원", "비회원"];
   const permissionText = ["읽기", "쓰기", "답글", "댓글"];
 
+  useEffect(()=>{
+    if(!boards || boards.length < 1) return;
+    setSelectIdx(boards[0].categoryId);
+    handleBoardSelect({item:boards[0]});
+    // setSelectPermissions()
+  },[])
+
   const handleBoardSelect = async ({item,idx})=>{
+    console.log(item);
     if(item.categoryId === currentBoard?.categoryId) return;
     const selectUpdate = async ()=>{
       setLoading(true);
