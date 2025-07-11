@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { findComment, getComments } from '../../../js/community/communityUtils';
 import CommentInput from './CommentInput';
 import Comment from './Comment';
@@ -16,6 +16,7 @@ const CommentsView = () => {
   const [pageCount, setPageCount] = useState(1);
   const [focusComment, setFocusComment] = useState(-1);
   const [replyId, setReplyId] = useState(0)
+  const navigate = useNavigate();
 
   const updateComment = async ()=>{
     const res = await getComments(postId,page);
@@ -123,25 +124,48 @@ const CommentsView = () => {
         </div>
         {(comments.length > 0)&&(<div className='page-nav  p-2 rounded-sm flex items-center justify-center text-emerald-100 bg-[#82b16c]'>
           <div className='flex justify-center gap-2 w-[20rem]'>
-            <ArrowLeftIcon/>
+            <div className='w-[2rem] flex justify-center items-center'>
+              {
+              (page>1)&&(<ArrowLeftIcon className='cursor-pointer' onClick={handleClickPage(page-1)}/>)
+              }
+            </div>
             {
               [...Array(pageCount)].map((item,idx)=>{
                 return(<div key={idx} className={`cursor-pointer ${idx+1 === page ?"font-bold underline":""}`} onClick={handleClickPage(idx+1)}>{idx+1}</div>)
               })
             }
-            <ArrowRightIcon/>
+            <div className='w-[2rem] flex justify-center items-center'>
+              {
+              (page<pageCount)&&(<ArrowRightIcon className='cursor-pointer' onClick={handleClickPage(page+1)}/>)
+              }
+            </div>
           </div>
         </div>)}
         <div className=''>
         {
-          (replyId === 0)
+          (replyId === 0 && userId)
           ?(
             <CommentInput load_comments={loadComments}/>
-          )
+            )
           :(
             <div className='w-full bg-white p-4 pt-6 rounded-xl shadow-xl'>
-              <div onClick={handleReply(0)}
-              className='w-full bg-[#82b16c] text-emerald-100 border px-2 py-2 text-center rounded-sm cursor-pointer'>댓글 작성하기</div>
+              {
+                userId
+                ?(
+                  <div 
+                  onClick={handleReply(0)}
+                  className='w-full bg-[#82b16c] text-emerald-100 border px-2 py-2 text-center rounded-sm cursor-pointer'>
+                    댓글 작성하기
+                  </div>
+                )
+                :(
+                  <div 
+                  onClick={()=>navigate('/login')}
+                  className='w-full bg-[#82b16c] text-emerald-100 border px-2 py-2 text-center rounded-sm cursor-pointer'>
+                    회원만 댓글 작성이 가능합니다.
+                  </div>
+                )
+              }
             </div>
           )
         }

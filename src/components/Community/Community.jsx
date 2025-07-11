@@ -11,7 +11,6 @@ import CommunityAdmin from './CommunityAdmin';
 import CommunityNav from './CommunityNav';
 
 const Community = () => {
-
   const [boards, setBoards] = useState([]);
   const update = async ()=>{
     const res = await getBoards();
