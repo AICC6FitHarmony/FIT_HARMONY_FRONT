@@ -34,9 +34,7 @@ const responseErrorToast = (status) => {
         });
         break;
       case 500:
-        toast.error('서버 내부 오류입니다.', {
-          position: "bottom-center"
-        });
+        
         break;
       default:
        toast.error(`에러 발생 (code: ${response.status})`, {
