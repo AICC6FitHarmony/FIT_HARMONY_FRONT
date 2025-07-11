@@ -1,17 +1,31 @@
 import React, { useState } from 'react'
 import { deleteComment, findComment, updateComment } from '../../../js/community/communityUtils';
 import { CornerDownRight } from 'lucide-react';
+import { useModal } from '../../cmmn/ModalContext';
 
 const Comment = ({load_comments, comment, auth_id, handleReply, focusParent,isFocus}) => {
   const {nickName, content, createdTime, userId, commentId,isDeleted, depth} = comment;
   const [editComment, setEditComment] = useState(false);
   const [editContent, setContent] = useState(content);
+  const openModal = useModal();
+
   const handleDelete = async()=>{
-    const res = await deleteComment({
-      userId:auth_id, commentId
-    });
-    console.log(res);
-    load_comments();
+    const deleteEvent = async ()=>{
+      const res = await deleteComment({
+        userId:auth_id, commentId
+      });
+      console.log(res);
+      load_comments();
+    }
+
+    openModal({
+      title:"댓글 삭제",
+      children:(<div>댓글을 삭제하시겠습니까?</div>),
+      okEvent:()=>deleteEvent(),
+      isOkClose:true,
+      isCancelClose:true,
+      size:{width:"auto", height:"auto"}
+    })
   }
 
   const handleUpdate = async()=>{
