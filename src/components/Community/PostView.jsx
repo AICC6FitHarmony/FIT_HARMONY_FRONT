@@ -30,9 +30,12 @@ const PostView = ({}) => {
   });
   const openModal = useModal();
   const { postId } = useParams();
+  const [postLoading, setPostLoading] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
+      setPostLoading(true);
+      window.scrollTo({ top: 0});
       const res = await getPost(postId);
       if (res.success == false) {
         navigate('/community');
@@ -61,6 +64,7 @@ const PostView = ({}) => {
 
       const boardRes = await getBoardInfo(data.categoryId);
       setBoardInfo(boardRes.data.info);
+      setPostLoading(false);
     };
     fetchPost();
   }, []);
@@ -91,7 +95,12 @@ const PostView = ({}) => {
 
   return (
     <div className="p-4.5">
-      <div className="post-wrapper flex flex-col gap-5 rounded-xl bg-white shadow-xl p-2">
+      <div className="post-wrapper overflow-hidden relative flex flex-col gap-5 rounded-xl bg-white shadow-xl p-2">
+        {
+          postLoading&&(
+            <div className='absolute w-full h-full bg-white bottom-0 left-0'></div>
+          )
+        }
         <div className="post-header p-2">
           <div className='text-sm font-bold'>
             {boardInfo.categoryName}
