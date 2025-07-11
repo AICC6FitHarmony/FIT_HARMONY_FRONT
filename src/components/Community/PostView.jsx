@@ -97,10 +97,11 @@ const PostView = ({}) => {
     <div className="p-4.5">
       <div className="post-wrapper overflow-hidden relative flex flex-col gap-5 rounded-xl bg-white shadow-xl p-2">
         {
-          postLoading&&(
-            <div className='absolute w-full h-full bg-white bottom-0 left-0'></div>
+          postLoading?
+          (
+            <div className='w-full h-[4rem] bg-white bottom-0 left-0 flex justify-center items-center'>내용 불러오는 중...</div>
           )
-        }
+          :(<>
         <div className="post-header p-2">
           <div className='text-sm font-bold'>
             {boardInfo.categoryName}
@@ -114,7 +115,7 @@ const PostView = ({}) => {
         <div
           className="post_body rounded-sm min-h-[400px] p-2"
           dangerouslySetInnerHTML={{ __html: postHtml }}
-        />
+          />
         <div className="w-full h-[2px] bg-green-700" />
         <div className="controls py-2 flex justify-end gap-3">
           {user && user.user && user.user.userId == postInfo.userId && (
@@ -126,6 +127,9 @@ const PostView = ({}) => {
             </div>
           )}
         </div>
+        </>)}
+        
+
       </div>
       <div className="pt-5">
         {boardInfo.isComment ? <CommentsView /> : ''}

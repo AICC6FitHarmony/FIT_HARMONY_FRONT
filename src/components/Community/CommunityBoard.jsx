@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, redirect, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getPermission, getPosts, searchPost, searchPost2, searchQuery } from '../../js/community/communityUtils';
-import {NotebookPen} from 'lucide-react'
+import {ArrowLeftIcon, ArrowRightIcon, NotebookPen} from 'lucide-react'
 import { useAuth } from '../../js/login/AuthContext';
 
 const CommunityBoard = ({boards}) => {
@@ -191,7 +191,7 @@ const CommunityBoard = ({boards}) => {
             <div className='w-[3rem]'>
             {
               (page>1)&&(
-                <button className='items-center' onClick={handlePageMove(-1)}>prev</button>
+                <button className='items-center' onClick={handlePageMove(-1)}><ArrowLeftIcon/></button>
               )
             }
             </div>
@@ -210,7 +210,7 @@ const CommunityBoard = ({boards}) => {
             <div className='w-[3rem]'>
             {
               (page<pageCount)&&(
-                <button  className='items-center' onClick={handlePageMove(1)}>next</button>
+                <button  className='items-center' onClick={handlePageMove(1)}><ArrowRightIcon/></button>
               )
             }
             </div>
