@@ -41,15 +41,32 @@ const TipTapContentRenderer = ({
   const isLongText = fullText.length > maxChars;
 
   // 노드 렌더링 함수
-  const renderNode = (node, index = 0, isPreview = false) => {
+  const renderNode = (
+    node,
+    index = 0,
+    isPreview = false,
+    accumulatedLength = { value: 0 },
+    hasReachedLimit = { value: false }
+  ) => {
     if (!node) return null;
+
+    // 이미 글자수 제한에 도달했으면 렌더링 중단
+    if (isPreview && isLongText && !showFullContent && hasReachedLimit.value) {
+      return null;
+    }
 
     switch (node.type) {
       case 'doc':
         return (
           <div key={index}>
             {node.content?.map((child, childIndex) =>
-              renderNode(child, childIndex, isPreview)
+              renderNode(
+                child,
+                childIndex,
+                isPreview,
+                accumulatedLength,
+                hasReachedLimit
+              )
             )}
           </div>
         );
@@ -58,7 +75,13 @@ const TipTapContentRenderer = ({
         return (
           <p key={index} className="mb-4 last:mb-0">
             {node.content?.map((child, childIndex) =>
-              renderNode(child, childIndex, isPreview)
+              renderNode(
+                child,
+                childIndex,
+                isPreview,
+                accumulatedLength,
+                hasReachedLimit
+              )
             )}
           </p>
         );
@@ -66,11 +89,21 @@ const TipTapContentRenderer = ({
       case 'text':
         let textContent = node.text || '';
 
-        // 미리보기 모드이고 긴 텍스트인 경우 자르기
+        // 미리보기 모드이고 긴 텍스트인 경우 누적 길이 기준으로 자르기
         if (isPreview && isLongText && !showFullContent) {
-          const currentLength = textContent.length;
-          if (currentLength > maxChars) {
-            textContent = textContent.substring(0, maxChars) + '...';
+          const remainingChars = maxChars - accumulatedLength.value;
+
+          if (remainingChars <= 0) {
+            hasReachedLimit.value = true;
+            return null;
+          }
+
+          if (textContent.length > remainingChars) {
+            textContent = textContent.substring(0, remainingChars) + '...';
+            hasReachedLimit.value = true;
+            accumulatedLength.value += remainingChars; // '...' 제외하고 실제 텍스트 길이만 계산
+          } else {
+            accumulatedLength.value += textContent.length;
           }
         }
 
@@ -141,7 +174,13 @@ const TipTapContentRenderer = ({
             }`}
           >
             {node.content?.map((child, childIndex) =>
-              renderNode(child, childIndex, isPreview)
+              renderNode(
+                child,
+                childIndex,
+                isPreview,
+                accumulatedLength,
+                hasReachedLimit
+              )
             )}
           </HeadingTag>
         );
@@ -150,7 +189,13 @@ const TipTapContentRenderer = ({
         return (
           <ul key={index} className="list-disc list-inside mb-4">
             {node.content?.map((child, childIndex) =>
-              renderNode(child, childIndex, isPreview)
+              renderNode(
+                child,
+                childIndex,
+                isPreview,
+                accumulatedLength,
+                hasReachedLimit
+              )
             )}
           </ul>
         );
@@ -159,7 +204,13 @@ const TipTapContentRenderer = ({
         return (
           <ol key={index} className="list-decimal list-inside mb-4">
             {node.content?.map((child, childIndex) =>
-              renderNode(child, childIndex, isPreview)
+              renderNode(
+                child,
+                childIndex,
+                isPreview,
+                accumulatedLength,
+                hasReachedLimit
+              )
             )}
           </ol>
         );
@@ -168,7 +219,13 @@ const TipTapContentRenderer = ({
         return (
           <li key={index} className="mb-1">
             {node.content?.map((child, childIndex) =>
-              renderNode(child, childIndex, isPreview)
+              renderNode(
+                child,
+                childIndex,
+                isPreview,
+                accumulatedLength,
+                hasReachedLimit
+              )
             )}
           </li>
         );
@@ -182,7 +239,13 @@ const TipTapContentRenderer = ({
           return (
             <div key={index}>
               {node.content.map((child, childIndex) =>
-                renderNode(child, childIndex, isPreview)
+                renderNode(
+                  child,
+                  childIndex,
+                  isPreview,
+                  accumulatedLength,
+                  hasReachedLimit
+                )
               )}
             </div>
           );
@@ -193,7 +256,13 @@ const TipTapContentRenderer = ({
 
   return (
     <div className="prose text-gray-700 leading-relaxed max-w-none">
-      {renderNode(parsedContent, 0, !showFullContent)}
+      {renderNode(
+        parsedContent,
+        0,
+        !showFullContent,
+        { value: 0 },
+        { value: false }
+      )}
     </div>
   );
 };
@@ -685,25 +754,27 @@ const TrainerReadMore = () => {
                 자기소개
               </h2>
               {(() => {
-                const introduction = `안녕하세요! 건강한 삶을 추구하는 ${
+                const defaultIntroduction = `안녕하세요! 건강한 삶을 추구하는 ${
                   detail?.userName || detail?.name || '트레이너'
                 } 트레이너입니다.`;
-                const title = detail?.title || '';
-                const content = detail?.content || '';
+                const introduction = detail?.introduction || '';
 
-                // content가 JSON 형태인지 확인
+                // introduction이 JSON 형태인지 확인
                 let isJsonContent = false;
                 let parsedContent = null;
 
                 try {
                   if (
-                    typeof content === 'string' &&
-                    content.trim().startsWith('{')
+                    typeof introduction === 'string' &&
+                    introduction.trim().startsWith('{')
                   ) {
-                    parsedContent = JSON.parse(content);
+                    parsedContent = JSON.parse(introduction);
                     isJsonContent = true;
-                  } else if (typeof content === 'object' && content !== null) {
-                    parsedContent = content;
+                  } else if (
+                    typeof introduction === 'object' &&
+                    introduction !== null
+                  ) {
+                    parsedContent = introduction;
                     isJsonContent = true;
                   }
                 } catch (e) {
@@ -716,20 +787,15 @@ const TrainerReadMore = () => {
                   return (
                     <div>
                       {/* 기본 소개 문구 */}
-                      <p className="mb-4 text-gray-700">{introduction}</p>
-
-                      {/* 제목이 있으면 표시 */}
-                      {title && (
-                        <h3 className="text-lg font-medium text-gray-900 mb-3">
-                          {title}
-                        </h3>
-                      )}
+                      <p className="mb-4 text-gray-700">
+                        {defaultIntroduction}
+                      </p>
 
                       {/* TipTap 콘텐츠 렌더링 */}
                       <TipTapContentRenderer
                         content={parsedContent}
                         showFullContent={showFullDescription}
-                        maxChars={150}
+                        maxChars={100}
                       />
 
                       {/* 더보기 버튼 */}
@@ -747,20 +813,22 @@ const TrainerReadMore = () => {
                   );
                 } else {
                   // 기존 방식 (일반 텍스트)
-                  const fullText = `${introduction} ${title} ${content}`.trim();
-                  const isLongText = fullText.length > 150;
+                  const fullText = introduction
+                    ? `${defaultIntroduction}\n\n${introduction}`
+                    : defaultIntroduction;
+                  const isTextLong = fullText.length > 100;
                   const displayText =
-                    isLongText && !showFullDescription
-                      ? fullText.substring(0, 150) + '...'
+                    isTextLong && !showFullDescription
+                      ? fullText.substring(0, 100) + '...'
                       : fullText;
 
                   return (
                     <div>
-                      <p className="mb-4  flex whitespace-pre-wrap text-gray-700">
+                      <p className="mb-4 whitespace-pre-wrap text-gray-700">
                         {displayText}
                       </p>
 
-                      {isLongText && (
+                      {isTextLong && (
                         <div className="text-center">
                           <button
                             onClick={() =>
