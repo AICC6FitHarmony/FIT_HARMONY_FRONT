@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { findComment, getComments } from '../../../js/community/communityUtils';
 import CommentInput from './CommentInput';
@@ -17,7 +17,6 @@ const CommentsView = () => {
   const [focusComment, setFocusComment] = useState(-1);
   const [replyId, setReplyId] = useState(0)
   const navigate = useNavigate();
-
   const updateComment = async ()=>{
     const res = await getComments(postId,page);
     setComments(res.data.comments);
@@ -25,6 +24,7 @@ const CommentsView = () => {
   }
 
   console.log(pageCount);
+
   useEffect(()=>{
     if (loading == false &&user.isLoggedIn){
       setUserId(user.user.userId);
@@ -42,7 +42,9 @@ const CommentsView = () => {
     const pageUpdate = async ()=>{
       await loadComments();
       if(focusComment < 1) return;
-      handleScroll(focusComment);
+      setTimeout(() => {
+        handleScroll(focusComment);
+      }, 100);
     }
     pageUpdate();
   },[page]);
@@ -58,8 +60,8 @@ const CommentsView = () => {
 
   const handleScroll = (commentId)=>{
     const el = document.getElementById(`comment-${commentId}`);
-
-    const y = el.getBoundingClientRect().top + window.pageYOffset;
+    if(!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY;
     window.scrollTo({ top: y - 200, behavior: "smooth" });
     return;
 
