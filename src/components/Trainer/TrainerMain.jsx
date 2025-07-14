@@ -120,7 +120,7 @@ const TrainerMain = () => {
   // 필터 적용 함수
   const applyFilters = (data) => {
     return data.filter((trainer) => {
-      if (filters.rating > 0 && trainer.rating < filters.rating) {
+      if (filters.rating > 0 && Math.floor(trainer.rating) !== filters.rating) {
         return false;
       }
       if (filters.gender && trainer.gender !== filters.gender) {
@@ -261,6 +261,10 @@ const TrainerMain = () => {
   };
 
   const handlePriceChange = (type, value) => {
+    // 8자리 이상 입력 제한
+    if (value.length > 8) {
+      return;
+    }
     setFilters((prev) => ({ ...prev, [type]: parseInt(value) }));
   };
 
@@ -463,6 +467,16 @@ const TrainerMain = () => {
                 별점
               </h4>
               <div className="flex flex-col gap-1 md:gap-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="rating"
+                    checked={filters.rating === 0}
+                    onChange={() => handleRatingChange(0)}
+                    className="w-3 h-3 md:w-4 md:h-4"
+                  />
+                  <span className="text-xs md:text-sm">전체</span>
+                </label>
                 {[5, 4, 3, 2, 1].map((rating) => (
                   <label
                     key={rating}
@@ -482,7 +496,6 @@ const TrainerMain = () => {
                           className="text-yellow-400 text-xs md:text-sm"
                         />
                       ))}
-                      <span className="text-xs md:text-sm">이상</span>
                     </div>
                   </label>
                 ))}
@@ -536,6 +549,7 @@ const TrainerMain = () => {
                   value={filters.location}
                   onChange={(e) => handleLocationChange(e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md text-xs md:text-sm"
+                  maxLength="20"
                 />
                 {filters.location && (
                   <div className="mt-2 flex items-center gap-2">
