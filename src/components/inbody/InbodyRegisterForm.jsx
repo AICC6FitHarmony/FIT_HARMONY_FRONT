@@ -109,7 +109,7 @@ const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
       uploadFormData.append("file", file);
       const upload = await fileUpload(uploadFormData);
 
-      // 2. OCR 분석 요청
+      // 2. 인바디 분석 요청
       const option = {
         method: "POST",
         body: {
@@ -120,7 +120,7 @@ const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
       const ocrResult = await request("/inbody/requestOcr", option);
 
       if (ocrResult.success) {
-        // 3. OCR 결과를 폼에 자동 입력
+        // 3. 인바디 결과를 폼에 자동 입력
         const ocrData = ocrResult.data;
         setFormData((prev) => ({
           ...prev,
@@ -146,16 +146,16 @@ const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
         }));
 
         toast.success(
-          "OCR 분석이 완료되었습니다. 데이터를 확인하고 수정해주세요."
+          "인바디 분석이 완료되었습니다. 데이터를 확인하고 수정해주세요."
         );
         setInputMode("manual"); // 수동 입력 모드로 전환
       } else {
-        toast.error("OCR 분석에 실패했습니다. 수동으로 입력해주세요.");
+        toast.error("인바디 분석에 실패했습니다. 수동으로 입력해주세요.");
         setInputMode("manual");
       }
     } catch (error) {
-      console.error("OCR 분석 오류:", error);
-      toast.error("OCR 분석 중 오류가 발생했습니다. 수동으로 입력해주세요.");
+      console.error("인바디 분석 오류:", error);
+      toast.error("인바디 분석 중 오류가 발생했습니다. 수동으로 입력해주세요.");
       setInputMode("manual");
     } finally {
       setIsProcessing(false);
@@ -735,7 +735,7 @@ const InbodyRegisterForm = ({ onClose, onSubmit, userName, userId }) => {
               disabled={!file || isProcessing}
               className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {isProcessing ? "분석 중..." : "OCR 분석 시작"}
+              {isProcessing ? "분석 중..." : "인바디 분석 시작"}
             </button>
             <button
               onClick={handleBackToSelection}
