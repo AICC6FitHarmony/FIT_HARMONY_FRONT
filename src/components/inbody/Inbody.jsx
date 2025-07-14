@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchInbodyDayData,
   fetchInbodyMonthData,
+  deleteInbodyData,
 } from "../../js/redux/slice/sliceInbody";
 import {
   BarChart,
@@ -38,6 +39,8 @@ const Inbody = () => {
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState(null);
   const [isShowDetailModal, setIsShowDetailModal] = useState(false);
+  const [isShowDeleteConfirmModal, setIsShowDeleteConfirmModal] =
+    useState(false);
 
   const navigate = useNavigate(); // 화면 라우팅 시 활용하는 훅
   // 강사 회원 매칭 정보 리덕스(강사 회원 관리 화면)
@@ -180,6 +183,34 @@ const Inbody = () => {
   const handleInbodyUpdateSubmit = (formData) => {
     setIsShowDetailModal(false);
     window.location.reload();
+  };
+
+  // 인바디 삭제 처리
+  const handleInbodyDelete = async () => {
+    if (!mainInbodyData?.inbodyResult?.[0]?.inbodyId) {
+      toast.error("삭제할 인바디 데이터가 없습니다.", {
+        position: "bottom-center",
+      });
+      return;
+    }
+
+    try {
+      await dispatch(
+        deleteInbodyData({ inbodyId: mainInbodyData.inbodyResult[0].inbodyId })
+      ).unwrap();
+
+      toast.success("인바디 데이터가 삭제되었습니다.", {
+        position: "bottom-center",
+      });
+
+      setIsShowDeleteConfirmModal(false);
+      window.location.reload();
+    } catch (error) {
+      toast.error("삭제 중 오류가 발생했습니다.", {
+        position: "bottom-center",
+      });
+      console.error("삭제 실패:", error);
+    }
   };
 
   // --------------------------------------------------------------------------------------------------------------
@@ -606,6 +637,12 @@ const Inbody = () => {
                 >
                   등록
                 </button>
+                <button
+                  className="cancel px-3 py-1 rounded text-sm"
+                  onClick={() => setIsShowDeleteConfirmModal(true)}
+                >
+                  삭제
+                </button>
               </div>
             </div>
           </div>
@@ -656,7 +693,39 @@ const Inbody = () => {
           />
         </StandardModal>
       )}
-      <ToastContainer/>
+      {isShowDeleteConfirmModal && (
+        <StandardModal
+          title="인바디 삭제 확인"
+          size={{ width: "30vw", height: "15vw" }}
+          closeEvent={() => setIsShowDeleteConfirmModal(false)}
+        >
+          <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <div className="text-center">
+              <p className="text-lg font-semibold mb-2">
+                정말 삭제하시겠습니까?
+              </p>
+              <p className="text-gray-600">
+                {inbodyTime} 날짜의 인바디 데이터가 영구적으로 삭제됩니다.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                onClick={() => setIsShowDeleteConfirmModal(false)}
+              >
+                취소
+              </button>
+              <button
+                className="cancel px-4 py-2 rounded"
+                onClick={handleInbodyDelete}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </StandardModal>
+      )}
+      <ToastContainer />
     </>
   );
 };
