@@ -45,9 +45,9 @@ const MyPage = () => {
     { key: "activity", label: "내 활동" },
   ];
 
-  if (role == "TRAINER") {
-    navItems.push({ key: "memberOrders", label: "회원관리" });
-  }
+  // if (role == "TRAINER") {
+  //   navItems.push({ key: "memberOrders", label: "회원관리" });
+  // }
 
   return (
     <div className="flex rounded-xl shadow-md min-h-[600px]">
