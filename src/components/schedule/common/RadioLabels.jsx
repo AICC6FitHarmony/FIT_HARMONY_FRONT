@@ -15,7 +15,7 @@ const RadioLabels = ({labels, labelId, labelName, radioUseState, radioUseStateHa
                                 {(radioUseState == label.codeId ? <CheckSquare/> : <Square/>)}
                               </div>
                           </label>
-                          <div>{label.codeName}</div>
+                          <div className='text-[0.7rem] sm:text-[1rem]'>{label.codeName}</div>
                           <input 
                                 type="radio"
                                 className='hidden'
