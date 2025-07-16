@@ -1,12 +1,18 @@
-import React from 'react'
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import googleLogo from './googleIcon.png'
-import kakaoLogo from './kakao.svg'
 import { googleLogin, userLogout } from '../../js/login/loginUtils';
 const LoginPage = ({loginFail}) => {
+  const [searchParams] = useSearchParams();
 
-
+  useEffect(()=>{
+    if(loginFail){
+      const status = searchParams.get('status');
+      if(status==='deleted')
+        toast.error("탈퇴한 회원입니다. ",{position: "bottom-center"});
+    }
+  },[]);
 
   const kakaoLogin = () => {
     toast.info("카카오 로그인으로 이동합니다.", {
