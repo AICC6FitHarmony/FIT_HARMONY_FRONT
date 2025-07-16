@@ -171,7 +171,7 @@ const CommunityAdmin = ({boards, updateBoards}) => {
         </div>
       </div>
       <div className='body p-5 select-none flex lg:justify-between lg:flex-row flex-col justify-center items-center rounded-lg bg-white overflow-hidden shadow-md'>
-        <div className='min-w-[20rem] w-1/3 h-[25rem] p-3'>
+        <div className='lg:min-w-[20rem] w-full lg:w-1/3 h-[25rem] p-3'>
           <div className="border h-full">
             <div className='h-[2rem] p-2 pl-3'>게시판 목록</div>
             <div className='h-[calc(100%-4rem)] p-2'>
@@ -194,7 +194,7 @@ const CommunityAdmin = ({boards, updateBoards}) => {
             </div>
           </div>
         </div>
-        <div className='setting-wrapper w-2/3 h-[25rem] p-3'>
+        <div className='setting-wrapper w-full lg:w-2/3 sm:h-[25rem] p-3'>
           <div className='w-full h-full border relative'>
             <div className={'w-full h-full z-10 bg-[#0001] flex justify-center items-center absolute bottom-0 left-0 '+(loading?"":"hidden")}>
               <div className='text-3xl font-bold py-2 px-4 rounded-lg bg-white shadow-lg'>
@@ -202,8 +202,8 @@ const CommunityAdmin = ({boards, updateBoards}) => {
               </div>
             </div>
             <div className='h-[2rem] p-2 pl-3'>게시판 수정</div>
-            <div className="info h-[calc(100%-4rem)] p-2 flex justify-center gap-2 flex-col sm:flex-row">
-              <div className='base w-1/2 min-w-[20rem] border'>
+            <div className="info sm:h-[calc(100%-4rem)] p-2 flex justify-center gap-2 flex-col sm:flex-row">
+              <div className='base w-full sm:w-1/2 lg:min-w-[20rem] border'>
                 <div className='p-2'>
                   <div>게시판 이름</div>
                   <InputWithLabel name="categoryName" value={currentBoard?.categoryName} onChange={handleChange}/>
@@ -217,14 +217,14 @@ const CommunityAdmin = ({boards, updateBoards}) => {
                   <input type="checkbox" name="isReply" checked={currentBoard?.isReply} onChange={handleChange}/>
                 </div>
               </div>
-              <div className="permission w-1/2 border min-w-[20rem] p-2">
+              <div className="permission w-full sm:w-1/2 border lg:min-w-[20rem] p-2">
                 {
                   PERMISSION_ROLES.map((role,idx)=>(
                     <div key={idx}>
                       <div className='text-sm'>{roleText[idx]}</div>
-                      <div className='flex gap-3 justify-between px-3'>
+                      <div className='flex sm:gap-3 flex-wrap sm:justify-between px-3'>
                         {PERMISSION_TYPES.map((p_type, p_idx)=>(
-                          <div key={p_idx} className='flex gap-1'>
+                          <div key={p_idx} className='flex w-1/2 sm:pl-0 sm:w-auto gap-1'>
                             <div>{permissionText[p_idx]}</div>
                             <input type="checkbox" checked={getPermissionValue(role,p_type)} onChange={handlePermissionChange(role,p_type)} id="" />
                           </div>

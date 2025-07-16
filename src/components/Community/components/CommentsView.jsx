@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { findComment, getComments } from '../../../js/community/communityUtils';
 import CommentInput from './CommentInput';
@@ -9,6 +9,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from 'lucide-react';
 
 const CommentsView = () => {
   const {postId} = useParams();
+  const [commentsCount, setCommentsCount] = useState(0);
   const [comments, setComments] = useState([]);
   const {user, loading} = useAuth();
   const [userId, setUserId] = useState("");
@@ -17,22 +18,34 @@ const CommentsView = () => {
   const [focusComment, setFocusComment] = useState(-1);
   const [replyId, setReplyId] = useState(0)
   const navigate = useNavigate();
+  const [moveFocus, setMoveFocus] = useState(false);
+
 
   const updateComment = async ()=>{
     const res = await getComments(postId,page);
+    console.log(res);
     setComments(res.data.comments);
     setPageCount(res.data.pageCount);
+    setCommentsCount(res.data.commentCount);
+    return res.data.comments;
   }
-
-  console.log(pageCount);
   useEffect(()=>{
     if (loading == false &&user.isLoggedIn){
       setUserId(user.user.userId);
     }
   },[loading]);
-  const loadComments = async ()=>{
+  const loadComments = async (commentId)=>{
     await updateComment();
-    await setReplyId(0);
+    setReplyId(0);
+    if(commentId){
+      if(commentId === -1){
+        setPage(1);
+        return
+      }
+      setMoveFocus(true);
+      await handleFocusComment(commentId);
+    }
+    
   }
 
   useEffect(()=>{
@@ -42,7 +55,9 @@ const CommentsView = () => {
     const pageUpdate = async ()=>{
       await loadComments();
       if(focusComment < 1) return;
-      handleScroll(focusComment);
+      setTimeout(() => {
+        handleScroll(focusComment);
+      }, 100);
     }
     pageUpdate();
   },[page]);
@@ -53,13 +68,14 @@ const CommentsView = () => {
   }
 
   const handleClickPage = (idx) => ()=>{
+    setFocusComment(0);
     setPage(idx);
   }
 
   const handleScroll = (commentId)=>{
     const el = document.getElementById(`comment-${commentId}`);
-
-    const y = el.getBoundingClientRect().top + window.pageYOffset;
+    if(!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY;
     window.scrollTo({ top: y - 200, behavior: "smooth" });
     return;
 
@@ -69,27 +85,28 @@ const CommentsView = () => {
   }
 
   const handleFocusComment = async (commentId)=>{
-    
     setFocusComment(commentId);
     for(let i = 0; i < comments.length ; i++){
       if(comments[i].commentId === commentId){
         console.log(comments[i]);
         handleScroll(commentId);
+        setMoveFocus(false);
         return;
       }
     }
-
+    
     const res = await findComment(postId, commentId);
-
+    
     console.log("res?.data?.pageCount", res);
     setPage(res.page);
+    
   };
 
   return (
     <div className='border-green-700 rounded-xl min-h-[200px]'>
       <div className="header flex justify-between p-2 rounded-sm items-center text-[#a0e881] bg-[#82b16c]">
         <div>comment</div>
-        <div>{comments.length}</div>
+        <div>{commentsCount}</div>
       </div>
       <div className="body">
         <div className="list overflow-hidden">
@@ -100,7 +117,7 @@ const CommentsView = () => {
                 key={comment.commentId} 
                 style={
                 {
-                  paddingLeft:`${20*((comment.depth-1))}px`
+                  paddingLeft:`${10*((comment.depth-1))}px`
                 }
               }>
                 <Comment 
@@ -110,9 +127,10 @@ const CommentsView = () => {
                   handleReply={handleReply(comment.commentId)} 
                   focusParent={handleFocusComment}
                   isFocus={focusComment===comment.commentId}
+                  onClick={()=>setFocusComment(comment.commentId)}
                 />
                 {
-                  (replyId===comment.commentId)?(
+                  (replyId===comment.commentId && comment.depth < 17)?(
                     <div className='pl-[30px] py-6'>
                       <CommentInput load_comments={loadComments} parent_comment_id={comment.commentId} title={"답글 작성"}/>
                     </div>

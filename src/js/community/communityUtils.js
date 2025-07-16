@@ -167,7 +167,7 @@ export const getComments = async(postId, page, setComments)=>{
   // console.log(res);
   if(res.success&&setComments)
     setComments(res.data.comments);
-  console.log(res);
+  // console.log(res);
   return res;
 }
 
@@ -181,7 +181,7 @@ export const createComment = async(body)=>{
     },
     body: JSON.stringify(body)
   });
-  return res;
+  return await res.json();
 }
 
 export const deleteComment = async(body)=>{
@@ -194,7 +194,7 @@ export const deleteComment = async(body)=>{
     },
     body: JSON.stringify(body)
   });
-  return res;
+  return await res.json();
 }
 
 export const updateComment = async(body)=>{
@@ -207,5 +207,5 @@ export const updateComment = async(body)=>{
     },
     body: JSON.stringify(body)
   });
-  return res;
+  return await res.json();
 }

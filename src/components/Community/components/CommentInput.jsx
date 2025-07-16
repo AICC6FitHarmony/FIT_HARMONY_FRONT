@@ -16,9 +16,10 @@ const CommentInput = ({parent_comment_id, load_comments, title}) => {
       post_id, parent_comment_id, content
     }
     const res = await createComment(body);
-    await load_comments();
+    const {postId, commentId} = res.data;
+    console.log(res);
+    await load_comments(commentId);
     setContent("");
-    console.log(res)
   }
   return (
         <div className="input bg-white p-1 rounded-xl shadow-xl">

@@ -1,21 +1,26 @@
 import React, { useState } from 'react'
 import { deleteComment, findComment, updateComment } from '../../../js/community/communityUtils';
 import { CornerDownRight } from 'lucide-react';
-import { useModal } from '../../cmmn/ModalContext';
+import { useAlertModal, useModal } from '../../cmmn/ModalContext';
 
-const Comment = ({load_comments, comment, auth_id, handleReply, focusParent,isFocus}) => {
+const Comment = ({load_comments, comment, auth_id, handleReply, focusParent,isFocus, onClick}) => {
   const {nickName, content, createdTime, userId, commentId,isDeleted, depth} = comment;
   const [editComment, setEditComment] = useState(false);
   const [editContent, setContent] = useState(content);
   const openModal = useModal();
-
+  const openAlert = useAlertModal();
   const handleDelete = async()=>{
     const deleteEvent = async ()=>{
       const res = await deleteComment({
         userId:auth_id, commentId
       });
       console.log(res);
-      load_comments();
+      if(res.success)
+        return load_comments(-1);
+      openAlert({
+        title:"작업이 완료되지 않음",
+        text:"권한이 없습니다. 로그인을 확인해 주세요."
+      })
     }
 
     openModal({
@@ -33,8 +38,15 @@ const Comment = ({load_comments, comment, auth_id, handleReply, focusParent,isFo
       userId:auth_id, commentId, content:editContent
     })
     console.log(res)
-    await load_comments();
-    setEditComment(false);
+    if(res.success){
+      await load_comments();
+      setEditComment(false);
+      return;
+    }
+    openAlert({
+      title:"작업이 완료되지 않음",
+      text:"권한이 없습니다. 로그인을 확인해 주세요."
+    })
   }
 
   const updateEditor = ()=>{
@@ -53,7 +65,7 @@ const Comment = ({load_comments, comment, auth_id, handleReply, focusParent,isFo
 
   return (
     <div className={`p-2 relative rounded-xl shadow-xl mt-0.5 overflow-hidden ${isDeleted?"bg-gray-100":"bg-white"}`}>
-      <div className="header flex justify-between">
+      <div className="header flex justify-between z-10">
         <div className="nick-name font-bold text-green-700 flex">
           {(depth>1)?(<CornerDownRight className='cursor-pointer' onClick={handleFindParent}/>):""}
           <span>{nickName}</span>
@@ -83,7 +95,7 @@ const Comment = ({load_comments, comment, auth_id, handleReply, focusParent,isFo
           <div className="date text-neutral-500 text-sm">{createdTime.substr(0,10)} {createdTime.substr(11,8)}</div>
           <div className="btn">
             {
-             (auth_id && isDeleted === false)&&<div onClick={handleReply} className='cursor-pointer px-1 rounded-sm border w-fit'>답글</div>
+             (auth_id && isDeleted === false)&&depth<17&&<div onClick={handleReply} className='cursor-pointer px-1 rounded-sm border w-fit'>답글</div>
             }
           </div>
       </div>
@@ -93,9 +105,12 @@ const Comment = ({load_comments, comment, auth_id, handleReply, focusParent,isFo
       {/* {(depth>1)?(<div className='absolute rounded-2xl h-full border-l bottom-0 left-0'/>):""} */}
       {
         isFocus&&(
-          <div className='absolute h-full w-[5px] bottom-0 left-0 bg-green-200'>
-
-          </div>
+          <>
+          {/* <div className='absolute h-full w-[2px] bottom-0 left-0 bg-green-300'/>
+          <div className='absolute h-full w-[2px] bottom-0 right-0 bg-green-300'/> */}
+          <div className='absolute h-[2px] w-full top-0 left-0 bg-green-300'/>
+          <div className='absolute h-[2px] w-full bottom-0 left-0 bg-green-300'/>
+          </>
         )
       }
     </div>

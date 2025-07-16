@@ -31,6 +31,7 @@ const PostView = ({}) => {
   const openModal = useModal();
   const { postId } = useParams();
   const [postLoading, setPostLoading] = useState(true);
+  const [titleEllipsis, setTitleEllipsis] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -93,6 +94,8 @@ const PostView = ({}) => {
     location.href = '/community';
   };
 
+
+
   return (
     <div className="p-4.5">
       <div className="post-wrapper overflow-hidden relative flex flex-col gap-5 rounded-xl bg-white shadow-xl p-2">
@@ -106,7 +109,8 @@ const PostView = ({}) => {
           <div className='text-sm font-bold'>
             {boardInfo.categoryName}
           </div>
-          <div className="post_title text-2xl border-[#ccc] text-green-700 font-bold">
+          <div className={`post_title text-2xl border-[#ccc] text-green-700 font-bold ${titleEllipsis?"text-nowrap text-ellipsis overflow-hidden":""}`}
+              onClick={()=>setTitleEllipsis((prev)=>!prev)}>
             {postInfo.title}
           </div>
           <div className="user-info font-light">{postInfo.nickName}</div>
