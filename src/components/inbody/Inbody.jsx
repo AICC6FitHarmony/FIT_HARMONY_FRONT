@@ -395,6 +395,10 @@ const Inbody = () => {
     },
   ];
 
+
+  const isMobile = useSelector(state => state.common.isMobile); // 모바일 화면인지 체크
+
+
   return (
     <>
       {mainInbodyData &&
@@ -404,8 +408,7 @@ const Inbody = () => {
           <InbodyRadarCharts
             inbodyScore={inbodyScore}
             muscleData={muscleData}
-            fatData={fatData}
-          />
+            fatData={fatData}/>
           {/* 오른쪽 */}
           <div className="w-full md:w-1/2 space-y-4">
             <div className="p-4 bg-white rounded shadow">
@@ -414,7 +417,14 @@ const Inbody = () => {
                 <BarChart
                   layout="vertical"
                   data={bodyCompositionData}
-                  margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
+                  margin={
+                    { 
+                      top: 10, 
+                      right: (isMobile ? 35 : 60), 
+                      left: (isMobile ? 10 : 60), 
+                      bottom: 10 
+                    }
+                  }
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" domain={[0, 100]} />
@@ -468,8 +478,14 @@ const Inbody = () => {
                 <BarChart
                   layout="vertical"
                   data={muscleFatAnalysisData}
-                  margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
-                >
+                  margin={
+                    { 
+                      top: 10, 
+                      right: (isMobile ? 35 : 60), 
+                      left: (isMobile ? 10 : 60),
+                      bottom: 10 
+                    }
+                  }>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     type="number"
@@ -538,8 +554,14 @@ const Inbody = () => {
                 <BarChart
                   layout="vertical"
                   data={obesityAnalysisData}
-                  margin={{ top: 10, right: 40, left: 60, bottom: 10 }}
-                >
+                  margin={
+                    { 
+                      top: 10, 
+                      right: (isMobile ? 35 : 60), 
+                      left: (isMobile ? 10 : 60),
+                      bottom: 10 
+                    }
+                  }>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     type="number"
