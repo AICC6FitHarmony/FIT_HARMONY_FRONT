@@ -75,9 +75,7 @@ const DayScheduleTable = ({data, labels, radioChangeCallback}) => {
                                     </div>
                                 </td>
                                 <td>
-                                    <form 
-                                        id={"scheduleDetail-"+idx} 
-                                        className={`schedule-detail-form-wrapper w-full flex${(isMobile ? ' flex-col gap-2' : ' justify-between gap-2')}  p-2`}>
+                                    <form id={"scheduleDetail-"+idx} className={`schedule-detail-form-wrapper w-full flex${(isMobile ? ' flex-col gap-2' : ' justify-between gap-2')}  p-2`}>
                                         <input type="hidden" name="scheduleId" value={schedule.scheduleId}/>
                                         { 
                                         raidoCheck ? (

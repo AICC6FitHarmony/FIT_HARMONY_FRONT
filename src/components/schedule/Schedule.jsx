@@ -151,7 +151,7 @@ const Schedule = () => {
 
             setScheduleModal({
                 title:`${format(date, 'yyyy-MM-dd')} 스케쥴`, 
-                size : {width:"80vw", height:"90%"},
+                size : {width:"80vw", height:"auto"},
                 selectDate:format(date, 'yyyy-MM-dd'),
                 closeEvent: () => {
                   setIsShowScheduleDetailModal(false);
@@ -354,7 +354,7 @@ const Schedule = () => {
                   okEvent={scheduleModal.okEvent} 
                   size={scheduleModal.size} 
                   closeEvent={scheduleModal.closeEvent}>
-                    <div className=''>
+                    <div className='text-sm sm:text-[1rem]'>
                         {/* 일자 스케쥴 테이블 */}
                         <DayScheduleTable data={scheduleModal.data} labels={labels} radioChangeCallback={ async () => {
                             let params = {
@@ -373,7 +373,7 @@ const Schedule = () => {
                             const result = await getScheduleList(params);
 
                         } }/>
-                        <div className={`schedule-diet-chart-wrapper w-full mt-5 ${isMobile ? '' : 'flex gap-2.5'}`}>
+                        <div className={`schedule-diet-chart-wrapper w-full mt-5 flex gap-2.5 ${isMobile ? 'flex-col' : ''}`}>
                             <div className={`${isMobile ? 'w-full' : 'w-1/2'}`}>
                                 <DietScheduleTable 
                                   data={scheduleModal.data} 
@@ -440,11 +440,11 @@ const Schedule = () => {
                             <h2 className='text-center font-bold text-2xl'>
                                 <p>{modalData.title}</p>
                             </h2> 
-                            <div className='flex mt-5'>
-                                <div className='flex flex-col justify-center items-center w-1/2 overflow-hidden rounded-2xl'>
+                            <div className='flex mt-5 flex-col sm:flex-row'>
+                                <div className='flex flex-col justify-center items-center w-full sm:w-1/2 min-h-[50px] overflow-hidden rounded-2xl'>
                                     <Img src={`/common/file/${modalData.data.fileId}`} alt={`${modalData.title} 사진`} className="min-h-60 min-w-60"/>
                                 </div>
-                                <div className='w-1/2'>
+                                <div className='w-full sm:w-1/2'>
                                     <ul className='pb-1 pl-4 pr-4 text-xl'>
                                     {
                                         modalData.data.menus?.split("|").map((menu, idx) => (
@@ -528,12 +528,11 @@ const Schedule = () => {
                     day : '일'
                   }}
 
-                  editable={true} // 드래그 & 리사이징 가능
-
-                  eventDrop={(info) => { // 일정 드랍시 발생 이벤트 처리
-                    console.log('드래그 이동:', info.event.title, info.event.start);
-                    // 서버 업데이트 필요
-                  }}
+                  // editable={true} // 드래그 & 리사이징 가능
+                  // eventDrop={(info) => { // 일정 드랍시 발생 이벤트 처리
+                  //   console.log('드래그 이동:', info.event.title, info.event.start);
+                  //   // 서버 업데이트 필요
+                  // }}
                   
                   eventResize={(info) => { // 리사이징 이벤트인데 .... 필요없을 듯?
                     console.log('리사이징:', info.event.title, info.event.start, info.event.end);

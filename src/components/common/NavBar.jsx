@@ -101,11 +101,11 @@ const NavBar = () => {
 
   return (
     // 사이트 전체 배경
-    <div className="bg-orange-50">
+    <div className="bg-orange-50 pb-10">
       {/* 로고 섹션 - 데스크탑에서만 표시 */}
-      <div className="hidden relative py-5 px-4 sm:flex sm:flex-col sm:justify-center">
+      <div className="hidden relative py-5 px-10 sm:flex sm:flex-col sm:justify-center">
         {user?.user?.role == 'TRAINER' && (
-          <div className="flex absolute left-4">
+          <div className="flex absolute left-10">
             <div
               className={`relative w-40 h-10 flex items-center px-1 rounded-full cursor-pointer transition-colors duration-300 ${
                 isTrainerMatchMember ? 'bg-green-500' : 'bg-gray-300'
@@ -188,7 +188,7 @@ const NavBar = () => {
           </Link>
         </div>
         {/* 로그인/회원가입 */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+        <div className="absolute right-10 top-1/2 transform -translate-y-1/2">
           {!user?.isLoggedIn ? (
             <div className="flex items-center space-x-2">
               <Link
@@ -221,8 +221,8 @@ const NavBar = () => {
       </div>
 
       {/* 내비게이션 바 */}
-      <div className="bg-white sticky top-0 z-30 shadow-md shadow-green-800/10 rounded-2xl mx-2 md:mx-4">
-        <div className="flex items-center justify-between h-16 px-4 md:px-6">
+      <div className="bg-white sticky top-0 z-30 shadow-md shadow-green-800/10 rounded-2xl mx-2 md:mx-10">
+        <div className="flex items-center justify-between h-16 px-4 md:px-10">
           {/* 메뉴 - md 이상에서만 표시 */}
           <div className="hidden md:flex flex-1 justify-center space-x-6 text-sm font-medium text-green-700">
             {!(user?.user?.role == 'TRAINER' && isTrainerMatchMember) && (

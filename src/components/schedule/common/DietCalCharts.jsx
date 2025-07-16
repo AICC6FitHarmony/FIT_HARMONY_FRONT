@@ -88,7 +88,7 @@ const DietCalCharts = ({data}) => {
 
 
 
-            <h2 className='text-2xl font-bold mb-3'>Today Colories</h2>
+            <h2 className='text-2xl font-bold mb-3'>ToDay Colories</h2>
             <div className="relative w-full h-[400px] md:h-[450px] bg-white rounded-2xl border border-gray-200 shadow-md overflow-hidden">
                 {/* 🧾 수치 정보 카드 - 차트 위 왼쪽 상단에 오버레이 */}
                 <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-md px-5 py-4 rounded-xl shadow ring-1 ring-gray-200 space-y-2 text-sm text-gray-700 font-medium">
