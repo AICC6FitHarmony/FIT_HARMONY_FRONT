@@ -446,7 +446,7 @@ const TrainerMain = () => {
       <div className="flex justify-center lg:hidden mt-4">
         <button
           onClick={() => setShowMobileFilter(!showMobileFilter)}
-          className="flex items-center gap-2 bg-[#1a7d45] text-white px-4 py-2 rounded-lg hover:bg-[#155a35] transition-colors relative"
+          className="flex items-center gap-2 bg-[#1a7d45] mr-5 text-white px-4 py-2 rounded-lg hover:bg-[#155a35] transition-colors relative"
         >
           <span>필터 검색</span>
           {getActiveFiltersCount() > 0 && (
@@ -476,9 +476,11 @@ const TrainerMain = () => {
 
           {/* 필터 사이드바 */}
           <div
-            className={`trainer-navbar w-full lg:w-[20%] xl:w-[18%] mb-6 lg:mb-0 lg:sticky z-50 top-20 border-2 border-gray-200 bg-white rounded-lg shadow-md p-3 md:p-4 h-fit transition-all duration-300 ${
+            className={`trainer-navbar ${
+              showMobileFilter ? '' : 'w-full'
+            } lg:w-[20%] xl:w-[18%] mb-6 lg:mb-0 lg:sticky z-50 top-20 border-2 border-gray-200 bg-white rounded-lg shadow-md p-3 md:p-4 h-fit transition-all duration-300 ${
               showMobileFilter
-                ? 'fixed top-4 left-4 right-4 max-h-[80vh] overflow-y-auto lg:static lg:max-h-none lg:overflow-visible shadow-2xl'
+                ? 'fixed bottom-10 left-2 right-2 max-h-[80vh] overflow-y-auto lg:static lg:max-h-none lg:overflow-visible shadow-2xl'
                 : 'hidden lg:block'
             }`}
           >
