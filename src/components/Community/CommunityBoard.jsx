@@ -100,8 +100,15 @@ const CommunityBoard = ({boards}) => {
   return (
       <div className='board_wrapper p-2'>
         <div className='board_header pb-3'>
-          
-          <div className="board_action flex justify-between">
+          <div className='mobile_action sm:hidden fixed bottom-[20px] right-[20px]  z-9999'>
+            <Link to={`/community/${boardId?boardId:1}/create`}>
+              <div
+                className='w-12 h-12 bg-white rounded-full flex justify-center items-center text-green-600 cursor-pointer border border-[#4444]'>
+                <NotebookPen />
+              </div>
+            </Link>
+          </div>
+          <div className="board_action hidden sm:flex justify-between">
             <div className="search px-2 py-1 rounded-sm bg-white shadow-lg flex items-center">
               
               <select name="" id="" className='rounded-sm py-1 pr-5' value={keyType} onChange={(e)=>{
@@ -156,7 +163,7 @@ const CommunityBoard = ({boards}) => {
                   </div>
                 </div>
                 <div className="post-body flex gap-2">
-                      <div className="relative post-title w-full pl-[6rem] text-green-700">
+                      <div className="relative flex post-title w-full px-[6rem] text-green-700">
                         {
                           (boardId === undefined)&&(
                             <div className='text-xs text-gray-600 absolute top-0 left-0'>
@@ -164,11 +171,12 @@ const CommunityBoard = ({boards}) => {
                             </div>
                           )
                         }
-                        <div>
-                          <span className='text-lg '>{post.title}</span>
+                        <div className='overflow-hidden text-ellipsis text-nowrap'>
+                          <span className='text-lg'>{post.title}</span>
                           &nbsp;
-                          {(post.commentCnt>0)&&(<span className='text-yellow-600'>[{post.commentCnt}]</span>)}
+                          
                         </div>
+                        {(post.commentCnt>0)&&(<span className='text-yellow-600'>[{post.commentCnt}]</span>)}
                       </div>
                 </div>
                 <div className="post-footer flex justify-between">
