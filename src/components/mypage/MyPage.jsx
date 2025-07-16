@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import ProfileEdit from "./ProfileEdit";
 import Withdraw from "./Withdraw";
 import MyActivity from "./MyActivity";
-import MemberOrders from "./MemberOrders";
 import { useAuthRedirect } from "../../js/login/AuthContext";
 import { useGetUserData } from "../../js/mypage/mypage";
 import { ToastContainer } from "react-toastify";
@@ -12,7 +11,6 @@ const MyPage = () => {
   const { user, loading } = useAuthRedirect();
   const [userId, setUserId] = useState("");
   const [userData, setUserData] = useState(null);
-  const [role, setRole] = useState("");
 
   // 유저 데이터 가져오기 훅
   const getUserData = useGetUserData();
@@ -30,8 +28,6 @@ const MyPage = () => {
         callback: (data) => {
           if (data?.message === "success") {
             setUserData(data.userResult[0]);
-            // setRole(data.userResult[0].role);
-            setRole("TRAINER");
           }
         },
       });
@@ -44,10 +40,6 @@ const MyPage = () => {
     { key: "withdraw", label: "회원 탈퇴" },
     { key: "activity", label: "내 활동" },
   ];
-
-  // if (role == "TRAINER") {
-  //   navItems.push({ key: "memberOrders", label: "회원관리" });
-  // }
 
   return (
     <div className="flex rounded-xl shadow-md min-h-[600px]">
@@ -74,9 +66,6 @@ const MyPage = () => {
         {selectedMenu === "profile" && <ProfileEdit userData={userData} />}
         {selectedMenu === "withdraw" && <Withdraw userId={userId} />}
         {selectedMenu === "activity" && <MyActivity userId={userId} />}
-        {/* {role === "TRAINER" && selectedMenu === "memberOrders" && (
-          <MemberOrders userId={userId} />
-        )} */}
       </div>
       <ToastContainer />
     </div>
