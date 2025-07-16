@@ -9,6 +9,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from 'lucide-react';
 
 const CommentsView = () => {
   const {postId} = useParams();
+  const [commentsCount, setCommentsCount] = useState(0);
   const [comments, setComments] = useState([]);
   const {user, loading} = useAuth();
   const [userId, setUserId] = useState("");
@@ -17,22 +18,34 @@ const CommentsView = () => {
   const [focusComment, setFocusComment] = useState(-1);
   const [replyId, setReplyId] = useState(0)
   const navigate = useNavigate();
+  const [moveFocus, setMoveFocus] = useState(false);
+
+
   const updateComment = async ()=>{
     const res = await getComments(postId,page);
+    console.log(res);
     setComments(res.data.comments);
     setPageCount(res.data.pageCount);
+    setCommentsCount(res.data.commentCount);
+    return res.data.comments;
   }
-
-  console.log(pageCount);
-
   useEffect(()=>{
     if (loading == false &&user.isLoggedIn){
       setUserId(user.user.userId);
     }
   },[loading]);
-  const loadComments = async ()=>{
+  const loadComments = async (commentId)=>{
     await updateComment();
-    await setReplyId(0);
+    setReplyId(0);
+    if(commentId){
+      if(commentId === -1){
+        setPage(1);
+        return
+      }
+      setMoveFocus(true);
+      await handleFocusComment(commentId);
+    }
+    
   }
 
   useEffect(()=>{
@@ -55,6 +68,7 @@ const CommentsView = () => {
   }
 
   const handleClickPage = (idx) => ()=>{
+    setFocusComment(0);
     setPage(idx);
   }
 
@@ -71,27 +85,28 @@ const CommentsView = () => {
   }
 
   const handleFocusComment = async (commentId)=>{
-    
     setFocusComment(commentId);
     for(let i = 0; i < comments.length ; i++){
       if(comments[i].commentId === commentId){
         console.log(comments[i]);
         handleScroll(commentId);
+        setMoveFocus(false);
         return;
       }
     }
-
+    
     const res = await findComment(postId, commentId);
-
+    
     console.log("res?.data?.pageCount", res);
     setPage(res.page);
+    
   };
 
   return (
     <div className='border-green-700 rounded-xl min-h-[200px]'>
       <div className="header flex justify-between p-2 rounded-sm items-center text-[#a0e881] bg-[#82b16c]">
         <div>comment</div>
-        <div>{comments.length}</div>
+        <div>{commentsCount}</div>
       </div>
       <div className="body">
         <div className="list overflow-hidden">
@@ -112,6 +127,7 @@ const CommentsView = () => {
                   handleReply={handleReply(comment.commentId)} 
                   focusParent={handleFocusComment}
                   isFocus={focusComment===comment.commentId}
+                  onClick={()=>setFocusComment(comment.commentId)}
                 />
                 {
                   (replyId===comment.commentId)?(

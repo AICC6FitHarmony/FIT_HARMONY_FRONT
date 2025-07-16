@@ -194,7 +194,7 @@ export const deleteComment = async(body)=>{
     },
     body: JSON.stringify(body)
   });
-  return res;
+  return await res.json();
 }
 
 export const updateComment = async(body)=>{
@@ -207,5 +207,5 @@ export const updateComment = async(body)=>{
     },
     body: JSON.stringify(body)
   });
-  return res;
+  return await res.json();
 }

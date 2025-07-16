@@ -16,8 +16,9 @@ const CommentInput = ({parent_comment_id, load_comments, title}) => {
       post_id, parent_comment_id, content
     }
     const res = await createComment(body);
+    const {postId, commentId} = res.data;
     console.log(res);
-    await load_comments();
+    await load_comments(commentId);
     setContent("");
   }
   return (
