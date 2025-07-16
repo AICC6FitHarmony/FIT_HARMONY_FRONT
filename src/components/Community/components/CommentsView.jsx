@@ -117,7 +117,7 @@ const CommentsView = () => {
                 key={comment.commentId} 
                 style={
                 {
-                  paddingLeft:`${20*((comment.depth-1))}px`
+                  paddingLeft:`${10*((comment.depth-1))}px`
                 }
               }>
                 <Comment 
@@ -130,7 +130,7 @@ const CommentsView = () => {
                   onClick={()=>setFocusComment(comment.commentId)}
                 />
                 {
-                  (replyId===comment.commentId)?(
+                  (replyId===comment.commentId && comment.depth < 17)?(
                     <div className='pl-[30px] py-6'>
                       <CommentInput load_comments={loadComments} parent_comment_id={comment.commentId} title={"답글 작성"}/>
                     </div>

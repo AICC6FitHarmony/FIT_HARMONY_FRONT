@@ -22,7 +22,7 @@ const Community = () => {
   },[]);
   return (
       <div>
-        <div className="header">
+        <div className="header hidden sm:block">
           <Routes>
             <Route path='/admin'/>
             <Route path='/*' element={<CommunityNav boards={boards}/>}/>

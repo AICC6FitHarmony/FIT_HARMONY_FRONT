@@ -77,7 +77,7 @@ function sanitizeContent(node) {
 import MenuBar from './MenuBar';
 // import { ResizableImage } from './ResizableImage';
 import Image from '@tiptap/extension-image';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../js/login/AuthContext';
 import { getFilteredBoards } from '../../../js/community/communityUtils';
 const PostEditor = ({handleSubmit, defaultPost}) => {
@@ -85,6 +85,7 @@ const PostEditor = ({handleSubmit, defaultPost}) => {
   const [boards, setBoards] = useState([]);
   const {boardId:board_param} = useParams();
   const [postTitle, setPostTitle] = useState('');
+  const navigate = useNavigate();
   const [boardId, setBoardId] = useState(board_param?board_param:1);
   const editor = useEditor({
     extensions: [
@@ -112,7 +113,11 @@ const PostEditor = ({handleSubmit, defaultPost}) => {
     // console.log(user)
     if(loading||user?.loggedIn == false) return;
 
-    const role = user.user.role;
+    const role = user?.user?.role;
+    if(!role){
+      navigate('/community')
+      return;
+    }
     const update = async()=>{
       const result = await getFilteredBoards(role,"write");
       setBoards(result.boards);

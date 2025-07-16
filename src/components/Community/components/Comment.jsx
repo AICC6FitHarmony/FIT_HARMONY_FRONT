@@ -95,7 +95,7 @@ const Comment = ({load_comments, comment, auth_id, handleReply, focusParent,isFo
           <div className="date text-neutral-500 text-sm">{createdTime.substr(0,10)} {createdTime.substr(11,8)}</div>
           <div className="btn">
             {
-             (auth_id && isDeleted === false)&&<div onClick={handleReply} className='cursor-pointer px-1 rounded-sm border w-fit'>답글</div>
+             (auth_id && isDeleted === false)&&depth<17&&<div onClick={handleReply} className='cursor-pointer px-1 rounded-sm border w-fit'>답글</div>
             }
           </div>
       </div>
