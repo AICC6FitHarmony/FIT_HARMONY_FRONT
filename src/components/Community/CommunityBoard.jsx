@@ -174,7 +174,6 @@ const CommunityBoard = ({boards}) => {
                         <div className='overflow-hidden text-ellipsis text-nowrap'>
                           <span className='text-lg'>{post.title}</span>
                           &nbsp;
-                          
                         </div>
                         {(post.commentCnt>0)&&(<span className='text-yellow-600'>[{post.commentCnt}]</span>)}
                       </div>
