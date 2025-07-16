@@ -5,12 +5,53 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchTrainers } from '../../js/redux/slice/sliceTrainer';
 import { TiArrowSortedDown } from 'react-icons/ti';
 import { FaListUl, FaStar } from 'react-icons/fa6';
-
 import { useNavigate } from 'react-router-dom';
 import { MdDialpad } from 'react-icons/md';
 import TrainerMapModal from './TrainerMapModal'; // 위에서 만든 컴포넌트
 import { useAuth } from '../../js/login/AuthContext';
 import StandardModal from '../cmmn/StandardModal';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+
+// 스켈레톤 컴포넌트
+const SkeletonCard = ({ mode }) => (
+  <SkeletonTheme baseColor="#f3f4f6" highlightColor="#e5e7eb">
+    <div
+      className={
+        mode === 'grid'
+          ? 'p-1.5 sm:p-2 md:p-3 rounded-lg bg-white flex sm:flex-col items-center sm:items-stretch gap-2 sm:gap-0'
+          : 'flex bg-white p-2 sm:p-3 md:p-4 rounded-xl items-center gap-2 sm:gap-3 md:gap-4'
+      }
+    >
+      <div
+        className={
+          mode === 'grid'
+            ? 'mb-0 sm:mb-1 md:mb-2 h-20 w-20 sm:h-40 sm:w-auto flex-shrink-0'
+            : 'w-16 h-14 sm:w-32 sm:h-24 md:w-40 md:h-32 flex-shrink-0'
+        }
+      >
+        <Skeleton height="100%" width="100%" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex flex-col gap-0.5 sm:gap-1">
+          <Skeleton height={20} width="70%" />
+          <Skeleton height={16} width="50%" />
+        </div>
+        <Skeleton height={14} width="80%" className="mt-0.5 sm:mt-1" />
+        <Skeleton height={14} width="90%" className="mt-0.5 sm:mt-1" />
+        <Skeleton height={14} width="60%" className="mt-0.5 sm:mt-1" />
+        {mode === 'horizontal' && (
+          <Skeleton
+            height={14}
+            width="100%"
+            className="mt-1 sm:mt-2"
+            count={2}
+          />
+        )}
+      </div>
+    </div>
+  </SkeletonTheme>
+);
 
 const TrainerMain = () => {
   const dispatch = useDispatch();
@@ -698,9 +739,10 @@ const TrainerMain = () => {
                     : 'flex flex-col gap-2 sm:gap-3 md:gap-4'
                 }
               >
-                {status === 'loading' && (
-                  <p className="text-sm md:text-base">Loading...</p>
-                )}
+                {status === 'loading' &&
+                  Array.from({ length: 8 }).map((_, index) => (
+                    <SkeletonCard key={index} mode={listMode} />
+                  ))}
                 {status === 'failed' && (
                   <p className="text-sm md:text-base">Error: {error}</p>
                 )}
@@ -729,7 +771,7 @@ const TrainerMain = () => {
                           alt=""
                           className="w-full h-full object-cover"
                         />
-                        <div className="rounded-lg sm:rounded-2xl text-shadow-2xs text-xs text-white border-1 px-1 sm:px-2 w-auto bg-black opacity-50 absolute z-10 bottom-0.5 sm:bottom-1 md:bottom-2 left-0.5 sm:left-1 md:left-2">
+                        <div className="rounded-lg sm:rounded-2xl text-shadow-2xs text-xs text-white border-1 px-1 sm:px-2 w-auto bg-black opacity-50 absolute bottom-0.5 sm:bottom-1 md:bottom-2 left-0.5 sm:left-1 md:left-2">
                           {trainer.categories}
                         </div>
                       </div>
