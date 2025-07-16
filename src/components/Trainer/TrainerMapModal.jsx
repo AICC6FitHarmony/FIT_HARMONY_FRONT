@@ -33,9 +33,12 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
       }
       if (
         filters.categories.length > 0 &&
-        !filters.categories.some((category) =>
-          trainer.allCategories?.includes(category)
-        )
+        !filters.categories.some((category) => {
+          // trainer.allCategories가 문자열이므로 includes로 확인
+          return (
+            trainer.allCategories && trainer.allCategories.includes(category)
+          );
+        })
       ) {
         return false;
       }
@@ -362,14 +365,29 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
               <h4 className="font-medium mb-2">종류</h4>
               <div className="space-y-2">
                 {['PT', '수영', '요가', '헬스', '필라테스'].map((category) => (
-                  <label key={category} className="flex items-center">
+                  <label
+                    key={category}
+                    className={`flex items-center rounded-lg cursor-pointer p-2 transition-all ${
+                      filters.categories.includes(category)
+                        ? 'border-2 border-blue-500 bg-blue-50'
+                        : 'border-2 border-transparent hover:bg-gray-50'
+                    }`}
+                  >
                     <input
                       type="checkbox"
                       className="mr-2"
                       checked={filters.categories.includes(category)}
                       onChange={() => handleCategoryToggle(category)}
                     />
-                    <span>{category}</span>
+                    <span
+                      className={`${
+                        filters.categories.includes(category)
+                          ? 'text-blue-700 font-medium'
+                          : 'text-gray-700'
+                      }`}
+                    >
+                      {category}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -388,7 +406,7 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
             {selectedTrainer && (
               <div className="absolute top-4 right-4 z-50 bg-white rounded-lg shadow-lg p-4 w-80 max-w-sm">
                 <div className="flex items-start gap-3">
-                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0">
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0 relative">
                     <img
                       src={`${
                         import.meta.env.VITE_BACKEND_DOMAIN
@@ -396,6 +414,28 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
                       alt="트레이너"
                       className="w-full h-full object-cover rounded-lg"
                     />
+                    {/* 카테고리 표시 */}
+                    <div className="absolute bottom-1 left-1 flex flex-wrap gap-1">
+                      {(() => {
+                        if (!selectedTrainer.categories) return null;
+
+                        const categoriesStr = String(
+                          selectedTrainer.categories
+                        );
+                        const categoriesArray = categoriesStr.includes(',')
+                          ? categoriesStr.split(',')
+                          : [categoriesStr];
+
+                        return categoriesArray.map((category, index) => (
+                          <div
+                            key={index}
+                            className="rounded text-xs text-white px-1 py-0.5 bg-black opacity-75"
+                          >
+                            {category.trim()}
+                          </div>
+                        ));
+                      })()}
+                    </div>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">

@@ -174,7 +174,7 @@ const NavBar = () => {
           </div>
         )}
 
-        <div className="flex flex-col justify-center mx-auto">
+        <div className="hidden md:flex justify-center mx-auto">
           <Link to="/">
             <div className="text-2xl md:text-3xl font-black tracking-tight text-slate-800 group-hover:text-slate-900 transition-colors duration-300">
               <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
@@ -252,8 +252,7 @@ const NavBar = () => {
               커뮤니티
             </Link>
 
-
-            {user?.user?.role != "TRAINER" && (
+            {user?.user?.role != 'TRAINER' && (
               <Link
                 to="/trainer"
                 className="hover:bg-green-100 px-4 py-2 rounded-full transition"
@@ -261,8 +260,11 @@ const NavBar = () => {
                 강사 찾기
               </Link>
             )}
-            {(user?.user?.role == "TRAINER" && !isTrainerMatchMember) && (
-              <Link to="/products" className="hover:bg-green-100 px-4 py-2 rounded-full transition">
+            {user?.user?.role == 'TRAINER' && !isTrainerMatchMember && (
+              <Link
+                to="/products"
+                className="hover:bg-green-100 px-4 py-2 rounded-full transition"
+              >
                 강사상품관리
               </Link>
             )}
@@ -380,20 +382,21 @@ const NavBar = () => {
                     커뮤니티
                   </Link>
 
-
-                  {user?.user?.role != "TRAINER" && (
+                  {user?.user?.role != 'TRAINER' && (
                     <Link
                       to="/trainer"
                       onClick={closeMenu}
-                      className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation">
+                      className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation"
+                    >
                       강사 찾기
                     </Link>
                   )}
-                  {(user?.user?.role == "TRAINER" && !isTrainerMatchMember) && (
+                  {user?.user?.role == 'TRAINER' && !isTrainerMatchMember && (
                     <Link
                       to="/products"
                       onClick={closeMenu}
-                      className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation">
+                      className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation"
+                    >
                       강사상품관리
                     </Link>
                   )}

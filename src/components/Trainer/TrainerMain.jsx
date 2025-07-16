@@ -126,7 +126,6 @@ const TrainerMain = () => {
     return trainersData.map((trainer) => {
       const genderMap = { M: '남', F: '여' };
       const gender = genderMap[trainer.gender] || trainer.gender || '정보없음';
-      const categories = ['PT'];
 
       return {
         userId: trainer.userId,
@@ -140,8 +139,8 @@ const TrainerMain = () => {
         minPrice: trainer.minPrice,
         rating: trainer.rating || 0,
         reviewCount: trainer.reviewCount || 0,
-        categories: categories[0] || 'PT',
-        allCategories: categories,
+        categories: trainer.fitGoal || 'PT',
+        allCategories: trainer.fitGoal,
         priceRange: trainer.minPrice
           ? `${trainer.minPrice.toLocaleString()}원부터`
           : '가격 정보 없음',
@@ -175,9 +174,12 @@ const TrainerMain = () => {
       }
       if (
         filters.categories.length > 0 &&
-        !filters.categories.some((category) =>
-          trainer.allCategories.includes(category)
-        )
+        !filters.categories.some((category) => {
+          // trainer.allCategories가 문자열이므로 includes로 확인
+          return (
+            trainer.allCategories && trainer.allCategories.includes(category)
+          );
+        })
       ) {
         return false;
       }
@@ -620,7 +622,11 @@ const TrainerMain = () => {
                 {['PT', '수영', '요가', '헬스', '필라테스'].map((category) => (
                   <label
                     key={category}
-                    className="flex items-center gap-2 hover:bg-orange-100 rounded-2xl cursor-pointer p-1"
+                    className={`flex items-center gap-2 hover:bg-orange-100 rounded-2xl cursor-pointer p-1 transition-all ${
+                      filters.categories.includes(category)
+                        ? 'border-2 border-blue-500 bg-blue-50'
+                        : 'border-2 border-transparent'
+                    }`}
                   >
                     <input
                       type="checkbox"
@@ -628,7 +634,15 @@ const TrainerMain = () => {
                       onChange={() => handleCategoryToggle(category)}
                       className="w-3 h-3 md:w-4 md:h-4"
                     />
-                    <span className="text-xs md:text-sm">{category}</span>
+                    <span
+                      className={`text-xs md:text-sm ${
+                        filters.categories.includes(category)
+                          ? 'text-blue-700 font-medium'
+                          : 'text-gray-700'
+                      }`}
+                    >
+                      {category}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -721,7 +735,7 @@ const TrainerMain = () => {
                   총 {totalItems}개 결과 (페이지 {currentPage}/{totalPages})
                 </span>
                 <button
-                  className="trainer-array bg-white w-12 h-10 rounded-2xl flex items-center justify-center gap-2 hover:text-[#1a7d45] text-lg md:text-2xl"
+                  className="trainer-array bg-white w-12 h-10 rounded-2xl hidden md:flex items-center justify-center gap-2 hover:text-[#1a7d45] text-lg md:text-2xl"
                   onClick={() =>
                     setListMode(listMode === 'grid' ? 'horizontal' : 'grid')
                   }
