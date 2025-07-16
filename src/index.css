@@ -242,6 +242,12 @@ textarea {
 }
 
 
+.Toastify__toast-container--bottom-center{
+	top: env(safe-area-inset-top);
+	transform: translate(0);
+	bottom: 100%;
+}
+
 
 /* 빠른 bounce + glow 강조 */
 @keyframes bounceFast {

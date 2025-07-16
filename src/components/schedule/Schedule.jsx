@@ -490,7 +490,7 @@ const Schedule = () => {
 
 
           <div className='schedule-header-wrapper flex justify-between'>
-              <div className='flex gap-3'>
+              <div className='flex gap-3 scale-90 sm:scale-100'>
               {
                 labels?.map((label, idx) => (
                     <div className='flex justify-between items-center gap-0.5' key={idx}>
@@ -500,12 +500,12 @@ const Schedule = () => {
                               {(label.checked ? <CheckSquare/> : <Square/>)}
                             </div>
                         </label>
-                        <div>{label.codeName}</div>
+                        <div className='text-sm sm:text-[1rem]'>{label.codeName}</div>
                         <input type="checkbox" className="hidden" name="status" id={`label-${label.codeId}`} value={label.codeId} onClick={toggleCheckedLabel}/>
                     </div>
                 ))
               }
-            </div>
+              </div>
 
               <button className='ok' onClick={aiScheduleModalOpen}>AI가 작성해드립니다!</button>
           </div>
