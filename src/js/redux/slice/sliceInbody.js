@@ -50,6 +50,19 @@ const putRequest = async (url, data) => {
   });
 };
 
+// DELETE 요청 함수
+const deleteRequest = async (url) => {
+  return await fetch(url, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error('Slice Inbody => Network response was not ok');
+    }
+    return response.json();
+  });
+};
+
 // Inbody 일일 데이터 가져오기 Thunk
 export const fetchInbodyDayData = createAsyncThunk(
   'inbody/fetchInbodyDayData',
@@ -90,6 +103,16 @@ export const updateInbodyData = createAsyncThunk(
   }
 );
 
+// Inbody 데이터 삭제 Thunk
+export const deleteInbodyData = createAsyncThunk(
+  'inbody/deleteInbodyData',
+  async ({ inbodyId }) => {
+    const fullPath = `${GET_INBODY_API_URL}/${inbodyId}`;
+    const response = await deleteRequest(fullPath);
+    return response;
+  }
+);
+
 const inbodySlice = createSlice({
   name: 'inbody',
   initialState: {
@@ -98,6 +121,7 @@ const inbodySlice = createSlice({
     error: null,
     insertSuccess: false,
     updateSuccess: false,
+    deleteSuccess: false,
   },
   reducers: {
     clearInbodyData: (state) => {
@@ -109,6 +133,9 @@ const inbodySlice = createSlice({
     },
     clearUpdateSuccess: (state) => {
       state.updateSuccess = false;
+    },
+    clearDeleteSuccess: (state) => {
+      state.deleteSuccess = false;
     },
   },
   extraReducers: (builder) => {
@@ -154,9 +181,25 @@ const inbodySlice = createSlice({
         state.error = action.error.message;
         state.insertSuccess = false;
         console.error('인바디 데이터 등록 실패:', action.error.message);
+      })
+      .addCase(deleteInbodyData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.deleteSuccess = false;
+      })
+      .addCase(deleteInbodyData.fulfilled, (state, action) => {
+        state.loading = false;
+        state.deleteSuccess = true;
+        console.log('인바디 데이터 삭제 성공:', action.payload);
+      })
+      .addCase(deleteInbodyData.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        state.deleteSuccess = false;
+        console.error('인바디 데이터 삭제 실패:', action.error.message);
       });
   },
 });
 
-export const { clearInbodyData, clearInsertSuccess, clearUpdateSuccess } = inbodySlice.actions;
+export const { clearInbodyData, clearInsertSuccess, clearUpdateSuccess, clearDeleteSuccess } = inbodySlice.actions;
 export default inbodySlice.reducer; 
