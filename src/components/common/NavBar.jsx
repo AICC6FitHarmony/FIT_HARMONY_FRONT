@@ -221,7 +221,7 @@ const NavBar = () => {
       </div>
 
       {/* 내비게이션 바 */}
-      <div className="bg-white sticky top-0 z-30 shadow-md shadow-green-800/10 rounded-2xl mx-2 md:mx-10">
+      <div className="bg-white md:static sticky top-0 z-30 shadow-md shadow-green-800/10 rounded-2xl mx-2 md:mx-10 ">
         <div className="flex items-center justify-between h-16 px-4 md:px-10">
           {/* 메뉴 - md 이상에서만 표시 */}
           <div className="hidden md:flex flex-1 justify-center space-x-6 text-sm font-medium text-green-700">
@@ -325,7 +325,7 @@ const NavBar = () => {
             />
 
             {/* 모바일 메뉴 패널 */}
-            <div className="fixed top-16 left-0 right-0 bg-white z-50 md:hidden shadow-lg rounded-b-2xl mx-2 max-h-[calc(100vh-5rem)] overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 bg-white z-50 md:hidden shadow-lg rounded-b-2xl mx-2 max-h-[calc(100vh-5rem)] overflow-y-auto border-t-0">
               <div className="py-4">
                 {/* 로그인 섹션 - 모바일에서만 표시 */}
                 {!user?.isLoggedIn && (

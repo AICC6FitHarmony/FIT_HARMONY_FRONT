@@ -417,7 +417,7 @@ const TrainerMain = () => {
     Math.ceil(currentPage / 10) < Math.ceil(totalPages / 10);
 
   return (
-    <div className="main-wrapper pt-20 w-full px-4 lg:px-6">
+    <div className="main-wrapper md:pt-20 w-full px-4 lg:px-6">
       <div className="search-title">
         <div className="flex justify-center">
           <h2 className="text-xl md:text-2xl">강사 찾기</h2>
