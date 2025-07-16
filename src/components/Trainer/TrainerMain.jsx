@@ -467,7 +467,7 @@ const TrainerMain = () => {
           {/* 모바일 필터 오버레이 */}
           {showMobileFilter && (
             <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
               onClick={() => setShowMobileFilter(false)}
             />
           )}
