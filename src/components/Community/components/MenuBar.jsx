@@ -76,13 +76,14 @@ const handleFileChange = async (e) => {
     editor.chain().focus().setBackgroundColor(color).run();
   };
   return (
-    <div className='flex gap-5 items-center pb-1'>
+    <div className='sm:flex gap-5 items-center pb-1'>
+      <div className='flex gap-5'>
       <div className="font-deco flex items-center gap-1">
         <div className='cursor-pointer' onClick={() => editor.chain().focus().toggleBold().run()}><BoldIcon className='w-5'/></div>
         <div className='cursor-pointer' onClick={() => editor.chain().focus().toggleItalic().run()}><ItalicIcon className='w-5'/></div>
         <div className='cursor-pointer' onClick={() => editor.chain().focus().toggleUnderline().run()}><BaselineIcon className='w-5'/></div>
       </div>
-
+      
       {/* 글자 크기 */}
       <label className='flex items-center'>
         <BiFontSize className='text-[1.3rem]'/>
@@ -105,20 +106,21 @@ const handleFileChange = async (e) => {
           onChange={handleFontColorChange}
           style={{ verticalAlign: 'middle'}}
           className='w-[1.5rem]'
-        />
+          />
       </label>
-
+      </div>
       {/* 배경 색상 */}
       {/* <label className='flex items-center gap-1'>
         <PaintBucketIcon/>
         <input
-          type="color"
-          value={bgColor}
-          onChange={handleBgColorChange}
-          style={{ verticalAlign: 'middle', marginLeft: '0.25em' }}
+        type="color"
+        value={bgColor}
+        onChange={handleBgColorChange}
+        style={{ verticalAlign: 'middle', marginLeft: '0.25em' }}
         />
-      </label> */}
+        </label> */}
 
+      <div className='flex gap-5'>
       {/* 정렬 */}
       <div className='flex items-center gap-1'>
         <div className='cursor-pointer' onClick={() => editor.chain().focus().setTextAlign('left').run()}><AlignLeftIcon/></div>
@@ -137,7 +139,8 @@ const handleFileChange = async (e) => {
         accept="image/*"
         style={{ display: 'none' }}
         onChange={handleFileChange}
-      />
+        />
+      </div>
     </div>
   );
 }
