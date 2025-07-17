@@ -39,7 +39,9 @@ const PostView = ({}) => {
       window.scrollTo({ top: 0});
       const res = await getPost(postId);
       if (res.success == false) {
-        navigate('/community');
+        // navigate('/community');
+        location.href = '/community';
+
         return;
       }
       const data = res.data;
@@ -98,6 +100,15 @@ const PostView = ({}) => {
 
   return (
     <div className="p-4.5">
+      <div className='sm:hidden'>
+        <span className='cursor-pointer' onClick={()=>navigate('/community')}>
+          커뮤니티
+        </span>
+        {">"}
+        <span className='cursor-pointer' onClick={()=>navigate(`/community/${boardInfo.categoryId}`)}>
+          {boardInfo.categoryName}
+        </span>
+      </div>
       <div className="post-wrapper overflow-hidden relative flex flex-col gap-5 rounded-xl bg-white shadow-xl p-2">
         {
           postLoading?
@@ -106,7 +117,7 @@ const PostView = ({}) => {
           )
           :(<>
         <div className="post-header p-2">
-          <div className='text-sm font-bold'>
+          <div className='text-sm font-bold cursor-pointer' onClick={()=>navigate(`/community/${boardInfo.categoryId}`)}>
             {boardInfo.categoryName}
           </div>
           <div className={`post_title text-2xl border-[#ccc] text-green-700 font-bold ${titleEllipsis?"text-nowrap text-ellipsis overflow-hidden":""}`}
