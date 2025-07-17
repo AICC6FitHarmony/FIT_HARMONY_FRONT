@@ -24,7 +24,6 @@ const MyPage = () => {
   useEffect(() => {
     if (user) {
       setRole(user?.user?.role);
-      setRole("ADMIN");
     }
   }, [user]);
 
