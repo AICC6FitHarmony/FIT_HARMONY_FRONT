@@ -9,10 +9,12 @@ import Img from "../common/Img";
 
 const TrainerCarousel = ({ data }) => {
   return (
-    <div className="relative w-full mx-auto px-8"> {/* 좌우 빈공간 확보 */}
+    <div className="relative w-full mx-auto px-8">
+      {" "}
+      {/* 좌우 빈공간 확보 */}
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
-        loop={true} 
+        loop={true}
         spaceBetween={16}
         slidesPerView={4}
         autoplay={{
@@ -47,29 +49,39 @@ const TrainerCarousel = ({ data }) => {
         }}
         className="trainer-swiper overflow-visible"
       >
-        {data && data.map((item, idx) => (
-          <SwiperSlide key={idx}>
-            <div className="text-center">
-              <div className="border w-full h-60 sm:h-50 mx-auto rounded-md flex items-center justify-center overflow-hidden">
-                <Img src={`/common/file/${item.fileId}`} className="object-contain" />
+        {data &&
+          data.map((item, idx) => (
+            <SwiperSlide key={idx}>
+              <div className="text-center">
+                <div className="border w-full h-60 sm:h-50 mx-auto rounded-md flex items-center justify-center overflow-hidden">
+                  <Img
+                    src={`/common/file/${item.fileId}`}
+                    className="object-contain"
+                  />
+                </div>
+                <div className="text-xl font-bold mt-1 whitespace-pre-line">
+                  {item.nickName}
+                </div>
+                <div className="text-sm text-gray-500 mt-1 whitespace-pre-line">
+                  {item.fitGoal?.replace(/;/g, ",")}
+                </div>
               </div>
-              <div className="text-xl font-bold mt-1 whitespace-pre-line">
-                {item.nickName}
-                {item.fitGoal}
-              </div>
-            </div>
-          </SwiperSlide>
-        ))}
+            </SwiperSlide>
+          ))}
       </Swiper>
-
       {/* 좌우 화살표 버튼 - padding 영역에 위치 */}
-      <div id="swiper-button-prev-trainer" className="absolute top-0 left-0 z-10 w-8 h-60 sm:h-50 rounded-tl-2xl rounded-bl-2xl bg-green-100 sm:bg-white sm:hover:bg-green-100  shadow-md flex items-center justify-center cursor-pointer">
+      <div
+        id="swiper-button-prev-trainer"
+        className="absolute top-0 left-0 z-10 w-8 h-60 sm:h-50 rounded-tl-2xl rounded-bl-2xl bg-green-100 sm:bg-white sm:hover:bg-green-100  shadow-md flex items-center justify-center cursor-pointer"
+      >
         <IoIosArrowBack />
       </div>
-      <div id="swiper-button-next-trainer" className="absolute right-0 top-0 z-10 w-8 h-60 sm:h-50 rounded-tr-2xl rounded-br-2xl bg-green-100 sm:bg-white sm:hover:bg-green-100 shadow-md flex items-center justify-center cursor-pointer">
+      <div
+        id="swiper-button-next-trainer"
+        className="absolute right-0 top-0 z-10 w-8 h-60 sm:h-50 rounded-tr-2xl rounded-br-2xl bg-green-100 sm:bg-white sm:hover:bg-green-100 shadow-md flex items-center justify-center cursor-pointer"
+      >
         <IoIosArrowForward />
       </div>
-
       <div className="swiper-pagination-trainer mt-4 text-center"></div>
     </div>
   );
