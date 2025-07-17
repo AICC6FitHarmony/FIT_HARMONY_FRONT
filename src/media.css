@@ -3,4 +3,9 @@
   .modal-wrapper {
     width: 95% !important;
   }
+  .Toastify__toast-container--bottom-center{
+    top: env(safe-area-inset-top);
+    transform: translate(0);
+    bottom: 100%;
+  }
 }

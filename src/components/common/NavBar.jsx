@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { BsPeopleFill } from 'react-icons/bs';
-import { HiMenu, HiX } from 'react-icons/hi';
-import { TiArrowSortedDown } from 'react-icons/ti';
-import { useAuth } from '../../js/login/AuthContext';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { BsPeopleFill } from "react-icons/bs";
+import { HiMenu, HiX } from "react-icons/hi";
+import { TiArrowSortedDown } from "react-icons/ti";
+import { useAuth } from "../../js/login/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
 import {
   setIsTrainerMatchMember,
   setTrainerSelectedMember,
-} from '../../js/redux/slice/commonSlice';
-import { useRequest } from '../../js/config/requests';
-import { userLogout } from '../../js/login/loginUtils';
+} from "../../js/redux/slice/commonSlice";
+import { useRequest } from "../../js/config/requests";
+import { userLogout } from "../../js/login/loginUtils";
 
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -27,14 +27,14 @@ const NavBar = () => {
   // 모바일 메뉴 열렸을 때 스크롤 방지
   useEffect(() => {
     if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     // 컴포넌트 언마운트 시 스크롤 복원
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isMenuOpen]);
 
@@ -51,27 +51,27 @@ const NavBar = () => {
 
   useEffect(() => {
     if (!isTrainerMatchMember) {
-      dispatch(setTrainerSelectedMember({ userId: 0, userName: '회원선택' }));
+      dispatch(setTrainerSelectedMember({ userId: 0, userName: "회원선택" }));
       setShowSelectDropdown(false);
     } else {
       const selectTrainerMatchUserList = async () => {
         const options = {
-          method: 'GET',
+          method: "GET",
         };
-        const result = await request('/buy/matchMember?status=A', options);
+        const result = await request("/buy/matchMember?status=A", options);
 
         const { success, message } = result;
 
         if (success) {
           setTrainerMatchUserList(result.data);
         } else {
-          if (message == 'noAuth') {
-            toast.error('로그인 후 이용 가능한 서비스 입니다.', {
-              position: 'bottom-center',
+          if (message == "noAuth") {
+            toast.error("로그인 후 이용 가능한 서비스 입니다.", {
+              position: "bottom-center",
             });
           } else {
-            toast.error('에러가 발생했습니다.\n잠시후 다시 이용해주세요.', {
-              position: 'bottom-center',
+            toast.error("에러가 발생했습니다.\n잠시후 다시 이용해주세요.", {
+              position: "bottom-center",
             });
           }
         }
@@ -91,8 +91,8 @@ const NavBar = () => {
 
   useEffect(() => {
     const nowPage = location.pathname;
-    if (nowPage == '/schedule' || nowPage == '/inbody') {
-      navigate('/reload'); // 리로드용 빈페이지
+    if (nowPage == "/schedule" || nowPage == "/inbody") {
+      navigate("/reload"); // 리로드용 빈페이지
       setTimeout(() => {
         navigate(nowPage); // 현제 페이지
       }, 50);
@@ -104,11 +104,11 @@ const NavBar = () => {
     <div className="bg-orange-50 pb-10">
       {/* 로고 섹션 - 데스크탑에서만 표시 */}
       <div className="hidden relative py-5 px-10 sm:flex sm:flex-col sm:justify-center">
-        {user?.user?.role == 'TRAINER' && (
+        {user?.user?.role == "TRAINER" && (
           <div className="flex absolute left-10">
             <div
               className={`relative w-40 h-10 flex items-center px-1 rounded-full cursor-pointer transition-colors duration-300 ${
-                isTrainerMatchMember ? 'bg-green-500' : 'bg-gray-300'
+                isTrainerMatchMember ? "bg-green-500" : "bg-gray-300"
               }`}
               onClick={() =>
                 dispatch(setIsTrainerMatchMember(!isTrainerMatchMember))
@@ -117,14 +117,14 @@ const NavBar = () => {
               {/* 토글 텍스트 */}
               <span
                 className={`absolute w-full text-xs font-semibold text-white text-center transition-opacity duration-300 ml-[-0.5rem] ${
-                  isTrainerMatchMember ? 'opacity-100' : 'opacity-0'
+                  isTrainerMatchMember ? "opacity-100" : "opacity-0"
                 }`}
               >
                 매칭회원정보
               </span>
               <span
                 className={`absolute w-full text-xs font-semibold text-white text-center transition-opacity duration-300 ${
-                  isTrainerMatchMember ? 'opacity-0' : 'opacity-100'
+                  isTrainerMatchMember ? "opacity-0" : "opacity-100"
                 }`}
               >
                 MY INFO
@@ -133,7 +133,7 @@ const NavBar = () => {
               {/* 토글 원 */}
               <div
                 className={`w-8 h-8 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                  isTrainerMatchMember ? 'translate-x-30' : 'translate-x-0'
+                  isTrainerMatchMember ? "translate-x-30" : "translate-x-0"
                 }`}
               />
             </div>
@@ -148,7 +148,7 @@ const NavBar = () => {
                     ? trainerSelectedMember.userName
                     : `${trainerSelectedMember.nickName}( ${trainerSelectedMember.userName} )`}
                   &nbsp;
-                  {trainerSelectedMember.userId == 0 ? '' : '회원님'}
+                  {trainerSelectedMember.userId == 0 ? "" : "회원님"}
                   <TiArrowSortedDown />
                 </button>
 
@@ -176,14 +176,23 @@ const NavBar = () => {
 
         <div className="hidden md:flex justify-center mx-auto">
           <Link to="/">
-            <div className="text-2xl md:text-3xl font-black tracking-tight text-slate-800 group-hover:text-slate-900 transition-colors duration-300">
-              <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                Fit
-              </span>
-              <span className="text-[#4a902c] bg-clip-text ml-1">Harmony</span>
-            </div>
-            <div className="text-xs font-medium text-slate-500 tracking-wider uppercase mt-0.5 text-center md:text-left">
-              Modern Fitness
+            <div className="flex">
+              <div className="h-13 w-13">
+                <img src="/src/images/logoIcon.png" alt="logo" className="" />
+              </div>
+              <div>
+                <div className="text-2xl md:text-3xl font-black tracking-tight text-slate-800 group-hover:text-slate-900 transition-colors duration-300 flex">
+                  <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    Fit
+                  </span>
+                  <span className="text-[#4a902c] bg-clip-text ml-1">
+                    Harmony
+                  </span>
+                </div>
+                <div className="text-xs font-medium text-slate-500 tracking-wider uppercase mt-0.5 text-center md:text-left">
+                  Modern Fitness
+                </div>
+              </div>
             </div>
           </Link>
         </div>
@@ -225,7 +234,7 @@ const NavBar = () => {
         <div className="flex items-center justify-between h-16 px-4 md:px-10">
           {/* 메뉴 - md 이상에서만 표시 */}
           <div className="hidden md:flex flex-1 justify-center space-x-6 text-sm font-medium text-green-700">
-            {!(user?.user?.role == 'TRAINER' && isTrainerMatchMember) && (
+            {!(user?.user?.role == "TRAINER" && isTrainerMatchMember) && (
               <Link
                 to="/dashboard"
                 className="hover:bg-green-100 px-4 py-2 rounded-full transition"
@@ -252,7 +261,7 @@ const NavBar = () => {
               커뮤니티
             </Link>
 
-            {user?.user?.role != 'TRAINER' && (
+            {user?.user?.role != "TRAINER" && (
               <Link
                 to="/trainer"
                 className="hover:bg-green-100 px-4 py-2 rounded-full transition"
@@ -260,7 +269,7 @@ const NavBar = () => {
                 강사 찾기
               </Link>
             )}
-            {user?.user?.role == 'TRAINER' && !isTrainerMatchMember && (
+            {user?.user?.role == "TRAINER" && !isTrainerMatchMember && (
               <Link
                 to="/products"
                 className="hover:bg-green-100 px-4 py-2 rounded-full transition"
@@ -351,7 +360,7 @@ const NavBar = () => {
 
                 {/* 네비게이션 메뉴 */}
                 <div className="px-4 space-y-1">
-                  {!(user?.user?.role == 'TRAINER' && isTrainerMatchMember) && (
+                  {!(user?.user?.role == "TRAINER" && isTrainerMatchMember) && (
                     <Link
                       to="/dashboard"
                       onClick={closeMenu}
@@ -382,7 +391,7 @@ const NavBar = () => {
                     커뮤니티
                   </Link>
 
-                  {user?.user?.role != 'TRAINER' && (
+                  {user?.user?.role != "TRAINER" && (
                     <Link
                       to="/trainer"
                       onClick={closeMenu}
@@ -391,7 +400,7 @@ const NavBar = () => {
                       강사 찾기
                     </Link>
                   )}
-                  {user?.user?.role == 'TRAINER' && !isTrainerMatchMember && (
+                  {user?.user?.role == "TRAINER" && !isTrainerMatchMember && (
                     <Link
                       to="/products"
                       onClick={closeMenu}
