@@ -51,6 +51,8 @@ const Inbody = () => {
     (state) => state.common.trainerSelectedMember
   );
 
+  const isMobile = useSelector(state => state.common.isMobile); // 모바일 화면인지 체크
+
   // modalInbodyData 상태 변경 감지
   useEffect(() => {}, [modalInbodyData]);
 
@@ -394,9 +396,6 @@ const Inbody = () => {
       unit: "%",
     },
   ];
-
-
-  const isMobile = useSelector(state => state.common.isMobile); // 모바일 화면인지 체크
 
 
   return (
