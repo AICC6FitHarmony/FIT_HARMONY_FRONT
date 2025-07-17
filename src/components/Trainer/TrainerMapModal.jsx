@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { IoClose, IoSearchOutline } from 'react-icons/io5';
-import { FaStar } from 'react-icons/fa6';
+import React, { useState, useEffect, useRef } from "react";
+import { IoClose, IoSearchOutline } from "react-icons/io5";
+import { FaStar } from "react-icons/fa6";
 
 const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
   const mapRef = useRef(null);
   const [map, setMap] = useState(null);
   const [markers, setMarkers] = useState([]);
   const [selectedTrainer, setSelectedTrainer] = useState(null);
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [filteredTrainers, setFilteredTrainers] = useState(trainers);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
 
   // 필터 상태 추가
   const [filters, setFilters] = useState({
-    gender: '',
-    location: '',
+    gender: "",
+    location: "",
     categories: [],
   });
 
@@ -50,7 +50,7 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
   const handleGenderChange = (gender) => {
     setFilters((prev) => ({
       ...prev,
-      gender: prev.gender === gender ? '' : gender,
+      gender: prev.gender === gender ? "" : gender,
     }));
   };
 
@@ -71,7 +71,7 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
   const getCurrentLocation = () => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by this browser.'));
+        reject(new Error("Geolocation is not supported by this browser."));
         return;
       }
 
@@ -81,7 +81,7 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
           resolve({ lat: latitude, lng: longitude });
         },
         (error) => {
-          console.error('Geolocation error:', error);
+          console.error("Geolocation error:", error);
           reject(error);
         },
         {
@@ -96,11 +96,11 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
   // IP 기반 위치 가져오기 (GPS 실패 시 대안)
   const getLocationByIP = async () => {
     try {
-      const response = await fetch('https://ipapi.co/json/');
+      const response = await fetch("https://ipapi.co/json/");
       const data = await response.json();
       return { lat: data.latitude, lng: data.longitude };
     } catch (error) {
-      console.error('IP location error:', error);
+      console.error("IP location error:", error);
       throw error;
     }
   };
@@ -116,7 +116,7 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
         setCurrentLocation(location);
         setLocationError(null);
       } catch (gpsError) {
-        console.warn('GPS 위치 가져오기 실패:', gpsError);
+        console.warn("GPS 위치 가져오기 실패:", gpsError);
 
         try {
           // GPS 실패 시 IP 기반 위치 시도
@@ -124,9 +124,9 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
           setCurrentLocation(location);
           setLocationError(null);
         } catch (ipError) {
-          console.warn('IP 기반 위치 가져오기 실패:', ipError);
+          console.warn("IP 기반 위치 가져오기 실패:", ipError);
           setLocationError(
-            '위치 정보를 가져올 수 없습니다. 기본 위치로 설정합니다.'
+            "위치 정보를 가져올 수 없습니다. 기본 위치로 설정합니다."
           );
           // 기본 위치 (서울)
           setCurrentLocation({ lat: 37.5665, lng: 126.978 });
@@ -165,25 +165,25 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
               currentLocation.lng
             ),
             map: mapInstance,
-            title: '현재 위치',
+            title: "현재 위치",
           });
 
           // 현재 위치 마커 스타일 변경
           const markerImage = new window.kakao.maps.MarkerImage(
-            'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
+            "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png",
             new window.kakao.maps.Size(24, 35)
           );
           currentLocationMarker.setImage(markerImage);
         }
 
-        window.kakao.maps.event.addListener(mapInstance, 'click', () => {
+        window.kakao.maps.event.addListener(mapInstance, "click", () => {
           setSelectedTrainer(null);
         });
       });
     };
 
     if (!window.kakao) {
-      const script = document.createElement('script');
+      const script = document.createElement("script");
       script.async = true;
       script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${
         import.meta.env.VITE_KAKAO_MAP_KEY
@@ -192,7 +192,7 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
 
       script.onload = initKakaoMap;
       script.onerror = () => {
-        console.error('카카오맵 스크립트 로드 실패');
+        console.error("카카오맵 스크립트 로드 실패");
       };
     } else {
       initKakaoMap();
@@ -226,7 +226,7 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
           });
 
           // 마커 클릭 이벤트
-          window.kakao.maps.event.addListener(marker, 'click', () => {
+          window.kakao.maps.event.addListener(marker, "click", () => {
             setSelectedTrainer(trainer);
           });
 
@@ -274,7 +274,7 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-[90%] h-[80%] max-w-6xl max-h-[800px] flex flex-col">
+      <div className="bg-white rounded-lg w-full h-full max-w-6xl max-h-[800px] flex flex-col md:w-[90%] md:h-[80%] md:mx-auto md:my-auto md:rounded-lg md:relative overflow-hidden">
         {/* 헤더 */}
         <div className="flex items-center justify-between p-4 border-b bg-blue-600 text-white rounded-t-lg">
           <h2 className="text-xl font-bold">강사 찾기</h2>
@@ -296,20 +296,20 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
             <IoSearchOutline className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
           {/* 위치 정보 및 현재 위치 버튼 */}
-          <div className="flex items-center justify-between mt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-between mt-2 gap-2">
             <div className="text-sm text-gray-600">
               {locationError ? (
                 <span className="text-orange-600">{locationError}</span>
               ) : (
                 <span className="text-green-600">
-                  현재 위치: {currentLocation?.lat.toFixed(4)},{' '}
+                  현재 위치: {currentLocation?.lat.toFixed(4)},{" "}
                   {currentLocation?.lng.toFixed(4)}
                 </span>
               )}
             </div>
             <button
               onClick={moveToCurrentLocation}
-              className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+              className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 w-full sm:w-auto"
               disabled={!currentLocation}
             >
               현재 위치로 이동
@@ -318,21 +318,20 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
         </div>
 
         {/* 메인 컨텐츠 */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           {/* 사이드바 - 필터 */}
-          <div className="w-64 bg-white border-r p-4 overflow-y-auto">
+          <div className="w-full md:w-64 bg-white border-r p-4 overflow-y-auto md:h-auto h-56 md:mb-0 mb-2">
             <h3 className="font-bold mb-4">필터</h3>
-
             {/* 성별 필터 */}
             <div className="mb-4">
               <h4 className="font-medium mb-2">성별</h4>
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-row md:flex-col gap-2 md:gap-0">
                 <label className="flex items-center">
                   <input
                     type="checkbox"
                     className="mr-2"
-                    checked={filters.gender === '남'}
-                    onChange={() => handleGenderChange('남')}
+                    checked={filters.gender === "남"}
+                    onChange={() => handleGenderChange("남")}
                   />
                   <span>남</span>
                 </label>
@@ -340,14 +339,13 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
                   <input
                     type="checkbox"
                     className="mr-2"
-                    checked={filters.gender === '여'}
-                    onChange={() => handleGenderChange('여')}
+                    checked={filters.gender === "여"}
+                    onChange={() => handleGenderChange("여")}
                   />
                   <span>여</span>
                 </label>
               </div>
             </div>
-
             {/* 지역 필터 */}
             <div className="mb-4">
               <h4 className="font-medium mb-2">지역</h4>
@@ -359,18 +357,17 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
               />
             </div>
-
             {/* 종류 필터 */}
             <div className="mb-4">
               <h4 className="font-medium mb-2">종류</h4>
-              <div className="space-y-2">
-                {['PT', '수영', '요가', '헬스', '필라테스'].map((category) => (
+              <div className="space-y-2 flex flex-row md:flex-col gap-2 md:gap-0">
+                {["PT", "수영", "요가", "헬스", "필라테스"].map((category) => (
                   <label
                     key={category}
                     className={`flex items-center rounded-lg cursor-pointer p-2 transition-all ${
                       filters.categories.includes(category)
-                        ? 'border-2 border-blue-500 bg-blue-50'
-                        : 'border-2 border-transparent hover:bg-gray-50'
+                        ? "border-2 border-blue-500 bg-blue-50"
+                        : "border-2 border-transparent hover:bg-gray-50"
                     }`}
                   >
                     <input
@@ -382,8 +379,8 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
                     <span
                       className={`${
                         filters.categories.includes(category)
-                          ? 'text-blue-700 font-medium'
-                          : 'text-gray-700'
+                          ? "text-blue-700 font-medium"
+                          : "text-gray-700"
                       }`}
                     >
                       {category}
@@ -395,16 +392,16 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
           </div>
 
           {/* 지도 영역 */}
-          <div className="flex-1 relative">
+          <div className="flex-1 relative min-h-[300px]">
             <div
               ref={mapRef}
-              className="w-full h-full"
-              style={{ minHeight: '400px' }}
+              className="w-full h-64 md:h-full"
+              style={{ minHeight: "300px" }}
             />
 
             {/* 선택된 트레이너 정보 카드 */}
             {selectedTrainer && (
-              <div className="absolute top-4 right-4 z-50 bg-white rounded-lg shadow-lg p-4 w-80 max-w-sm">
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-4 md:top-4 md:right-4 md:left-auto md:translate-x-0 z-50 bg-white rounded-lg shadow-lg p-4 w-[95vw] max-w-sm md:w-80">
                 <div className="flex items-start gap-3">
                   <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0 relative">
                     <img
@@ -422,8 +419,8 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
                         const categoriesStr = String(
                           selectedTrainer.categories
                         );
-                        const categoriesArray = categoriesStr.includes(',')
-                          ? categoriesStr.split(',')
+                        const categoriesArray = categoriesStr.includes(",")
+                          ? categoriesStr.split(",")
                           : [categoriesStr];
 
                         return categoriesArray.map((category, index) => (
@@ -456,17 +453,17 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
                     </div>
 
                     <p className="text-sm text-gray-600 mb-1">
-                      {selectedTrainer.gym?.gym || '정보 없음'}
+                      {selectedTrainer.gym?.gym || "정보 없음"}
                     </p>
                     <p className="text-xs text-gray-500 mb-2">
-                      {selectedTrainer.gym?.gymAddress || '주소 정보 없음'}
+                      {selectedTrainer.gym?.gymAddress || "주소 정보 없음"}
                     </p>
 
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-semibold text-green-600">
                         {selectedTrainer.minPrice
                           ? `${selectedTrainer.minPrice.toLocaleString()}원부터`
-                          : '가격 문의'}
+                          : "가격 문의"}
                       </span>
                       <button
                         onClick={() => {
