@@ -68,8 +68,8 @@ const DietScheduleTable = ({data, selectDate, dietRegCallback}) => {
     // 최초 진입 처리
     useEffect(() => {
         let totalCal = data?.reduce((sum, item) => sum + item.totalCalorie, 0);
-        setTotalCal(totalCal)
-    }, [])
+        setTotalCal(totalCal ? totalCal : 0);
+    }, [data])
 
     return (
       <div className='w-full h-full flex flex-col justify-start'>
@@ -98,7 +98,7 @@ const DietScheduleTable = ({data, selectDate, dietRegCallback}) => {
                                     </td>
                                     <td className='text-left' style={{textAlign:'left'}}>
                                         <h2 className='text-xl font-bold'>{item.title}({item.totalCalorie} cal)</h2>
-                                        <ul className={`list-disc pl-6 ${(isMobile ? '' : 'grid grid-cols-2')}`} style={{listStyle:'disc'}}>
+                                        <ul className={`list-disc pl-6`} style={{listStyle:'disc'}}>
                                         {
                                             item.menus?.split('|').map((item, idx) => (
                                                 <li key={idx}>{item}</li>

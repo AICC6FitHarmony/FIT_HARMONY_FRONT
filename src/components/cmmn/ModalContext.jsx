@@ -46,7 +46,10 @@ export const ModalProvider = ({children})=>{
 }
 
 export const useModal = () => {
-  return useContext(ModalContext);
+  const openModal = useContext(ModalContext);
+  return (
+    {title, children,okEvent, cancelEvent, closeEvent, size, isCancelClose, isOkClose}
+  )=>openModal({title, children,okEvent, cancelEvent, closeEvent, size, isCancelClose, isOkClose});
 }
 
 export const useAlertModal = () => {

@@ -5,12 +5,53 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchTrainers } from '../../js/redux/slice/sliceTrainer';
 import { TiArrowSortedDown } from 'react-icons/ti';
 import { FaListUl, FaStar } from 'react-icons/fa6';
-
 import { useNavigate } from 'react-router-dom';
 import { MdDialpad } from 'react-icons/md';
 import TrainerMapModal from './TrainerMapModal'; // 위에서 만든 컴포넌트
 import { useAuth } from '../../js/login/AuthContext';
 import StandardModal from '../cmmn/StandardModal';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+
+// 스켈레톤 컴포넌트
+const SkeletonCard = ({ mode }) => (
+  <SkeletonTheme baseColor="#f3f4f6" highlightColor="#e5e7eb">
+    <div
+      className={
+        mode === 'grid'
+          ? 'p-1.5 sm:p-2 md:p-3 rounded-lg bg-white flex sm:flex-col items-center sm:items-stretch gap-2 sm:gap-0'
+          : 'flex bg-white p-2 sm:p-3 md:p-4 rounded-xl items-center gap-2 sm:gap-3 md:gap-4'
+      }
+    >
+      <div
+        className={
+          mode === 'grid'
+            ? 'mb-0 sm:mb-1 md:mb-2 h-20 w-20 sm:h-40 sm:w-auto flex-shrink-0'
+            : 'w-16 h-14 sm:w-32 sm:h-24 md:w-40 md:h-32 flex-shrink-0'
+        }
+      >
+        <Skeleton height="100%" width="100%" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex flex-col gap-0.5 sm:gap-1">
+          <Skeleton height={20} width="70%" />
+          <Skeleton height={16} width="50%" />
+        </div>
+        <Skeleton height={14} width="80%" className="mt-0.5 sm:mt-1" />
+        <Skeleton height={14} width="90%" className="mt-0.5 sm:mt-1" />
+        <Skeleton height={14} width="60%" className="mt-0.5 sm:mt-1" />
+        {mode === 'horizontal' && (
+          <Skeleton
+            height={14}
+            width="100%"
+            className="mt-1 sm:mt-2"
+            count={2}
+          />
+        )}
+      </div>
+    </div>
+  </SkeletonTheme>
+);
 
 const TrainerMain = () => {
   const dispatch = useDispatch();
@@ -85,7 +126,6 @@ const TrainerMain = () => {
     return trainersData.map((trainer) => {
       const genderMap = { M: '남', F: '여' };
       const gender = genderMap[trainer.gender] || trainer.gender || '정보없음';
-      const categories = ['PT'];
 
       return {
         userId: trainer.userId,
@@ -99,8 +139,8 @@ const TrainerMain = () => {
         minPrice: trainer.minPrice,
         rating: trainer.rating || 0,
         reviewCount: trainer.reviewCount || 0,
-        categories: categories[0] || 'PT',
-        allCategories: categories,
+        categories: trainer.fitGoal || 'PT',
+        allCategories: trainer.fitGoal,
         priceRange: trainer.minPrice
           ? `${trainer.minPrice.toLocaleString()}원부터`
           : '가격 정보 없음',
@@ -120,7 +160,7 @@ const TrainerMain = () => {
   // 필터 적용 함수
   const applyFilters = (data) => {
     return data.filter((trainer) => {
-      if (filters.rating > 0 && trainer.rating < filters.rating) {
+      if (filters.rating > 0 && Math.floor(trainer.rating) !== filters.rating) {
         return false;
       }
       if (filters.gender && trainer.gender !== filters.gender) {
@@ -134,9 +174,12 @@ const TrainerMain = () => {
       }
       if (
         filters.categories.length > 0 &&
-        !filters.categories.some((category) =>
-          trainer.allCategories.includes(category)
-        )
+        !filters.categories.some((category) => {
+          // trainer.allCategories가 문자열이므로 includes로 확인
+          return (
+            trainer.allCategories && trainer.allCategories.includes(category)
+          );
+        })
       ) {
         return false;
       }
@@ -261,6 +304,10 @@ const TrainerMain = () => {
   };
 
   const handlePriceChange = (type, value) => {
+    // 8자리 이상 입력 제한
+    if (value.length > 8) {
+      return;
+    }
     setFilters((prev) => ({ ...prev, [type]: parseInt(value) }));
   };
 
@@ -370,7 +417,7 @@ const TrainerMain = () => {
     Math.ceil(currentPage / 10) < Math.ceil(totalPages / 10);
 
   return (
-    <div className="main-wrapper pt-20 w-full px-4 lg:px-6">
+    <div className="main-wrapper md:pt-20 w-full px-4 lg:px-6">
       <div className="search-title">
         <div className="flex justify-center">
           <h2 className="text-xl md:text-2xl">강사 찾기</h2>
@@ -399,7 +446,7 @@ const TrainerMain = () => {
       <div className="flex justify-center lg:hidden mt-4">
         <button
           onClick={() => setShowMobileFilter(!showMobileFilter)}
-          className="flex items-center gap-2 bg-[#1a7d45] text-white px-4 py-2 rounded-lg hover:bg-[#155a35] transition-colors relative"
+          className="flex items-center gap-2 bg-[#1a7d45] mr-5 text-white px-4 py-2 rounded-lg hover:bg-[#155a35] transition-colors relative"
         >
           <span>필터 검색</span>
           {getActiveFiltersCount() > 0 && (
@@ -422,16 +469,18 @@ const TrainerMain = () => {
           {/* 모바일 필터 오버레이 */}
           {showMobileFilter && (
             <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
               onClick={() => setShowMobileFilter(false)}
             />
           )}
 
           {/* 필터 사이드바 */}
           <div
-            className={`trainer-navbar w-full lg:w-[20%] xl:w-[18%] mb-6 lg:mb-0 lg:sticky z-50 top-20 border-2 border-gray-200 bg-white rounded-lg shadow-md p-3 md:p-4 h-fit transition-all duration-300 ${
+            className={`trainer-navbar ${
+              showMobileFilter ? '' : 'w-full'
+            } lg:w-[20%] xl:w-[18%] mb-6 lg:mb-0 lg:sticky z-50 top-20 border-2 border-gray-200 bg-white rounded-lg shadow-md p-3 md:p-4 h-fit transition-all duration-300 ${
               showMobileFilter
-                ? 'fixed top-4 left-4 right-4 max-h-[80vh] overflow-y-auto lg:static lg:max-h-none lg:overflow-visible shadow-2xl'
+                ? 'fixed bottom-10 left-2 right-2 max-h-[80vh] overflow-y-auto lg:static lg:max-h-none lg:overflow-visible shadow-2xl'
                 : 'hidden lg:block'
             }`}
           >
@@ -463,6 +512,16 @@ const TrainerMain = () => {
                 별점
               </h4>
               <div className="flex flex-col gap-1 md:gap-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="rating"
+                    checked={filters.rating === 0}
+                    onChange={() => handleRatingChange(0)}
+                    className="w-3 h-3 md:w-4 md:h-4"
+                  />
+                  <span className="text-xs md:text-sm">전체</span>
+                </label>
                 {[5, 4, 3, 2, 1].map((rating) => (
                   <label
                     key={rating}
@@ -482,7 +541,6 @@ const TrainerMain = () => {
                           className="text-yellow-400 text-xs md:text-sm"
                         />
                       ))}
-                      <span className="text-xs md:text-sm">이상</span>
                     </div>
                   </label>
                 ))}
@@ -536,6 +594,7 @@ const TrainerMain = () => {
                   value={filters.location}
                   onChange={(e) => handleLocationChange(e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md text-xs md:text-sm"
+                  maxLength="20"
                 />
                 {filters.location && (
                   <div className="mt-2 flex items-center gap-2">
@@ -565,7 +624,11 @@ const TrainerMain = () => {
                 {['PT', '수영', '요가', '헬스', '필라테스'].map((category) => (
                   <label
                     key={category}
-                    className="flex items-center gap-2 hover:bg-orange-100 rounded-2xl cursor-pointer p-1"
+                    className={`flex items-center gap-2 hover:bg-orange-100 rounded-2xl cursor-pointer p-1 transition-all ${
+                      filters.categories.includes(category)
+                        ? 'border-2 border-blue-500 bg-blue-50'
+                        : 'border-2 border-transparent'
+                    }`}
                   >
                     <input
                       type="checkbox"
@@ -573,7 +636,15 @@ const TrainerMain = () => {
                       onChange={() => handleCategoryToggle(category)}
                       className="w-3 h-3 md:w-4 md:h-4"
                     />
-                    <span className="text-xs md:text-sm">{category}</span>
+                    <span
+                      className={`text-xs md:text-sm ${
+                        filters.categories.includes(category)
+                          ? 'text-blue-700 font-medium'
+                          : 'text-gray-700'
+                      }`}
+                    >
+                      {category}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -666,7 +737,7 @@ const TrainerMain = () => {
                   총 {totalItems}개 결과 (페이지 {currentPage}/{totalPages})
                 </span>
                 <button
-                  className="trainer-array bg-white w-12 h-10 rounded-2xl flex items-center justify-center gap-2 hover:text-[#1a7d45] text-lg md:text-2xl"
+                  className="trainer-array bg-white w-12 h-10 rounded-2xl hidden md:flex items-center justify-center gap-2 hover:text-[#1a7d45] text-lg md:text-2xl"
                   onClick={() =>
                     setListMode(listMode === 'grid' ? 'horizontal' : 'grid')
                   }
@@ -684,9 +755,10 @@ const TrainerMain = () => {
                     : 'flex flex-col gap-2 sm:gap-3 md:gap-4'
                 }
               >
-                {status === 'loading' && (
-                  <p className="text-sm md:text-base">Loading...</p>
-                )}
+                {status === 'loading' &&
+                  Array.from({ length: 8 }).map((_, index) => (
+                    <SkeletonCard key={index} mode={listMode} />
+                  ))}
                 {status === 'failed' && (
                   <p className="text-sm md:text-base">Error: {error}</p>
                 )}
@@ -715,7 +787,7 @@ const TrainerMain = () => {
                           alt=""
                           className="w-full h-full object-cover"
                         />
-                        <div className="rounded-lg sm:rounded-2xl text-shadow-2xs text-xs text-white border-1 px-1 sm:px-2 w-auto bg-black opacity-50 absolute z-10 bottom-0.5 sm:bottom-1 md:bottom-2 left-0.5 sm:left-1 md:left-2">
+                        <div className="rounded-lg sm:rounded-2xl text-shadow-2xs text-xs text-white border-1 px-1 sm:px-2 w-auto bg-black opacity-50 absolute bottom-0.5 sm:bottom-1 md:bottom-2 left-0.5 sm:left-1 md:left-2">
                           {trainer.categories}
                         </div>
                       </div>

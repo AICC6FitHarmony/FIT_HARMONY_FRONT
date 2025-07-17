@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { ALargeSmallIcon, AlignCenterIcon, AlignLeftIcon, AlignRightIcon, BaselineIcon, BoldIcon, BrushIcon, ImagePlusIcon, ImageUpIcon, ItalicIcon, PaintBucketIcon } from 'lucide-react';
 import { useImageFileUpload, useUpdateGroupId } from '../../../js/common/util';
-
+import { BiFontColor, BiFontSize } from "react-icons/bi";
 
 const MenuBar = ({ editor }) => {
   const [fontSize, setFontSize] = useState('16px');
@@ -72,20 +72,22 @@ const handleFileChange = async (e) => {
   const handleBgColorChange = (e) => {
     const color = e.target.value;
     setBgColor(color);
-    editor.chain().focus().setTextAttributes({ backgroundColor: color }).run();
+    console.log(editor.chain().focus());
+    editor.chain().focus().setBackgroundColor(color).run();
   };
   return (
-    <div className='flex gap-5 items-center'>
-      <div className="font-deco flex items-center">
-        <button onClick={() => editor.chain().focus().toggleBold().run()}><BoldIcon/></button>
-        <button onClick={() => editor.chain().focus().toggleItalic().run()}><ItalicIcon/></button>
-        <button onClick={() => editor.chain().focus().toggleUnderline().run()}><BaselineIcon/></button>
+    <div className='sm:flex gap-5 items-center pb-1'>
+      <div className='flex gap-5'>
+      <div className="font-deco flex items-center gap-1">
+        <div className='cursor-pointer' onClick={() => editor.chain().focus().toggleBold().run()}><BoldIcon className='w-5'/></div>
+        <div className='cursor-pointer' onClick={() => editor.chain().focus().toggleItalic().run()}><ItalicIcon className='w-5'/></div>
+        <div className='cursor-pointer' onClick={() => editor.chain().focus().toggleUnderline().run()}><BaselineIcon className='w-5'/></div>
       </div>
-
+      
       {/* 글자 크기 */}
       <label className='flex items-center'>
-        <ALargeSmallIcon/>
-        <select value={fontSize} onChange={handleFontSizeChange}>
+        <BiFontSize className='text-[1.3rem]'/>
+        <select value={fontSize} className='cursor-pointer' onChange={handleFontSizeChange}>
           <option value="12px">12px</option>
           <option value="16px">16px</option>
           <option value="20px">20px</option>
@@ -95,38 +97,41 @@ const handleFileChange = async (e) => {
       </label>
 
       {/* 글자 색상 */}
-      <label className='flex items-center gap-1'>
-        <BrushIcon/>
+      <label className='flex items-center justify-center'>
+        {/* <BrushIcon className='w-5'/> */}
+        <BiFontColor className='text-[1.3rem]' />
         <input
           type="color"
           value={fontColor}
           onChange={handleFontColorChange}
-          style={{ verticalAlign: 'middle', marginLeft: '0.25em' }}
-        />
+          style={{ verticalAlign: 'middle'}}
+          className='w-[1.5rem]'
+          />
       </label>
-
+      </div>
       {/* 배경 색상 */}
-      <label className='flex items-center gap-1'>
+      {/* <label className='flex items-center gap-1'>
         <PaintBucketIcon/>
         <input
-          type="color"
-          value={bgColor}
-          onChange={handleBgColorChange}
-          style={{ verticalAlign: 'middle', marginLeft: '0.25em' }}
+        type="color"
+        value={bgColor}
+        onChange={handleBgColorChange}
+        style={{ verticalAlign: 'middle', marginLeft: '0.25em' }}
         />
-      </label>
+        </label> */}
 
+      <div className='flex gap-5'>
       {/* 정렬 */}
       <div className='flex items-center gap-1'>
-        <button onClick={() => editor.chain().focus().setTextAlign('left').run()}><AlignLeftIcon/></button>
-        <button onClick={() => editor.chain().focus().setTextAlign('center').run()}><AlignCenterIcon/></button>
-        <button onClick={() => editor.chain().focus().setTextAlign('right').run()}><AlignRightIcon/></button>
+        <div className='cursor-pointer' onClick={() => editor.chain().focus().setTextAlign('left').run()}><AlignLeftIcon/></div>
+        <div className='cursor-pointer' onClick={() => editor.chain().focus().setTextAlign('center').run()}><AlignCenterIcon/></div>
+        <div className='cursor-pointer' onClick={() => editor.chain().focus().setTextAlign('right').run()}><AlignRightIcon/></div>
       </div>
 
       {/* 이미지 삽입 */}
       <div className='flex items-center gap-1'>
-        <button onClick={addImageFromUrl} title='주소로 이미지 추가'><ImagePlusIcon/></button>
-        <button onClick={() => fileInputRef.current.click()} title='이미지 파일 업로드'><ImageUpIcon/></button>
+        <div className='cursor-pointer' onClick={addImageFromUrl} title='주소로 이미지 추가'><ImagePlusIcon className='w-5'/></div>
+        <div className='cursor-pointer' onClick={() => fileInputRef.current.click()} title='이미지 파일 업로드'><ImageUpIcon className='w-5'/></div>
       </div>
       <input
         ref={fileInputRef}
@@ -134,7 +139,8 @@ const handleFileChange = async (e) => {
         accept="image/*"
         style={{ display: 'none' }}
         onChange={handleFileChange}
-      />
+        />
+      </div>
     </div>
   );
 }

@@ -5,20 +5,24 @@ import { createComment } from '../../../js/community/communityUtils';
 const CommentInput = ({parent_comment_id, load_comments, title}) => {
   const {postId:post_id} = useParams();
   const [content, setContent] = useState("");
-
+  const [isWorking, setIsWorking] = useState(false);
 
   const handleChange = (e)=>{
     setContent(e.target.value);
   }
 
   const handleCreate = async()=>{
+    if(isWorking) return;
+    setIsWorking(true);
     const body = {
       post_id, parent_comment_id, content
     }
     const res = await createComment(body);
-    await load_comments();
+    const {postId, commentId} = res.data;
+    console.log(res);
+    await load_comments(commentId);
     setContent("");
-    console.log(res)
+    setIsWorking(false);
   }
   return (
         <div className="input bg-white p-1 rounded-xl shadow-xl">

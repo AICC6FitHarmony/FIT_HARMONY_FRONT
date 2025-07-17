@@ -14,7 +14,7 @@ const InputWithLabel = ({label, name, value, onChange, isNumber, waringText, isW
 
   return (
     <div className={"input-with-label "+className}>
-      {label&&(<div className='label'>{label}</div>)}
+      {label&&(<div className='label whitespace-nowrap'>{label}</div>)}
       <div className={`input-wrapper relative flex flex-col ${label?"w-[80%]":"w-full"}`}>
         <input
           name={name}
