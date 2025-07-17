@@ -155,13 +155,19 @@ export const deletePost = async(body)=>{
   });
   return res;
 }
+export const findComment = async(postId, commentId) =>{
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/comment/${postId}/${commentId}`);
+  const res = await response.json();
+  return res;
+}
 
-export const getComments = async(postId, setComments)=>{
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/comments/${postId}`);
+export const getComments = async(postId, page, setComments)=>{
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/community/comments/${postId}?page=${page}`);
   const res = await response.json();
   // console.log(res);
-  if(res.success)
+  if(res.success&&setComments)
     setComments(res.data.comments);
+  // console.log(res);
   return res;
 }
 
@@ -175,7 +181,7 @@ export const createComment = async(body)=>{
     },
     body: JSON.stringify(body)
   });
-  return res;
+  return await res.json();
 }
 
 export const deleteComment = async(body)=>{
@@ -188,7 +194,7 @@ export const deleteComment = async(body)=>{
     },
     body: JSON.stringify(body)
   });
-  return res;
+  return await res.json();
 }
 
 export const updateComment = async(body)=>{
@@ -201,5 +207,5 @@ export const updateComment = async(body)=>{
     },
     body: JSON.stringify(body)
   });
-  return res;
+  return await res.json();
 }

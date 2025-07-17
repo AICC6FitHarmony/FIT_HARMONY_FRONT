@@ -62,7 +62,7 @@ const StandardModal = ({
         style={{ width: width, minHeight: height, maxHeight: "90vh" }}
       >
         <div className="modal-header bg-green-50">
-          <div className="border-b border-green-800 flex justify-between pb-4 pt-4 pl-10 pr-10 bg-green-50">
+          <div className="border-b border-green-800 flex justify-between py-4 px-5 sm:px-10 bg-green-50">
             <h2 className="flex flex-col justify-center w-full text-ellipsis overflow-hidden text-xl font-bold">
               {title}
             </h2>
@@ -76,11 +76,11 @@ const StandardModal = ({
         </div>
 
         {/* 모달의 콘텐츠가 입력되는 wrapper - 스크롤 추가 */}
-        <div className="modal-contents-wrapper pb-4 pt-4 pl-10 pr-10 overflow-y-auto flex-1">
+        <div className="modal-contents-wrapper py-5 px-5 sm:px-10 overflow-y-auto flex-1">
           {children}
         </div>
 
-        <div className="modal-footer pb-4 pt-4 pl-10 pr-10 text-right">
+        <div className="modal-footer pb-5 px-5 sm:px-10 text-right">
           {
             // 확인 버튼 이벤트 있는 경우 확인 버튼 노출
             okEvent && (

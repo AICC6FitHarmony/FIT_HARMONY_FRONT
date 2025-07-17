@@ -160,7 +160,7 @@ const Products = () => {
             cancelEvent:() => setIsRegModalShow(false),
             closeEvent : () => setIsRegModalShow(false),
             size:{
-                width:"35%",
+                width:"50%",
                 height:"auto"
             }
         })
@@ -272,6 +272,7 @@ const Products = () => {
                             <InputWithLabel 
                                 label="상품명" 
                                 name="name" 
+                                className={` w-full flex gap-2 items-center justify-between text-sm sm:text-[1rem]`}
                                 value={regProductFormData?.name} 
                                 onChange={regProductFormHandleChange} 
                                 placeholder="상품명을 입력해주세요"/>
@@ -280,6 +281,7 @@ const Products = () => {
                             <InputWithLabel 
                                 label="상품설명" 
                                 name="description" 
+                                className={` w-full flex gap-2 items-center justify-between text-sm sm:text-[1rem]`}
                                 value={regProductFormData?.description} 
                                 onChange={regProductFormHandleChange} 
                                 placeholder="상품설명을 입력해주세요"/>
@@ -288,6 +290,7 @@ const Products = () => {
                             <InputWithLabel 
                                 label="가격" 
                                 name="price"
+                                className={` w-full flex gap-2 items-center justify-between text-sm sm:text-[1rem]`}
                                 isNumber={true} 
                                 value={regProductFormData?.price} 
                                 onChange={regProductFormHandleChange} 
@@ -297,6 +300,7 @@ const Products = () => {
                             <InputWithLabel 
                                 label="상품 제공 횟수"
                                 name="sessionCnt"
+                                className={` w-full flex gap-2 items-center justify-between text-sm sm:text-[1rem]`}
                                 isNumber={true} 
                                 value={regProductFormData?.sessionCnt} 
                                 onChange={regProductFormHandleChange} 
@@ -311,11 +315,11 @@ const Products = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
                 <div className="flex items-center justify-between w-full sm:w-auto bg-white rounded-md shadow-md px-3 py-2 border border-gray-200">
                     <FiSearch className="text-gray-500 mr-2" />
-                    <input type="text" className="outline-none w-70 text-sm" placeholder="검색어를 입력해주세요." value={search} onChange={(e) => {setSearch(e.target.value);}}/>
+                    <input type="text" className="outline-none w-45 sm:w-70 text-sm" placeholder="검색어를 입력해주세요." value={search} onChange={(e) => {setSearch(e.target.value);}}/>
                     <button type="button" className="bg-[var(--color-green-700)] text-white px-4 py-2 rounded-md ml-2 hover:bg-[var(--color-green-600)] transition text-sm sm:text-[1rem]" onClick={searchHandler}>검색</button>
                 </div>
 
-                <button className="flex items-center gap-2 bg-[var(--color-green-700)] text-white px-4 py-2 rounded-md shadow-md hover:bg-[var(--color-green-600)] transition" onClick={() => showRegModal(0)}>
+                <button className="flex w-full justify-center sm:w-auto items-center gap-2 bg-[var(--color-green-700)] text-white px-4 py-2 rounded-md shadow-md hover:bg-[var(--color-green-600)] transition" onClick={() => showRegModal(0)}>
                     <FiPlus /> 상품 등록
                 </button>
             </div>

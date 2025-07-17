@@ -207,6 +207,48 @@ const useUpdateUserActive = () => {
     }
 };
 
+// 회원 관리 관련 API 함수들
+export const useGetMembers = () => {
+  const request = useRequest();
+  
+  return async ({ page = 1, limit = 10, search = '', status = '', role = '', callback }) => {
+    const params = new URLSearchParams();
+    if (page) params.append('page', page);
+    if (limit) params.append('limit', limit);
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    if (role) params.append('role', role);
+    
+    return await request(`/mypage/admin/members?${params.toString()}`, {
+      method: 'GET',
+      callback
+    });
+  };
+};
+
+export const useUpdateMemberStatus = () => {
+  const request = useRequest();
+  
+  return async ({ userId, status, reason = '', callback }) => {
+    return await request('/mypage/admin/member/status', {
+      method: 'PUT',
+      body: { userId, status, reason },
+      callback
+    });
+  };
+};
+
+export const useGetMemberDetail = () => {
+  const request = useRequest();
+  
+  return async ({ userId, callback }) => {
+    return await request(`/mypage/admin/member/${userId}`, {
+      method: 'GET',
+      callback
+    });
+  };
+};
+
     export {
     useGetUserData,
     useUpdateUserData,

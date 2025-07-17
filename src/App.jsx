@@ -56,9 +56,9 @@ function App() {
         </Routes>
 
         {isLoading && (
-          <div className="fixed w-screen h-screen top-0 left-0 z-100 flex justify-center items-center">
-            <div className="absolute w-full h-full top-0 left-0 flex flex-col justify-center items-center z-101">
-              <div className="fit-loading-text">
+          <div className="fixed w-full h-full top-0 left-0 z-100 flex justify-center items-center">
+            <div className="w-full h-[100px] flex justify-center z-101">
+              <div className="fit-loading-text text-4xl sm:text-6xl h-full flex items-center">
                 <span>F</span>
                 <span>I</span>
                 <span>T</span>

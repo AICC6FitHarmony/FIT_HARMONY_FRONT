@@ -8,6 +8,8 @@ import defaultProfile from "../../images/profile.png";
 import { useDispatch, useSelector } from "react-redux";
 import { checkNicknameDuplicate } from "../../js/redux/slice/sliceMypage";
 import GymSelector from "./common/GymSelector";
+import { MessageSquare } from "lucide-react";
+import RequestResponse from "./RequestResponse";
 
 const ProfileEdit = ({ userData }) => {
   const [profileImg, setProfileImg] = useState(null);
@@ -31,6 +33,10 @@ const ProfileEdit = ({ userData }) => {
   const [nicknameDuplicate, setNicknameDuplicate] = useState(false);
   const [nicknameValid, setNicknameValid] = useState(true);
 
+  // 모달 상태 관리
+  const [isRequestResponseModalOpen, setIsRequestResponseModalOpen] =
+    useState(false);
+
   // 파일 업로드 관련 상태
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
@@ -47,6 +53,16 @@ const ProfileEdit = ({ userData }) => {
   const fileUpload = useImageFileUpload();
 
   const introductionEditorRef = useRef();
+
+  // 서비스 요청 응답 모달 열기
+  const handleRequestResponse = () => {
+    setIsRequestResponseModalOpen(true);
+  };
+
+  // 서비스 요청 응답 모달 닫기
+  const handleCloseRequestResponseModal = () => {
+    setIsRequestResponseModalOpen(false);
+  };
 
   useEffect(() => {
     if (userData) {
@@ -356,6 +372,14 @@ const ProfileEdit = ({ userData }) => {
                   accept="image/*"
                   onChange={handleFileSelect}
                 />
+                {role != "TRAINER" && (
+                  <div
+                    className="text-white bg-green-500 rounded-full p-2 ml-2 shadow-md transition-all duration-200 cursor-pointer hover:shadow-lg hover:-translate-y-0.5 active:shadow-sm active:translate-y-0.5"
+                    onClick={handleRequestResponse}
+                  >
+                    <MessageSquare />
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -487,6 +511,11 @@ const ProfileEdit = ({ userData }) => {
           </form>
         </div>
       </div>
+      {/* 서비스 요청 응답 모달 */}
+      <RequestResponse
+        isOpen={isRequestResponseModalOpen}
+        onClose={handleCloseRequestResponseModal}
+      />
     </div>
   );
 };

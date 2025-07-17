@@ -12,6 +12,61 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
 
+  // 필터 상태 추가
+  const [filters, setFilters] = useState({
+    gender: '',
+    location: '',
+    categories: [],
+  });
+
+  // 필터 적용 함수
+  const applyFilters = (data) => {
+    return data.filter((trainer) => {
+      if (filters.gender && trainer.gender !== filters.gender) {
+        return false;
+      }
+      if (
+        filters.location &&
+        !trainer.gym?.gymAddress?.includes(filters.location)
+      ) {
+        return false;
+      }
+      if (
+        filters.categories.length > 0 &&
+        !filters.categories.some((category) => {
+          // trainer.allCategories가 문자열이므로 includes로 확인
+          return (
+            trainer.allCategories && trainer.allCategories.includes(category)
+          );
+        })
+      ) {
+        return false;
+      }
+      return true;
+    });
+  };
+
+  // 필터 핸들러 함수들
+  const handleGenderChange = (gender) => {
+    setFilters((prev) => ({
+      ...prev,
+      gender: prev.gender === gender ? '' : gender,
+    }));
+  };
+
+  const handleLocationChange = (location) => {
+    setFilters((prev) => ({ ...prev, location }));
+  };
+
+  const handleCategoryToggle = (category) => {
+    setFilters((prev) => ({
+      ...prev,
+      categories: prev.categories.includes(category)
+        ? prev.categories.filter((c) => c !== category)
+        : [...prev.categories, category],
+    }));
+  };
+
   // 현재 위치 가져오기
   const getCurrentLocation = () => {
     return new Promise((resolve, reject) => {
@@ -183,23 +238,25 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
     setMarkers(newMarkers);
   }, [map, filteredTrainers]);
 
-  // 트레이너 검색
+  // 트레이너 검색 및 필터 적용
   useEffect(() => {
-    if (!searchKeyword.trim()) {
-      setFilteredTrainers(trainers);
-      return;
+    let result = trainers;
+
+    // 검색어 적용
+    if (searchKeyword.trim()) {
+      const keyword = searchKeyword.trim().toLowerCase();
+      result = result.filter(
+        (trainer) =>
+          trainer.userName.toLowerCase().includes(keyword) ||
+          trainer.gym?.gym?.toLowerCase().includes(keyword) ||
+          trainer.gym?.gymAddress?.toLowerCase().includes(keyword)
+      );
     }
 
-    const filtered = trainers.filter(
-      (trainer) =>
-        trainer.userName.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-        trainer.gym?.gym?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-        trainer.gym?.gymAddress
-          ?.toLowerCase()
-          .includes(searchKeyword.toLowerCase())
-    );
-    setFilteredTrainers(filtered);
-  }, [searchKeyword, trainers]);
+    // 필터 적용
+    result = applyFilters(result);
+    setFilteredTrainers(result);
+  }, [searchKeyword, trainers, filters]);
 
   // 현재 위치로 이동하는 함수
   const moveToCurrentLocation = () => {
@@ -216,7 +273,7 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-[90%] h-[80%] max-w-6xl max-h-[800px] flex flex-col">
         {/* 헤더 */}
         <div className="flex items-center justify-between p-4 border-b bg-blue-600 text-white rounded-t-lg">
@@ -271,11 +328,21 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
               <h4 className="font-medium mb-2">성별</h4>
               <div className="space-y-2">
                 <label className="flex items-center">
-                  <input type="checkbox" className="mr-2" />
+                  <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={filters.gender === '남'}
+                    onChange={() => handleGenderChange('남')}
+                  />
                   <span>남</span>
                 </label>
                 <label className="flex items-center">
-                  <input type="checkbox" className="mr-2" />
+                  <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={filters.gender === '여'}
+                    onChange={() => handleGenderChange('여')}
+                  />
                   <span>여</span>
                 </label>
               </div>
@@ -287,6 +354,8 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
               <input
                 type="text"
                 placeholder="지역 추가하기"
+                value={filters.location}
+                onChange={(e) => handleLocationChange(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
               />
             </div>
@@ -296,9 +365,29 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
               <h4 className="font-medium mb-2">종류</h4>
               <div className="space-y-2">
                 {['PT', '수영', '요가', '헬스', '필라테스'].map((category) => (
-                  <label key={category} className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>{category}</span>
+                  <label
+                    key={category}
+                    className={`flex items-center rounded-lg cursor-pointer p-2 transition-all ${
+                      filters.categories.includes(category)
+                        ? 'border-2 border-blue-500 bg-blue-50'
+                        : 'border-2 border-transparent hover:bg-gray-50'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      checked={filters.categories.includes(category)}
+                      onChange={() => handleCategoryToggle(category)}
+                    />
+                    <span
+                      className={`${
+                        filters.categories.includes(category)
+                          ? 'text-blue-700 font-medium'
+                          : 'text-gray-700'
+                      }`}
+                    >
+                      {category}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -317,12 +406,36 @@ const TrainerMapModal = ({ isOpen, onClose, trainers, onTrainerSelect }) => {
             {selectedTrainer && (
               <div className="absolute top-4 right-4 z-50 bg-white rounded-lg shadow-lg p-4 w-80 max-w-sm">
                 <div className="flex items-start gap-3">
-                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0">
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0 relative">
                     <img
-                      src="/api/placeholder/80/80"
+                      src={`${
+                        import.meta.env.VITE_BACKEND_DOMAIN
+                      }/common/file/${selectedTrainer.fileId}`}
                       alt="트레이너"
                       className="w-full h-full object-cover rounded-lg"
                     />
+                    {/* 카테고리 표시 */}
+                    <div className="absolute bottom-1 left-1 flex flex-wrap gap-1">
+                      {(() => {
+                        if (!selectedTrainer.categories) return null;
+
+                        const categoriesStr = String(
+                          selectedTrainer.categories
+                        );
+                        const categoriesArray = categoriesStr.includes(',')
+                          ? categoriesStr.split(',')
+                          : [categoriesStr];
+
+                        return categoriesArray.map((category, index) => (
+                          <div
+                            key={index}
+                            className="rounded text-xs text-white px-1 py-0.5 bg-black opacity-75"
+                          >
+                            {category.trim()}
+                          </div>
+                        ));
+                      })()}
+                    </div>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">

@@ -101,11 +101,11 @@ const NavBar = () => {
 
   return (
     // 사이트 전체 배경
-    <div className="bg-orange-50">
+    <div className="bg-orange-50 pb-10">
       {/* 로고 섹션 - 데스크탑에서만 표시 */}
-      <div className="hidden relative py-5 px-4 sm:flex sm:flex-col sm:justify-center">
+      <div className="hidden relative py-5 px-10 sm:flex sm:flex-col sm:justify-center">
         {user?.user?.role == 'TRAINER' && (
-          <div className="flex absolute left-4">
+          <div className="flex absolute left-10">
             <div
               className={`relative w-40 h-10 flex items-center px-1 rounded-full cursor-pointer transition-colors duration-300 ${
                 isTrainerMatchMember ? 'bg-green-500' : 'bg-gray-300'
@@ -174,7 +174,7 @@ const NavBar = () => {
           </div>
         )}
 
-        <div className="flex flex-col justify-center mx-auto">
+        <div className="hidden md:flex justify-center mx-auto">
           <Link to="/">
             <div className="text-2xl md:text-3xl font-black tracking-tight text-slate-800 group-hover:text-slate-900 transition-colors duration-300">
               <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
@@ -188,7 +188,7 @@ const NavBar = () => {
           </Link>
         </div>
         {/* 로그인/회원가입 */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+        <div className="absolute right-10 top-1/2 transform -translate-y-1/2">
           {!user?.isLoggedIn ? (
             <div className="flex items-center space-x-2">
               <Link
@@ -221,8 +221,8 @@ const NavBar = () => {
       </div>
 
       {/* 내비게이션 바 */}
-      <div className="bg-white sticky top-0 z-30 shadow-md shadow-green-800/10 rounded-2xl mx-2 md:mx-4">
-        <div className="flex items-center justify-between h-16 px-4 md:px-6">
+      <div className="bg-white md:static sticky top-0 z-30 shadow-md shadow-green-800/10 rounded-2xl mx-2 md:mx-10 ">
+        <div className="flex items-center justify-between h-16 px-4 md:px-10">
           {/* 메뉴 - md 이상에서만 표시 */}
           <div className="hidden md:flex flex-1 justify-center space-x-6 text-sm font-medium text-green-700">
             {!(user?.user?.role == 'TRAINER' && isTrainerMatchMember) && (
@@ -252,8 +252,7 @@ const NavBar = () => {
               커뮤니티
             </Link>
 
-
-            {user?.user?.role != "TRAINER" && (
+            {user?.user?.role != 'TRAINER' && (
               <Link
                 to="/trainer"
                 className="hover:bg-green-100 px-4 py-2 rounded-full transition"
@@ -261,8 +260,11 @@ const NavBar = () => {
                 강사 찾기
               </Link>
             )}
-            {(user?.user?.role == "TRAINER" && !isTrainerMatchMember) && (
-              <Link to="/products" className="hover:bg-green-100 px-4 py-2 rounded-full transition">
+            {user?.user?.role == 'TRAINER' && !isTrainerMatchMember && (
+              <Link
+                to="/products"
+                className="hover:bg-green-100 px-4 py-2 rounded-full transition"
+              >
                 강사상품관리
               </Link>
             )}
@@ -323,7 +325,7 @@ const NavBar = () => {
             />
 
             {/* 모바일 메뉴 패널 */}
-            <div className="fixed top-16 left-0 right-0 bg-white z-50 md:hidden shadow-lg rounded-b-2xl mx-2 max-h-[calc(100vh-5rem)] overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 bg-white z-50 md:hidden shadow-lg rounded-b-2xl mx-2 max-h-[calc(100vh-5rem)] overflow-y-auto border-t-0">
               <div className="py-4">
                 {/* 로그인 섹션 - 모바일에서만 표시 */}
                 {!user?.isLoggedIn && (
@@ -380,20 +382,21 @@ const NavBar = () => {
                     커뮤니티
                   </Link>
 
-
-                  {user?.user?.role != "TRAINER" && (
+                  {user?.user?.role != 'TRAINER' && (
                     <Link
                       to="/trainer"
                       onClick={closeMenu}
-                      className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation">
+                      className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation"
+                    >
                       강사 찾기
                     </Link>
                   )}
-                  {(user?.user?.role == "TRAINER" && !isTrainerMatchMember) && (
+                  {user?.user?.role == 'TRAINER' && !isTrainerMatchMember && (
                     <Link
                       to="/products"
                       onClick={closeMenu}
-                      className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation">
+                      className="flex items-center w-full text-left py-4 px-4 rounded-lg text-green-700 font-medium hover:bg-green-50 transition-colors duration-200 touch-manipulation"
+                    >
                       강사상품관리
                     </Link>
                   )}
