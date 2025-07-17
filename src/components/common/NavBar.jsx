@@ -11,6 +11,7 @@ import {
 } from "../../js/redux/slice/commonSlice";
 import { useRequest } from "../../js/config/requests";
 import { userLogout } from "../../js/login/loginUtils";
+import logoIcon from "../../images/logoIcon.png";
 
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -178,7 +179,7 @@ const NavBar = () => {
           <Link to="/">
             <div className="flex">
               <div className="h-13 w-13">
-                <img src="/src/images/logoIcon.png" alt="logo" className="" />
+                <img src={logoIcon} alt="logo" className="" />
               </div>
               <div>
                 <div className="text-2xl md:text-3xl font-black tracking-tight text-slate-800 group-hover:text-slate-900 transition-colors duration-300 flex">
