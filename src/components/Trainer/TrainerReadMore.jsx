@@ -684,7 +684,7 @@ const TrainerReadMore = () => {
             {/* 프로필 이미지 */}
             <div className="relative">
               <div className="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
+                <div className="w-full h-full overflow-hidden rounded-full">
                   <img
                     src={`${import.meta.env.VITE_BACKEND_DOMAIN}/common/file/${
                       detail.fileId
@@ -692,7 +692,7 @@ const TrainerReadMore = () => {
                     alt=""
                     className="w-full h-full object-cover"
                   />
-                </span>
+                </div>
               </div>
               <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
                 <span className="text-sm">✨</span>
