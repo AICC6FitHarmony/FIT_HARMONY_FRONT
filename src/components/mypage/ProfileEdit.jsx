@@ -330,37 +330,39 @@ const ProfileEdit = ({ userData }) => {
   return (
     <div className="min-h-screen">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="text-3xl font-bold text-center mb-8">프로필 편집</h2>
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8">
+            프로필 편집
+          </h2>
 
           {/* 프로필 사진 관리 */}
-          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 mb-12 p-6 rounded-xl">
-            <div className="relative flex items-center justify-center w-40 h-40">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 mb-8 sm:mb-12 p-4 sm:p-6 rounded-xl">
+            <div className="relative flex items-center justify-center w-32 h-32 sm:w-40 sm:h-40">
               <img
                 src={profileImg}
                 alt=""
                 onError={(e) => {
                   e.target.src = defaultProfile;
                 }}
-                className="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg"
+                className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-white shadow-lg"
               />
             </div>
 
-            <div className="flex flex-col gap-4">
-              <h3 className="text-xl font-semibold text-gray-700 mb-2 text-center">
+            <div className="flex flex-col gap-4 w-full max-w-sm">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2 text-center sm:text-left">
                 프로필 사진
               </h3>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
-                  className="px-6 py-3 ok"
+                  className="px-4 sm:px-6 py-2 sm:py-3 ok text-sm sm:text-base"
                   onClick={() => fileInputRef.current.click()}
                 >
                   사진 변경
                 </button>
                 <button
                   type="button"
-                  className="px-6 py-3 cancel"
+                  className="px-4 sm:px-6 py-2 sm:py-3 cancel text-sm sm:text-base"
                   onClick={handleDeleteProfileImage}
                 >
                   기본이미지로 변경
@@ -374,7 +376,7 @@ const ProfileEdit = ({ userData }) => {
                 />
                 {role != "TRAINER" && (
                   <div
-                    className="text-white bg-green-500 rounded-full p-2 ml-2 shadow-md transition-all duration-200 cursor-pointer hover:shadow-lg hover:-translate-y-0.5 active:shadow-sm active:translate-y-0.5"
+                    className="text-white bg-green-500 rounded-full p-2 ml-0 sm:ml-2 shadow-md transition-all duration-200 cursor-pointer hover:shadow-lg hover:-translate-y-0.5 active:shadow-sm active:translate-y-0.5 self-center sm:self-auto"
                     onClick={handleRequestResponse}
                   >
                     <MessageSquare />

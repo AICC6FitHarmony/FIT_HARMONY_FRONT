@@ -87,6 +87,7 @@ const PostEditor = ({handleSubmit, defaultPost}) => {
   const [postTitle, setPostTitle] = useState('');
   const navigate = useNavigate();
   const [boardId, setBoardId] = useState(board_param?board_param:1);
+  const [isWorking, setIsWorking] = useState(false);
   const editor = useEditor({
     extensions: [
       Document,
@@ -147,8 +148,11 @@ const PostEditor = ({handleSubmit, defaultPost}) => {
     if(!postTitle){
       return;
     }
+    if(isWorking) return;
+    setIsWorking(true);
     const form = await generateForm();
-    handleSubmit(form);
+    await handleSubmit(form);
+    setIsWorking(false);
   }
 
   return (
